@@ -1,0 +1,22 @@
+# Nome do seu workflow. Aparecerá na aba Actions.
+name: Desenvolvimento
+
+# Define o gatilho (evento) que iniciará o workflow.
+on:
+  # Neste caso, o gatilho é um 'push' para a branch 'main'.
+  push:
+    branches: [ main ]
+
+# Agrupa todos os jobs que o workflow executará.
+jobs:
+  # O nome do nosso único job. Pode ser qualquer nome.
+  build:
+    # Define em qual sistema operacional o job vai rodar.
+    runs-on: ubuntu-latest
+
+    # Lista de passos que serão executados sequencialmente.
+    steps:
+      # Este passo usa uma ação pronta para imprimir uma mensagem.
+      - name: Imprimir a mensagem
+        # 'run' executa um ou mais comandos no terminal do runner.
+        run: echo "Olá, Mundo! Esta é minha primeira Action!"
