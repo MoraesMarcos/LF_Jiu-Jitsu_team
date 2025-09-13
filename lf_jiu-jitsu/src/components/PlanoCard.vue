@@ -5,13 +5,21 @@
         <div class="price">
             {{ plan.price }}<span>/{{ plan.period }}</span>
         </div>
-        <ul class="features-list"> <li v-for="feature in plan.features" :key="feature">✓ {{ feature }}</li>
+        <ul class="features-list"> 
+            <li v-for="feature in plan.features" :key="feature">✓ {{ feature }}</li>
         </ul>
-        <a href="#" class="btn" :class="plan.featured ? 'btn-primary' : 'btn-secondary'">Quero este plano</a>
+        
+        <RouterLink to="/planos" class="btn" :class="plan.featured ? 'btn-primary' : 'btn-secondary'">
+            Quero este plano
+        </RouterLink>
+
     </article>
 </template>
 
 <script setup>
+
+import { RouterLink } from 'vue-router';
+
 defineProps({
     plan: {
         type: Object,
@@ -31,10 +39,9 @@ defineProps({
     flex-shrink: 0;
     transition: transform 0.3s;
     position: relative;
-
     display: flex;
     flex-direction: column;
-    justify-content: space-between; 
+    justify-content: space-between;
 }
 .plan-card.featured {
     border: 2px solid var(--primary-blue);
@@ -68,13 +75,12 @@ defineProps({
     color: var(--text-light);
     font-weight: normal;
 }
-.features-list { 
+.features-list {
     list-style: none;
-    margin-bottom: 40px; 
+    margin-bottom: 40px;
     text-align: left;
-    
-    flex-grow: 1; 
-    padding-left: 10px; 
+    flex-grow: 1;
+    padding-left: 10px;
 }
 .features-list li {
     margin-bottom: 10px;

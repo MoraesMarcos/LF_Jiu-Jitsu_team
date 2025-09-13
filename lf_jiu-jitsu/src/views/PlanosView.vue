@@ -1,13 +1,20 @@
 <template>
-  <div class="container page-content">
-    <h1>Nossos Planos</h1>
-    <p>Conteúdo completo da página de planos virá aqui...</p>
-  </div>
+  <main>
+    <PageHeader 
+      title="Nossos Planos" 
+      subtitle="Encontre a opção perfeita para sua jornada no tatame." 
+    />
+    <PrecoSection />
+    <FaqSection />
+    <AcaoSection />
+  </main>
 </template>
 
-<style scoped>
-.page-content {
-  padding: 80px 20px;
-  min-height: 60vh;
-}
-</style>
+<script setup>
+import PageHeader from '@/components/PageHeader.vue';
+
+import FaqSection from '@/components/FaqSection.vue';
+
+import PrecoSection from '@/components/PrecoSection.vue';
+import AcaoSection from '@/components/CtaSection.vue';
+</script>

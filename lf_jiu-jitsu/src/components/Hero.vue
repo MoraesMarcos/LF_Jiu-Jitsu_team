@@ -3,10 +3,16 @@
         <div class="container">
             <h1>Descubra a Disciplina do Jiu-Jitsu</h1>
             <p>Desenvolva autoconfiança, condicionamento físico e faça parte da nossa família. A primeira aula é por nossa conta.</p>
-            <a href="#" class="btn btn-primary">Agende sua Aula Experimental Grátis</a>
+            <button @click="$emit('openTrialModal')" class="btn btn-primary">
+                Agende sua Aula Experimental Grátis
+            </button>
         </div>
     </section>
 </template>
+
+<script setup>
+defineEmits(['openTrialModal']);
+</script>
 
 <style scoped>
 

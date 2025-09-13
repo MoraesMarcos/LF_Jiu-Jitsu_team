@@ -8,9 +8,10 @@
             <div class="footer-col">
                 <h4>Navegação</h4>
                 <ul>
-                    <li><a href="#">Sobre</a></li>
-                    <li><a href="#">Horários</a></li>
-                    <li><a href="#">Planos</a></li>
+                    <li><RouterLink to="/sobre">Sobre</RouterLink></li>
+                    <li><RouterLink to="/horarios">Horários</RouterLink></li>
+                    <li><RouterLink to="/planos">Planos</RouterLink></li>
+                    <li><RouterLink to="/admin/login">Acesso Admin</RouterLink></li> 
                 </ul>
             </div>
             <div class="footer-col">
@@ -26,6 +27,8 @@
 </template>
 
 <script setup>
+// Importamos o RouterLink para que a navegação funcione corretamente
+import { RouterLink } from 'vue-router';
 </script>
 
 <style scoped>
@@ -40,6 +43,7 @@
 }
 .footer-col {
     flex: 1;
+    padding: 0 15px;
 }
 .footer-col .logo {
     font-size: 24px;
@@ -62,6 +66,10 @@
 }
 .footer-col a {
     color: #9CA3AF;
+    transition: color 0.3s;
+}
+.footer-col a:hover {
+    color: var(--white);
 }
 .footer-socials {
     display: flex;

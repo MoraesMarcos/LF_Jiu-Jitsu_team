@@ -1,13 +1,25 @@
 <template>
-  <TheHeader />
+  <Header @openTrialModal="openModal" />
+  
   <RouterView />
-  <TheFooter />
+  
+  <Footer />
+
+  <AulaExperimental v-model="isModalOpen" />
 </template>
 
 <script setup>
-import { RouterView } from 'vue-router'
-import TheHeader from '@/components/Header.vue'
-import TheFooter from '@/components/Footer.vue'
+import { ref } from 'vue';
+import { RouterView } from 'vue-router';
+import AulaExperimental from '@/components/AulaExperimental.vue';
+import Footer from '@/components/Footer.vue';
+import Header from '@/components/Header.vue';
+
+const isModalOpen = ref(false);
+
+const openModal = () => {
+  isModalOpen.value = true;
+};
 </script>
 
 <style>
