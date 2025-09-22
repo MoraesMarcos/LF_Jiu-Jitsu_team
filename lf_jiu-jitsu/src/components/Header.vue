@@ -15,7 +15,6 @@
             </nav>
             <div class="actions">
                 <a href="#" class="login-link">Área do Aluno</a>
-                <!-- Este botão emite um "sinal" para o componente pai -->
                 <button @click="$emit('openTrialModal')" class="btn btn-primary">
                     Agendar Aula
                 </button>
@@ -27,12 +26,11 @@
 <script setup>
 import { RouterLink } from 'vue-router';
 
-// Declara formalmente que este componente pode emitir este sinal
 defineEmits(['openTrialModal']);
 </script>
 
 <style scoped>
-/* O seu CSS do Header, sem alterações */
+
 .header {
     background-color: var(--white);
     border-bottom: 1px solid var(--border-color);

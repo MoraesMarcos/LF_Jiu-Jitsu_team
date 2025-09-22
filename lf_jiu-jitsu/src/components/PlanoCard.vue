@@ -39,19 +39,16 @@ defineProps({
     flex-direction: column;
 }
 
-/* Efeito de destaque para o plano popular, como na imagem */
 .plan-card.featured {
     border: 2px solid var(--primary-blue);
     padding-top: 50px;
     padding-bottom: 50px;
     position: relative;
-    /* Efeito opcional para "saltar" para cima, melhora o visual */
-    /* top: -20px; */
 }
 
 .featured-tag {
     position: absolute;
-    top: -16px; /* Posiciona a tag um pouco acima do card */
+    top: -16px;
     left: 50%;
     transform: translateX(-50%);
     background-color: var(--primary-blue);
@@ -85,7 +82,7 @@ defineProps({
     text-align: left;
     margin-bottom: 40px;
     padding-left: 10px;
-    flex-grow: 1; /* Faz a lista ocupar o espaço, empurrando o botão para baixo */
+    flex-grow: 1; 
 }
 
 .features-list li {
@@ -93,6 +90,6 @@ defineProps({
 }
 
 .btn {
-    width: 100%; /* Botão ocupa a largura total do card */
+    width: 100%; 
 }
 </style>

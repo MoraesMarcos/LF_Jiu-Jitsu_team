@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-// Importamos o RouterLink para que a navegação funcione corretamente
+
 import { RouterLink } from 'vue-router';
 </script>
 

@@ -34,13 +34,13 @@ const plans = ref([
     { name: 'Plano Anual', price: 'R$2200', period: 'ano', features: ['Desconto especial', 'Acesso livre por 12 meses'], featured: false }
 ]);
 
-const currentIndex = ref(1); // Começa com o "Plano Total" (índice 1) no centro
+const currentIndex = ref(1); 
 const cardWidth = 320;
 const gap = 30;
 
 const trackStyle = computed(() => {
-    // Calcula o deslocamento para centralizar o card ativo
-    const wrapperWidth = 870; // A largura visível da área do carrossel
+
+    const wrapperWidth = 870;
     const cardCenter = cardWidth / 2;
     const wrapperCenter = wrapperWidth / 2;
     const offset = currentIndex.value * (cardWidth + gap);
@@ -67,7 +67,7 @@ const prev = () => {
 .plans-section {
     background-color: var(--light-gray);
     padding: 80px 0;
-    overflow-x: hidden; /* Evita barras de rolagem indesejadas */
+    overflow-x: hidden; 
 }
 .subtitle {
     text-align: center;
@@ -82,7 +82,7 @@ const prev = () => {
     gap: 30px;
 }
 .carousel-wrapper {
-    width: 870px; /* Largura para visualizar 3 cards, mesmo que desfocados */
+    width: 870px; 
     overflow: hidden;
     position: relative;
 }
@@ -90,7 +90,7 @@ const prev = () => {
     display: flex;
     gap: 30px;
     transition: transform 0.5s ease-in-out;
-    padding: 20px 0; /* Espaço para o card ativo "crescer" */
+    padding: 20px 0;
 }
 .carousel-arrow {
     width: 50px;
@@ -107,7 +107,7 @@ const prev = () => {
     z-index: 10;
     flex-shrink: 0;
 }
-/* O seletor :deep aplica o estilo ao componente filho */
+
 :deep(.plan-card) {
     transition: transform 0.5s ease, opacity 0.5s ease;
     opacity: 0.5;
@@ -115,6 +115,6 @@ const prev = () => {
 }
 :deep(.plan-card.is-active) {
     opacity: 1;
-    transform: scale(1.05); /* Efeito de destaque para o card central */
+    transform: scale(1.05);
 }
 </style>

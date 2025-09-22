@@ -1,12 +1,11 @@
 <template>
-  <!-- Teleport move o modal para o final do <body>, evitando problemas de sobreposição e CSS -->
+
   <Teleport to="body">
-    <!-- Usamos <Transition> para uma animação suave de entrada e saída -->
+
     <Transition name="modal-fade">
       <div v-if="modelValue" class="modal-overlay" @click="closeModal">
         <div class="modal-card" @click.stop>
           
-          <!-- Estado do Formulário -->
           <div v-if="viewState === 'form'" class="modal-content">
             <div class="modal-header">
               <div>
@@ -78,7 +77,6 @@
             </form>
           </div>
 
-          <!-- Estado de Sucesso -->
           <div v-if="viewState === 'success'" class="modal-content success-view">
             <div class="success-icon">✓</div>
             <h2>Agendamento Confirmado!</h2>
@@ -97,32 +95,26 @@
 <script setup>
 import { ref, reactive, computed, watch } from 'vue';
 
-// Define as props e emits para o v-model funcionar
 const props = defineProps({
   modelValue: Boolean
 });
 const emit = defineEmits(['update:modelValue']);
 
-// Função para fechar o modal
 const closeModal = () => {
   emit('update:modelValue', false);
 };
 
-// Controla qual tela (form ou success) está visível
 const viewState = ref('form');
 const isLoading = ref(false);
 
-// Dados do formulário
 const form = reactive({
   name: '',
   phone: ''
 });
 
-// Lógica de agendamento
 const classTypes = ref(['Adulto', 'Feminino', 'Kids']);
 const selectedClassType = ref(null);
 
-// No mundo real, estes dados viriam de um servidor/API
 const availableSlots = ref({
     Adulto: [
         { date: '2025-09-22', label: 'Seg, 22/09', times: ['07:00', '18:00', '19:30'] },
@@ -142,7 +134,6 @@ const availableSlots = ref({
 const selectedDay = ref(null);
 const selectedTime = ref(null);
 
-// Propriedades computadas que filtram os horários disponíveis dinamicamente
 const availableDays = computed(() => {
     if (!selectedClassType.value) return [];
     return availableSlots.value[selectedClassType.value];
@@ -154,23 +145,21 @@ const availableTimes = computed(() => {
     return dayData ? dayData.times : [];
 });
 
-// Funções para lidar com as seleções do usuário
 const selectClassType = (type) => {
     selectedClassType.value = type;
-    selectedDay.value = null; // Reseta as seleções seguintes
+    selectedDay.value = null; 
     selectedTime.value = null;
 };
 
 const selectDay = (date) => {
     selectedDay.value = date;
-    selectedTime.value = null; // Reseta a hora
+    selectedTime.value = null; 
 };
 
 const selectTime = (time) => {
     selectedTime.value = time;
 };
 
-// Função de envio do formulário com validação
 const handleSubmit = async () => {
   if (!form.name || !form.phone || !selectedClassType.value || !selectedDay.value || !selectedTime.value) {
       alert('Por favor, preencha todos os campos obrigatórios.');
@@ -179,18 +168,17 @@ const handleSubmit = async () => {
   
   isLoading.value = true;
   
-  // Simulação de envio para um servidor
   console.log('Enviando dados:', { ...form, classType: selectedClassType.value, day: selectedDay.value, time: selectedTime.value });
-  await new Promise(resolve => setTimeout(resolve, 1500)); // Espera 1.5s
+  await new Promise(resolve => setTimeout(resolve, 1500)); 
   
   isLoading.value = false;
-  viewState.value = 'success'; // Muda para a tela de sucesso
+  viewState.value = 'success'; 
 };
 
-// Observador para resetar o formulário quando o modal for fechado
+
 watch(() => props.modelValue, (isShowing) => {
   if (!isShowing) {
-    // Atraso para permitir que a animação de saída termine
+    
     setTimeout(() => {
       viewState.value = 'form';
       form.name = '';
