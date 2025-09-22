@@ -1,7 +1,10 @@
 <template>
     <header class="header">
         <div class="container">
-            <RouterLink to="/" class="logo">LF Jiu-Jitsu</RouterLink>
+            <RouterLink to="/" class="logo">
+                <img src="@/assets/images/logo.jpeg" alt="Logo da LF Jiu-Jitsu">
+            </RouterLink>
+
             <nav>
                 <ul>
                     <li><RouterLink to="/sobre">Sobre</RouterLink></li>
@@ -13,9 +16,7 @@
             </nav>
             <div class="actions">
                 <a href="#" class="login-link">Área do Aluno</a>
-                <button @click="$emit('openTrialModal')" class="btn btn-primary">
-                    Agendar Aula
-                </button>
+                <a href="#" class="btn btn-primary">Agendar Aula</a>
             </div>
         </div>
     </header>
@@ -23,12 +24,9 @@
 
 <script setup>
 import { RouterLink } from 'vue-router';
-
-defineEmits(['openTrialModal']);
 </script>
 
 <style scoped>
-
 .header {
     background-color: var(--white);
     border-bottom: 1px solid var(--border-color);
@@ -42,10 +40,13 @@ defineEmits(['openTrialModal']);
     justify-content: space-between;
     align-items: center;
 }
-.header .logo {
-    font-size: 24px;
-    font-weight: bold;
-    color: var(--dark-gray);
+.logo {
+    display: flex;
+    align-items: center;
+}
+.logo img {
+    height: 50px; /* Ajuste a altura da sua logo aqui */
+    width: auto;
 }
 .header nav ul {
     display: flex;
