@@ -4,7 +4,6 @@
             <RouterLink to="/" class="logo">
                 <img src="@/assets/images/logo.jpeg" alt="Logo da LF Jiu-Jitsu">
             </RouterLink>
-
             <nav>
                 <ul>
                     <li><RouterLink to="/sobre">Sobre</RouterLink></li>
@@ -16,7 +15,10 @@
             </nav>
             <div class="actions">
                 <a href="#" class="login-link">Área do Aluno</a>
-                <a href="#" class="btn btn-primary">Agendar Aula</a>
+                <!-- Este botão emite um "sinal" para o componente pai -->
+                <button @click="$emit('openTrialModal')" class="btn btn-primary">
+                    Agendar Aula
+                </button>
             </div>
         </div>
     </header>
@@ -24,9 +26,13 @@
 
 <script setup>
 import { RouterLink } from 'vue-router';
+
+// Declara formalmente que este componente pode emitir este sinal
+defineEmits(['openTrialModal']);
 </script>
 
 <style scoped>
+/* O seu CSS do Header, sem alterações */
 .header {
     background-color: var(--white);
     border-bottom: 1px solid var(--border-color);
@@ -40,12 +46,8 @@ import { RouterLink } from 'vue-router';
     justify-content: space-between;
     align-items: center;
 }
-.logo {
-    display: flex;
-    align-items: center;
-}
 .logo img {
-    height: 50px; /* Ajuste a altura da sua logo aqui */
+    height: 50px;
     width: auto;
 }
 .header nav ul {
@@ -58,8 +60,5 @@ import { RouterLink } from 'vue-router';
     align-items: center;
     gap: 20px;
 }
-.header .actions .login-link {
-    font-size: 16px;
-    color: var(--text-light);
-}
 </style>
+

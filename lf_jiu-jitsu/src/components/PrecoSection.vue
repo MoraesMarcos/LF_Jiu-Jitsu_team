@@ -1,11 +1,11 @@
 <template>
-  <section class="PrecoSection">
+  <section class="pricing-section">
     <div class="container">
       <div class="pricing-grid">
         <PlanCard 
           v-for="plan in plans" 
           :key="plan.name" 
-          :plan="plan" 
+          :plan="plan"
         />
       </div>
     </div>
@@ -25,12 +25,15 @@ const plans = ref([
 
 <style scoped>
 .pricing-section {
-  padding: 60px 0;
+  padding: 60px 0 80px; /* Adicionado um pouco mais de espaço embaixo */
 }
 .pricing-grid {
   display: flex;
   justify-content: center;
-  align-items: center;
+  
+  /* --- CORREÇÃO APLICADA AQUI --- */
+  align-items: stretch; /* Garante que todos os cards estiquem para a mesma altura */
+  
   gap: 30px;
   flex-wrap: wrap; 
 }

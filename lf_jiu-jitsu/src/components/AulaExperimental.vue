@@ -1,9 +1,12 @@
 <template>
+  <!-- Teleport move o modal para o final do <body>, evitando problemas de sobreposição e CSS -->
   <Teleport to="body">
+    <!-- Usamos <Transition> para uma animação suave de entrada e saída -->
     <Transition name="modal-fade">
       <div v-if="modelValue" class="modal-overlay" @click="closeModal">
         <div class="modal-card" @click.stop>
           
+          <!-- Estado do Formulário -->
           <div v-if="viewState === 'form'" class="modal-content">
             <div class="modal-header">
               <div>
@@ -23,6 +26,7 @@
                   <label for="phone">WHATSAPP / TELEFONE *</label>
                   <input type="tel" id="phone" v-model="form.phone" placeholder="(XX) XXXXX-XXXX" required />
               </div>
+              
               <div class="form-group">
                   <label>QUAL TIPO DE AULA? *</label>
                   <div class="selector-group">
@@ -37,7 +41,7 @@
                       </button>
                   </div>
               </div>
-              
+
               <div class="form-group" v-if="selectedClassType">
                   <label>ESCOLHA O DIA *</label>
                   <div class="selector-group">
@@ -74,6 +78,7 @@
             </form>
           </div>
 
+          <!-- Estado de Sucesso -->
           <div v-if="viewState === 'success'" class="modal-content success-view">
             <div class="success-icon">✓</div>
             <h2>Agendamento Confirmado!</h2>
@@ -92,27 +97,32 @@
 <script setup>
 import { ref, reactive, computed, watch } from 'vue';
 
+// Define as props e emits para o v-model funcionar
 const props = defineProps({
   modelValue: Boolean
 });
 const emit = defineEmits(['update:modelValue']);
 
+// Função para fechar o modal
 const closeModal = () => {
   emit('update:modelValue', false);
 };
 
+// Controla qual tela (form ou success) está visível
 const viewState = ref('form');
 const isLoading = ref(false);
 
-// Objeto do formulário ATUALIZADO (sem email)
+// Dados do formulário
 const form = reactive({
   name: '',
   phone: ''
 });
 
-// Lógica de agendamento (sem alterações aqui)
+// Lógica de agendamento
 const classTypes = ref(['Adulto', 'Feminino', 'Kids']);
 const selectedClassType = ref(null);
+
+// No mundo real, estes dados viriam de um servidor/API
 const availableSlots = ref({
     Adulto: [
         { date: '2025-09-22', label: 'Seg, 22/09', times: ['07:00', '18:00', '19:30'] },
@@ -128,55 +138,59 @@ const availableSlots = ref({
         { date: '2025-09-24', label: 'Qua, 24/09', times: ['17:00'] }
     ]
 });
+
 const selectedDay = ref(null);
 const selectedTime = ref(null);
+
+// Propriedades computadas que filtram os horários disponíveis dinamicamente
 const availableDays = computed(() => {
     if (!selectedClassType.value) return [];
     return availableSlots.value[selectedClassType.value];
 });
+
 const availableTimes = computed(() => {
     if (!selectedDay.value) return [];
     const dayData = availableDays.value.find(d => d.date === selectedDay.value);
     return dayData ? dayData.times : [];
 });
+
+// Funções para lidar com as seleções do usuário
 const selectClassType = (type) => {
     selectedClassType.value = type;
-    selectedDay.value = null;
+    selectedDay.value = null; // Reseta as seleções seguintes
     selectedTime.value = null;
 };
+
 const selectDay = (date) => {
     selectedDay.value = date;
-    selectedTime.value = null;
+    selectedTime.value = null; // Reseta a hora
 };
+
 const selectTime = (time) => {
     selectedTime.value = time;
 };
 
-// Validação ATUALIZADA (sem verificação de email)
+// Função de envio do formulário com validação
 const handleSubmit = async () => {
   if (!form.name || !form.phone || !selectedClassType.value || !selectedDay.value || !selectedTime.value) {
-      alert('Por favor, preencha todos os campos e selecione um tipo de aula, dia e horário.');
+      alert('Por favor, preencha todos os campos obrigatórios.');
       return;
   }
   
   isLoading.value = true;
   
-  console.log('Enviando dados:', {
-    ...form,
-    classType: selectedClassType.value,
-    day: selectedDay.value,
-    time: selectedTime.value
-  });
-  
-  await new Promise(resolve => setTimeout(resolve, 1500));
+  // Simulação de envio para um servidor
+  console.log('Enviando dados:', { ...form, classType: selectedClassType.value, day: selectedDay.value, time: selectedTime.value });
+  await new Promise(resolve => setTimeout(resolve, 1500)); // Espera 1.5s
   
   isLoading.value = false;
-  viewState.value = 'success';
+  viewState.value = 'success'; // Muda para a tela de sucesso
 };
 
-// Reset do formulário ATUALIZADO (sem email)
-watch(() => props.modelValue, (newValue) => {
-  if (!newValue) {
+// Observador para resetar o formulário quando o modal for fechado
+watch(() => props.modelValue, (isShowing) => {
+  if (!isShowing) {
+    // Atraso para permitir que a animação de saída termine
     setTimeout(() => {
       viewState.value = 'form';
       form.name = '';
@@ -190,23 +204,129 @@ watch(() => props.modelValue, (newValue) => {
 </script>
 
 <style scoped>
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(31, 41, 55, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
 .modal-card {
+  background-color: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 700px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
   max-height: 90vh;
   overflow-y: auto;
 }
 .modal-content {
-  padding: 25px 35px;
+  padding: 30px 40px;
 }
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding-bottom: 15px;
-  margin-bottom: 15px;
   border-bottom: 1px solid var(--border-color);
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+.modal-header h2 {
+  font-size: 28px;
+  text-align: left;
+  margin-bottom: 5px;
+}
+.modal-header p {
+  font-size: 16px;
+  color: var(--text-light);
+}
+.close-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #9CA3AF;
+  cursor: pointer;
 }
 .form-group {
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
-.modal-overlay{position:fixed;top:0;left:0;width:100vw;height:100vh;background-color:rgba(31,41,55,.6);display:flex;justify-content:center;align-items:center;z-index:1000}.modal-card{background-color:#fff;border-radius:16px;width:90%;max-width:700px;box-shadow:0 10px 25px rgba(0,0,0,.1);transform:scale(1)}.modal-header h2{font-size:28px;text-align:left;margin-bottom:5px}.modal-header p{font-size:16px;color:var(--text-light)}.close-button{background:0 0;border:none;font-size:24px;color:#9ca3af;cursor:pointer}.form-group label{display:block;font-size:14px;font-weight:700;color:var(--medium-gray);margin-bottom:8px}.form-group input{width:100%;padding:12px 15px;border:1px solid #d1d5db;border-radius:8px;font-size:15px}.selector-group{display:flex;gap:10px;flex-wrap:wrap}.selector-group button{padding:10px 20px;border:1px solid #d1d5db;background-color:#fff;border-radius:20px;font-size:15px;cursor:pointer;transition:all .2s}.selector-group button.selected{background-color:#dbeafe;border-color:var(--primary-blue);color:var(--primary-blue);font-weight:700}.submit-btn{width:100%;padding:15px;margin-top:20px}.submit-btn:disabled{background-color:#9ca3af;cursor:not-allowed}.success-view{text-align:center;padding:60px 40px}.success-icon{width:70px;height:70px;border-radius:50%;background-color:#d1fae5;color:#10b981;font-size:40px;font-weight:700;display:flex;justify-content:center;align-items:center;margin:0 auto 20px}.success-view h2{font-size:28px;margin-bottom:15px}.success-view p{margin-bottom:30px;line-height:1.6}.modal-fade-enter-active,.modal-fade-leave-active{transition:opacity .3s ease}.modal-fade-enter-from,.modal-fade-leave-to{opacity:0}
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--medium-gray);
+  margin-bottom: 8px;
+}
+.form-group input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  font-size: 15px;
+}
+.selector-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.selector-group button {
+  padding: 10px 20px;
+  border: 1px solid #D1D5DB;
+  background-color: white;
+  border-radius: 20px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.selector-group button.selected {
+  background-color: #DBEAFE;
+  border-color: var(--primary-blue);
+  color: var(--primary-blue);
+  font-weight: bold;
+}
+.submit-btn {
+  width: 100%;
+  padding: 15px;
+  margin-top: 20px;
+}
+.submit-btn:disabled {
+  background-color: #9CA3AF;
+  cursor: not-allowed;
+}
+.success-view {
+  text-align: center;
+  padding: 60px 40px;
+}
+.success-icon {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background-color: #D1FAE5;
+  color: #10B981;
+  font-size: 40px;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 20px;
+}
+.success-view h2 {
+  font-size: 28px;
+  margin-bottom: 15px;
+}
+.success-view p {
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+.modal-fade-enter-active, .modal-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.modal-fade-enter-from, .modal-fade-leave-to {
+  opacity: 0;
+}
 </style>

@@ -3,7 +3,7 @@
         <div class="container">
             <div class="footer-col">
                 <div class="logo">LF Jiu-Jitsu</div>
-                <p>Rua Exemplo, 123<br>Sua Cidade, BR</p>
+                <p>Rua da Cohab, 123<br>Catende, PE</p>
             </div>
             <div class="footer-col">
                 <h4>Navegação</h4>

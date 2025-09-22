@@ -1,24 +1,24 @@
 <template>
-    <section class="instrutor">
+    <section class="instructors">
         <div class="container">
             <h2>Aprenda com os Melhores</h2>
             <div class="carousel">
                 <div class="carousel-arrow" @click="prev">&lt;</div>
-
                 <div class="carousel-wrapper">
-                    <div
-                        class="carousel-track"
+                    <div 
+                        class="carousel-track" 
                         :style="trackStyle"
                         :class="{ 'no-transition': isResetting }"
+                        @transitionend="handleTransitionEnd"
                     >
-                        <article v-for="(instructor, index) in extendedInstructors" :key="index" class="instructor-card">
-                            <div class="photo"></div>
-                            <div class="name">{{ instructor.name }}</div>
-                            <div class="rank">{{ instructor.rank }}</div>
-                        </article>
+                        <!-- O v-for agora usa a lista estendida com clones no início e no fim -->
+                        <InstructorCard 
+                            v-for="(instructor, index) in extendedInstructors" 
+                            :key="index" 
+                            :instructor="instructor" 
+                        />
                     </div>
                 </div>
-
                 <div class="carousel-arrow" @click="next">&gt;</div>
             </div>
         </div>
@@ -27,7 +27,9 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import InstructorCard from '@/components/InstrutorCard.vue';
 
+// --- DADOS ---
 const instructors = ref([
     { name: 'Instrutor Principal', rank: 'Faixa Preta 3º Grau' },
     { name: 'Segundo Instrutor', rank: 'Faixa Preta' },
@@ -36,50 +38,61 @@ const instructors = ref([
     { name: 'Auxiliar Técnico', rank: 'Faixa Azul' }
 ]);
 
-const currentIndex = ref(0);
+// --- VARIÁVEIS DE CONTROLE ---
 const cardWidth = 260;
 const gap = 30;
 const scrollAmount = cardWidth + gap;
-let autoplayInterval = null;
+const visibleCards = 3; // Quantos cards são visíveis de uma vez
+const clonesCount = visibleCards; // Número de clones em cada ponta
+
+const currentIndex = ref(clonesCount); // Começa nos primeiros itens reais
 const isResetting = ref(false);
+let autoplayInterval = null;
 
-const extendedInstructors = computed(() => [...instructors.value, ...instructors.value.slice(0, 3)]);
+// --- LÓGICA DO LOOP INFINITO (CLONAGEM) ---
+const extendedInstructors = computed(() => {
+    const startClones = instructors.value.slice(-clonesCount); // Pega os últimos para colocar no início
+    const endClones = instructors.value.slice(0, clonesCount);   // Pega os primeiros para colocar no fim
+    return [...startClones, ...instructors.value, ...endClones];
+});
 
+// --- ESTILO DINÂMICO ---
 const trackStyle = computed(() => ({
     transform: `translateX(-${currentIndex.value * scrollAmount}px)`
 }));
 
-const advanceSlide = () => {
-    currentIndex.value++;
-
-    if (currentIndex.value >= instructors.value.length) {
-        setTimeout(() => {
-            isResetting.value = true;
-            currentIndex.value = 0;
-            setTimeout(() => {
-                isResetting.value = false;
-            }, 50);
-        }, 500);
-    }
-};
-
-const next = () => {
-    advanceSlide();
+// --- FUNÇÕES DE NAVEGAÇÃO ---
+const advanceSlide = (direction) => {
+    if (isResetting.value) return; // Previne múltiplos cliques durante o reset
+    currentIndex.value += direction;
     resetAutoplay();
 };
 
-const prev = () => {
-    if (currentIndex.value > 0) {
-        currentIndex.value--;
+const next = () => advanceSlide(1);
+const prev = () => advanceSlide(-1);
+
+// Função que "pula" de volta para o item real após a animação do clone
+const handleTransitionEnd = () => {
+    // Se chegamos nos clones do final, pulamos para o início
+    if (currentIndex.value >= instructors.value.length + clonesCount) {
+        isResetting.value = true;
+        currentIndex.value = clonesCount;
     }
-    resetAutoplay();
+    // Se chegamos nos clones do início, pulamos para o final
+    if (currentIndex.value < clonesCount) {
+        isResetting.value = true;
+        currentIndex.value = instructors.value.length + clonesCount - 1;
+    }
+    // Reativa a transição um instante depois do pulo
+    setTimeout(() => {
+        isResetting.value = false;
+    }, 50);
 };
 
+// --- LÓGICA DO AUTOPLAY ---
 const startAutoplay = () => {
     stopAutoplay();
-    autoplayInterval = setInterval(() => {
-        advanceSlide();
-    }, 3000); 
+    autoplayInterval = setInterval(next, 3000); // Avança a cada 3 segundos
 };
 
 const stopAutoplay = () => {
@@ -91,76 +104,45 @@ const resetAutoplay = () => {
     startAutoplay();
 };
 
-onMounted(() => {
-    startAutoplay();
-});
-
-onUnmounted(() => {
-    stopAutoplay();
-});
+// --- CICLO DE VIDA DO COMPONENTE ---
+onMounted(startAutoplay);
+onUnmounted(stopAutoplay);
 </script>
 
 <style scoped>
-
+/* Classe para desativar a animação durante o "pulo" do loop */
 .no-transition {
     transition: none !important;
 }
-.instructors {
-    background-color: var(--light-gray);
-    overflow: hidden;
+.instructors { 
+    background-color: var(--light-gray); 
 }
-.carousel {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 30px;
+.carousel { 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    gap: 30px; 
 }
-.carousel-wrapper {
-    width: 870px; 
-    overflow: hidden;
+.carousel-wrapper { 
+    width: 870px; /* (260px card + 30px gap) * 3 - 30px gap */
+    overflow: hidden; 
 }
-.carousel-track {
-    display: flex;
-    gap: 30px;
-    transition: transform 0.5s ease-in-out;
+.carousel-track { 
+    display: flex; 
+    gap: 30px; 
+    transition: transform 0.5s ease-in-out; 
 }
-.carousel-arrow {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    border: 1px solid var(--border-color);
-    background-color: var(--white);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 24px;
-    cursor: pointer;
-    user-select: none;
-    z-index: 10;
-}
-.instructor-card {
-    background-color: var(--white);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 30px;
-    text-align: center;
-    width: 260px;
-    flex-shrink: 0;
-}
-.instructor-card .photo {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    background-color: #D1D5DB;
-    margin: 0 auto 20px;
-}
-.instructor-card .name {
-    font-size: 20px;
-    font-weight: bold;
-    color: var(--dark-gray);
-    margin-bottom: 5px;
-}
-.instructor-card .rank {
-    color: var(--text-light);
+.carousel-arrow { 
+    width: 50px; 
+    height: 50px; 
+    border-radius: 50%; 
+    border: 1px solid var(--border-color); 
+    background-color: var(--white); 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    font-size: 24px; 
+    cursor: pointer; 
+    user-select: none; 
 }
 </style>

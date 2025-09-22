@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import router from './router' // Caminho atualizado
+import router from './router'
 
 import './assets/main.css'
 
