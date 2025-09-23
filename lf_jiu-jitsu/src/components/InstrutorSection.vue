@@ -29,10 +29,9 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import InstructorCard from '@/components/InstrutorCard.vue';
 
 const instructors = ref([
-    { name: 'Instrutor Principal', rank: 'Faixa Preta 3º Grau' },
-    { name: 'Segundo Instrutor', rank: 'Faixa Preta' },
-    { name: 'Instrutor Kids', rank: 'Faixa Marrom' },
-    { name: 'Instrutora Feminino', rank: 'Faixa Roxa' },
+    { name: 'Instrutor Principal', rank: 'Faixa Preta ' },
+    { name: 'Instrutor Adultos', rank: 'Faixa Ro' },
+    { name: 'Instrutora Feminino/Kids', rank: 'Faixa Roxa' },
     { name: 'Auxiliar Técnico', rank: 'Faixa Azul' }
 ]);
 
