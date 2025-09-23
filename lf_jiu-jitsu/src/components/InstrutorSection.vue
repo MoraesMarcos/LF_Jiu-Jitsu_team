@@ -28,11 +28,16 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import InstructorCard from '@/components/InstrutorCard.vue';
 
+import instrutorPrincipal from '@/assets/images/instrutores/instrutor_principal.png';
+import instrutorAdulto from '@/assets/images/instrutores/instrutor_adulto.jpg';
+import instrutoraFemininoKids from '@/assets/images/instrutores/instrutor_kids_feminino.png';
+import instrutorAuxiliar from '@/assets/images/instrutores/instrutor_auxiliar.jpg';
+
 const instructors = ref([
-    { name: 'Instrutor Principal', rank: 'Faixa Preta ' },
-    { name: 'Instrutor Adultos', rank: 'Faixa Ro' },
-    { name: 'Instrutora Feminino/Kids', rank: 'Faixa Roxa' },
-    { name: 'Auxiliar Técnico', rank: 'Faixa Azul' }
+    { name: 'Instrutor Principal', rank: 'Faixa Preta', image: instrutorPrincipal },
+    { name: 'Instrutor Adultos', rank: 'Faixa Roxa', image: instrutorAdulto },
+    { name: 'Instrutora Feminino/Kids', rank: 'Faixa Roxa', image: instrutoraFemininoKids },
+    { name: 'Auxiliar Técnico', rank: 'Faixa Azul', image: instrutorAuxiliar }
 ]);
 
 const cardWidth = 260;

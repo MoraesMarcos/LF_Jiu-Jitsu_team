@@ -4,17 +4,17 @@
             <h2>Para Quem é o Jiu-Jitsu?</h2>
             <div class="modalities-grid">
                 <div class="modality-item">
-                    <div class="icon"></div>
+                    <div class="icon iniciante"></div>
                     <h3>Iniciantes</h3>
                     <p>Comece sua jornada com segurança e a melhor base técnica.</p>
                 </div>
                 <div class="modality-item">
-                    <div class="icon"></div>
+                    <div class="icon mulher"></div>
                     <h3>Mulheres</h3>
                     <p>Aulas focadas em defesa pessoal e bem-estar.</p>
                 </div>
                 <div class="modality-item">
-                    <div class="icon"></div>
+                    <div class="icon crianca"></div>
                     <h3>Crianças</h3>
                     <p>Disciplina e diversão para os pequenos guerreiros.</p>
                 </div>
@@ -43,9 +43,23 @@
     width: 50px;
     height: 50px;
     background-color: #DBEAFE;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
     border-radius: 8px;
     margin: 0 auto 20px;
 }
+
+.modality-item .icon.iniciante {
+    background-image: url('@/assets/images/publico/iniciante.jpeg');
+}
+.modality-item .icon.mulher {
+    background-image: url('@/assets/images/publico/mulher.jpeg');
+}
+.modality-item .icon.crianca {
+    background-image: url('@/assets/images/publico/crianca.jpeg');
+}
+
 .modality-item h3 {
     margin-bottom: 10px;
 }
