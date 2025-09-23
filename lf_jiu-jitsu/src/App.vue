@@ -1,7 +1,7 @@
 <template>
   <Header @openTrialModal="openModal" />
   
-  <RouterView />
+  <RouterView @openTrialModal="openModal" />
   
   <Footer />
 

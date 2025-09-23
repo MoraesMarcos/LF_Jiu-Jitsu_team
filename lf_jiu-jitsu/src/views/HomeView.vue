@@ -1,6 +1,6 @@
 <template>
   <main>
-    <Hero @openTrialModal="$emit('openTrialModal')" />
+    <Hero @openTrialModal="openModal" />
     <Modalidades />
     <AboutSection />
     <InstrutorSection />
@@ -17,5 +17,12 @@ import Modalidades from '@/components/Modalidades.vue';
 import PlanoSection from '@/components/PlanoSection.vue';
 import Hero from '@/components/Hero.vue';
 
-defineEmits(['openTrialModal']);
+// Defina o evento que será emitido para o componente pai (App.vue)
+const emit = defineEmits(['openTrialModal']);
+
+// O método openModal é acionado ao receber o evento de Hero.vue
+const openModal = () => {
+  // Emite o evento para o componente App.vue
+  emit('openTrialModal');
+};
 </script>
