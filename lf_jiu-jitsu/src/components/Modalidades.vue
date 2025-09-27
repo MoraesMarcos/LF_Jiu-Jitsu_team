@@ -51,13 +51,13 @@
 }
 
 .modality-item .icon.iniciante {
-    background-image: url('@/assets/images/publico/iniciante.jpeg');
+    background-image: url('@/assets/images/publico/iniciante.png');
 }
 .modality-item .icon.mulher {
-    background-image: url('@/assets/images/publico/mulher.jpeg');
+    background-image: url('@/assets/images/publico/mulher.png');
 }
 .modality-item .icon.crianca {
-    background-image: url('@/assets/images/publico/crianca.jpeg');
+    background-image: url('@/assets/images/publico/crianca.png');
 }
 
 .modality-item h3 {
