@@ -1,11 +1,18 @@
 <template>
+  <SubscriptionModal 
+    v-if="isModalVisible"
+    :plan="selectedPlan"
+    @close="isModalVisible = false" 
+  />
+
   <section class="pricing-section">
     <div class="container">
       <div class="pricing-grid">
-        <PlanCard 
+        <PlanoCard 
           v-for="plan in plans" 
           :key="plan.name" 
           :plan="plan"
+          action="modal"  @select-plan="handlePlanSelection"
         />
       </div>
     </div>
@@ -14,12 +21,23 @@
 
 <script setup>
 import { ref } from 'vue';
-import PlanCard from '@/components/PlanoCard.vue';
+import PlanoCard from '@/components/PlanoCard.vue';
+import SubscriptionModal from '@/components/AssinaturaModal.vue';
+
+// Variáveis para controlar o estado do modal
+const isModalVisible = ref(false);
+const selectedPlan = ref(null);
+
+// Função que é chamada quando o evento 'select-plan' é recebido
+const handlePlanSelection = (plan) => {
+  selectedPlan.value = plan;
+  isModalVisible.value = true;
+};
 
 const plans = ref([
-    { name: 'Plano Básico', price: 'R$180', period: 'mês', features: ['Aulas 2x por semana', 'Turmas de iniciantes'], featured: false },
-    { name: 'Plano Total', price: 'R$250', period: 'mês', features: ['Acesso livre a todas as aulas', 'Turmas de iniciantes e avançados', 'Acesso ao conteúdo exclusivo'], featured: true },
-    { name: 'Plano Anual', price: 'R$2200', period: 'ano', features: ['Desconto especial', 'Acesso livre por 12 meses'], featured: false }
+    { name: 'Plano Trimestral', price: 'R$52,00', period: 'mês', features: ['Aulas 4x por semana', 'Turmas de iniciantes'], featured: false },
+    { name: 'Plano Anual', price: 'R$47,90', period: 'mês', features: ['Aulas 4x por semana','Acesso a todos os treinos comerciais', 'Turmas do nível iniciante ao avançado', 'Vantagens Exclusivas'], featured: true },
+    { name: 'Plano Mensal', price: 'R$62,00', period: 'mês', features: ['Ideal para período de experiência'], featured: false }
 ]);
 </script>
 
@@ -27,12 +45,15 @@ const plans = ref([
 .pricing-section {
   padding: 60px 0 80px;
 }
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
 .pricing-grid {
   display: flex;
   justify-content: center;
-  
   align-items: stretch; 
-  
   gap: 30px;
   flex-wrap: wrap; 
 }

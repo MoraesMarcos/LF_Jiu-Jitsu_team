@@ -1,46 +1,63 @@
 <template>
+  <AgendamentoModal v-model="isModalOpen" />
+
   <section class="cta-section">
     <div class="container">
       <h2>Pronto para Começar sua Jornada?</h2>
       <p>Sua primeira aula é o primeiro passo para uma grande transformação.</p>
-      <a href="#" class="btn btn-primary">Agende sua Aula Grátis</a>
+
+      <div class="button-wrapper">
+        <button class="cta-button" @click="openModal">
+          Agende sua Aula Grátis
+        </button>
+      </div>
     </div>
   </section>
 </template>
 
 <script setup>
+import { ref } from 'vue';
 
+import AgendamentoModal from '@/components/AulaExperimental.vue'; 
+
+const isModalOpen = ref(false);
+
+const openModal = () => {
+  isModalOpen.value = true;
+};
 </script>
 
 <style scoped>
+
 .cta-section {
-  background-color: var(--dark-gray);
-  color: var(--white);
-  padding: 80px 0;
+  background-color: #1e293b;
+  color: white;
+  padding: 60px 20px;
+  text-align: center;
 }
-
-.cta-section .container {
-  
-  display: flex;
-  flex-direction: column; 
-  align-items: center;   
-  text-align: center;    
-}
-
-.cta-section h2 {
-  color: var(--white);
-  font-size: 36px;
+.container h2 {
+  font-size: 32px;
   margin-bottom: 15px;
 }
-
-.cta-section p {
-  color: #D1D5DB;
+.container p {
+  color: #cbd5e1;
   margin-bottom: 30px;
-  max-width: 500px; 
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
 }
-
-.cta-section .btn {
-  font-size: 18px;
-  padding: 15px A30px;
+.cta-button {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.cta-button:hover {
+  background-color: #2563eb;
 }
 </style>
