@@ -16,12 +16,12 @@
       </nav>
 
       <div class="actions">
-        <!-- ✅ RouterLink em vez de <a href="#"> -->
+    
         <RouterLink :to="{ name: 'area-aluno' }" class="login-link">
           Área do Aluno
         </RouterLink>
 
-        <!-- type="button" para não submeter nenhum form por engano -->
+        
         <button type="button" @click="$emit('openTrialModal')" class="btn btn-primary">
           Agendar Aula
         </button>
@@ -69,7 +69,7 @@ defineEmits(['openTrialModal'])
   font-weight: 500;
 }
 .nav :deep(a.router-link-active) {
-  color: #1d4ed8;             /* link ativo */
+  color: #1d4ed8;             
 }
 
 .actions {

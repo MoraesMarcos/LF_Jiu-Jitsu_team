@@ -7,9 +7,6 @@
     <div class="content">
       <h3 class="title">{{ title }}</h3>
       <p class="excerpt">{{ excerpt }}</p>
-      <!-- se quiser um botão/link:
-      <a href="#" class="readmore">Ler mais</a>
-      -->
     </div>
   </article>
 </template>

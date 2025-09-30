@@ -32,7 +32,7 @@ import foto4 from '@/assets/images/publico/4.jpg'
 </script>
 
 <style scoped>
-/* container genérico caso seu projeto não tenha */
+
 .container {
   max-width: 1140px;
   margin: 0 auto;

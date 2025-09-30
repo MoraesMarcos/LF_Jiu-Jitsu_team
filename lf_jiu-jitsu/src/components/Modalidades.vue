@@ -4,28 +4,34 @@
       <h2>{{ titulo }}</h2>
 
       <div v-if="modalidades.length > 0" class="modalities-grid">
-        <div 
-          v-for="item in modalidades" 
-          :key="item.id" 
+        <div
+          v-for="item in modalidades"
+          :key="item.id"
           class="modality-item"
           @click="selecionar(item.nome)"
         >
-          <div class="icon" :class="item.classe"></div>
           
+          <div
+            class="icon"
+            :style="{ backgroundImage: `url(${icons[item.classe]})` }"
+          ></div>
+
           <h3>{{ item.nome }}</h3>
           <p>{{ item.descricao }}</p>
-
-          </div>
+        </div>
       </div>
 
       <p v-else>Nenhuma modalidade cadastrada.</p>
-
     </div>
   </section>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+
+import iconIniciante from '@/assets/images/publico/iniciante.png'
+import iconMulher from '@/assets/images/publico/mulher.png'
+import iconCrianca from '@/assets/images/publico/crianca.png'
 
 const titulo = ref('Para Quem é o Jiu-Jitsu?')
 
@@ -47,8 +53,14 @@ const modalidades = ref([
     nome: 'Crianças',
     descricao: 'Disciplina e diversão para os pequenos guerreiros.',
     classe: 'crianca',
-  }
+  },
 ])
+
+const icons = {
+  iniciante: iconIniciante,
+  mulher: iconMulher,
+  crianca: iconCrianca,
+}
 
 const selecionar = (nome) => {
   alert(`Você selecionou ${nome}!`)
@@ -78,20 +90,19 @@ onMounted(() => {
   max-width: 300px;
   cursor: pointer;
   transition: transform 0.2s ease;
-  border: 2px solid transparent; 
+  border: 2px solid transparent;
   border-radius: 10px;
   padding: 10px;
 }
-
 .modality-item:hover {
   transform: scale(1.05);
-  border-color: #ccc; 
+  border-color: #ccc;
 }
 
-.modality-item .icon {
+.icon {
   width: 50px;
   height: 50px;
-  background-color: #DBEAFE;
+  background-color: #dbeafe;
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -99,20 +110,7 @@ onMounted(() => {
   margin: 0 auto 20px;
 }
 
-
-.modality-item .icon.iniciante {
-  background-image: url('C:/Users/Marcos/Documents/github/LF_Jiu-Jitsu_team/lf_jiu-jitsu/src/assets/images/publico/iniciante.png');
-}
-.modality-item .icon.mulher {
-  background-image: url('C:/Users/Marcos/Documents/github/LF_Jiu-Jitsu_team/lf_jiu-jitsu/src/assets/images/publico/mulher.png');
-}
-.modality-item .icon.crianca {
-  background-image: url('C:/Users/Marcos/Documents/github/LF_Jiu-Jitsu_team/lf_jiu-jitsu/src/assets/images/publico/crianca.png');
-}
-
 .modality-item h3 {
   margin-bottom: 10px;
 }
-
-
 </style>
