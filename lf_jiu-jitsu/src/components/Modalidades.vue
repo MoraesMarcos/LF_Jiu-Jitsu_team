@@ -29,7 +29,6 @@ import { ref, onMounted } from 'vue'
 
 const titulo = ref('Para Quem é o Jiu-Jitsu?')
 
-// Lista de modalidades sem a propriedade 'destaque'
 const modalidades = ref([
   {
     id: 1,
@@ -79,14 +78,14 @@ onMounted(() => {
   max-width: 300px;
   cursor: pointer;
   transition: transform 0.2s ease;
-  border: 2px solid transparent; /* Adicionado para evitar que o layout mude no hover */
+  border: 2px solid transparent; 
   border-radius: 10px;
   padding: 10px;
 }
 
 .modality-item:hover {
   transform: scale(1.05);
-  border-color: #ccc; /* Exemplo de um destaque sutil no hover */
+  border-color: #ccc; 
 }
 
 .modality-item .icon {
@@ -100,20 +99,20 @@ onMounted(() => {
   margin: 0 auto 20px;
 }
 
-/* Supondo que o alias '@lf_jiu-jitsu' está configurado no seu projeto */
+
 .modality-item .icon.iniciante {
-  background-image: url('@lf_jiu-jitsu/src/assets/images/publico/iniciante.png');
+  background-image: url('C:/Users/Marcos/Documents/github/LF_Jiu-Jitsu_team/lf_jiu-jitsu/src/assets/images/publico/iniciante.png');
 }
 .modality-item .icon.mulher {
-  background-image: url('@lf_jiu-jitsu/src/assets/images/publico/mulher.png');
+  background-image: url('C:/Users/Marcos/Documents/github/LF_Jiu-Jitsu_team/lf_jiu-jitsu/src/assets/images/publico/mulher.png');
 }
 .modality-item .icon.crianca {
-  background-image: url('@lf_jiu-jitsu/src/assets/images/publico/crianca.png');
+  background-image: url('C:/Users/Marcos/Documents/github/LF_Jiu-Jitsu_team/lf_jiu-jitsu/src/assets/images/publico/crianca.png');
 }
 
 .modality-item h3 {
   margin-bottom: 10px;
 }
 
-/* As classes .destaque e .msg-destaque foram removidas daqui */
+
 </style>

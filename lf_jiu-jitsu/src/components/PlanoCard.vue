@@ -38,7 +38,7 @@ defineProps({
   },
   action: {
     type: String,
-    default: 'link' // Comportamento padrão: ser um link
+    default: 'link'
   }
 });
 

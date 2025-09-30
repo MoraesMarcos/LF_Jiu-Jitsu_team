@@ -24,11 +24,9 @@ import { ref } from 'vue';
 import PlanoCard from '@/components/PlanoCard.vue';
 import SubscriptionModal from '@/components/AssinaturaModal.vue';
 
-// Variáveis para controlar o estado do modal
 const isModalVisible = ref(false);
 const selectedPlan = ref(null);
 
-// Função que é chamada quando o evento 'select-plan' é recebido
 const handlePlanSelection = (plan) => {
   selectedPlan.value = plan;
   isModalVisible.value = true;
