@@ -17,9 +17,8 @@
             <div class="footer-col">
                 <h4>Siga-nos</h4>
                 <div class="footer-socials">
-                    <a href="#"></a>
-                    <a href="#"></a>
-                    <a href="#"></a>
+                    <a href="https://www.instagram.com/the_brothers.catendebjj?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank"></a>
+                    
                 </div>
             </div>
         </div>
