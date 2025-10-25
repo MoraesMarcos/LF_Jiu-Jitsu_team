@@ -9,6 +9,7 @@ const router = createRouter({
     { path: '/planos', name: 'planos', component: () => import('../views/PlanosView.vue') },
     { path: '/contato', name: 'contato', component: () => import('../views/ContatosView.vue') },
     { path: '/blog', name: 'blog', component: () => import('../views/BlogView.vue') },
+    { path: '/horarios', name: 'horarios', component: () => import('../views/HorariosView.vue') },
     { path: '/area-do-aluno', name: 'area-aluno', component: () => import('../views/AlunoAreaView.vue') },
     { path: '/aluno', redirect: { name: 'area-aluno' } },
   ],
