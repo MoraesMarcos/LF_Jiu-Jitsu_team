@@ -1,38 +1,61 @@
 <template>
   <main class="aluno">
-    <section class="container">
+   
+    <section v-if="!logado" class="auth-shell">
+      
+      <aside class="auth-left">
+        <div class="brand-wrap">
+          <div class="brand-title">LF Jiu-Jitsu</div>
+          <div class="brand-subtitle">Domine a arte suave.</div>
+        </div>
+      </aside>
+
+      <section class="auth-right">
+        <div class="auth-toplink">
+          <a href="/" class="back-link">← Voltar para o site</a>
+        </div>
+
+        <div class="auth-card">
+          <header class="auth-head">
+            <h1>Área do Aluno</h1>
+            <p class="muted">Bem-vindo de volta! Acesse sua conta.</p>
+          </header>
+
+          <form @submit.prevent="entrar" class="auth-form">
+            <label class="auth-label">
+              <span class="label-caption">E-MAIL</span>
+              <input v-model.trim="login.email" type="email" placeholder="seuemail@exemplo.com" required />
+            </label>
+
+            <label class="auth-label">
+              <span class="label-caption">SENHA</span>
+              <input v-model="login.senha" type="password" placeholder="•••••••" required />
+            </label>
+
+            <div class="auth-row-right">
+              <a href="#" class="link tiny" @click.prevent="recuperarSenha">Esqueceu sua senha?</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+
+            <p v-if="erroLogin" class="error mt-8">{{ erroLogin }}</p>
+
+            <p class="muted center mt-16">
+              Ainda não é membro?
+              <a href="/planos" class="link strong">Conheça nossos planos.</a>
+            </p>
+          </form>
+        </div>
+      </section>
+    </section>
+
+    <section v-else class="container">
       <header class="page-head">
         <h1>Área do Aluno</h1>
         <p class="muted">Acompanhe suas aulas, pagamentos e atualize seus dados.</p>
       </header>
 
-      <section v-if="!logado" class="card login">
-        <h2>Entrar</h2>
-        <form @submit.prevent="entrar" class="form">
-          <div class="grid-2">
-            <label>
-              E-mail
-              <input v-model.trim="login.email" type="email" placeholder="email@gmail.com" required />
-            </label>
-            <label>
-              Senha
-              <input v-model="login.senha" type="password" placeholder="••••••••" required />
-            </label>
-          </div>
-          <div class="row">
-            <label class="remember">
-              <input type="checkbox" v-model="lembrar" />
-              Lembrar de mim
-            </label>
-            <a class="link" href="#" @click.prevent="recuperarSenha">Esqueci minha senha</a>
-          </div>
-          <button class="btn btn-primary" type="submit">Acessar</button>
-          <p v-if="erroLogin" class="error">{{ erroLogin }}</p>
-        </form>
-      </section>
-
-      <section v-else class="dashboard">
-  
+      <section class="dashboard">
         <div class="grid-2">
           <article class="card profile">
             <div class="profile-head">
@@ -178,6 +201,7 @@ const aluno = ref({
   vencimento: '10/11/2025',
   presencasAno: 48,
 })
+
 const iniciais = computed(() =>
   aluno.value.nome
     .split(' ')
@@ -186,13 +210,14 @@ const iniciais = computed(() =>
     .join('')
     .toUpperCase()
 )
+
 const vencido = computed(() => false)
 const frequencia = ref(0)
 
 const pagamentos = ref([
-  { mes: 'Set/2025', valor: 120, status: 'Pago' },
-  { mes: 'Out/2025', valor: 120, status: 'Pago' },
-  { mes: 'Nov/2025', valor: 120, status: 'Pendente' },
+  { mes: 'Set/2025', valor: 62.00, status: 'Pago' },
+  { mes: 'Out/2025', valor: 62.00, status: 'Pago' },
+  { mes: 'Nov/2025', valor: 62.00, status: 'Pendente' },
 ])
 
 const proximasAulas = ref([
@@ -250,8 +275,89 @@ function recuperarSenha() {
 </script>
 
 <style scoped>
+
+.auth-shell {
+  display: grid;
+  grid-template-columns: minmax(240px, 480px) 1fr;
+  min-height: 100vh;
+  background: #f6f7fb;
+}
+
+.auth-left {
+  background: #121a24;
+  color: #cbd5e1;
+  display: grid;
+  place-items: center;
+  padding: 32px 16px;
+}
+.brand-wrap { text-align: center; }
+.brand-title {
+  color: #e2e8f0;
+  font-weight: 800;
+  font-size: 28px;
+  letter-spacing: .4px;
+}
+.brand-subtitle { color:#9aa8b6; margin-top: 8px; }
+
+.auth-right {
+  background: #fff;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  padding: 32px 24px;
+}
+.auth-toplink { max-width: 480px; margin: 0 auto 8px auto; width: 100%; }
+.back-link { color:#64748b; font-size: 13px; text-decoration:none; }
+.back-link:hover { text-decoration: underline; }
+
+.auth-card {
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 16px 4px 32px 4px;
+}
+
+.auth-head h1 { margin: 0 0 4px; font-size: 28px; }
+.auth-head .muted { margin: 0 0 20px; }
+
+.auth-form { display: grid; gap: 14px; }
+.auth-label { display: grid; gap: 6px; }
+.label-caption {
+  font-size: 11px;
+  letter-spacing: .06em;
+  color:#94a3b8;
+  font-weight: 700;
+}
+.auth-form input {
+  width: 100%;
+  height: 40px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 14.5px;
+  background: #fff;
+}
+.auth-form input:focus {
+  border-color:#60a5fa;
+  box-shadow: 0 0 0 3px rgba(96,165,250,.25);
+  outline: none;
+}
+
+.auth-row-right {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -4px;
+}
+
+.tiny { font-size: 12px; }
+.strong { font-weight: 700; }
+
+.btn-block { width: 100%; height: 42px; }
+.mt-8 { margin-top: 8px; }
+.mt-16 { margin-top: 16px; }
+.center { text-align: center; }
+
 .container { max-width: 1140px; margin: 0 auto; padding: 0 16px; }
-.aluno { padding: 40px 0 96px; }
+.aluno { padding: 0; } 
 .page-head h1 { margin: 0; }
 .page-head .muted { color: #64748b; margin-top: 6px; }
 
@@ -306,6 +412,12 @@ input:focus, select:focus, textarea:focus { border-color: #60a5fa; box-shadow: 0
 .link { color: #1d4ed8; }
 
 .muted { color: #64748b; }
+
+@media (max-width: 960px) {
+  .auth-shell { grid-template-columns: 1fr; }
+  .auth-left { min-height: 220px; }
+  .auth-right { padding: 24px 16px; }
+}
 
 @media (max-width: 900px) {
   .grid-2 { grid-template-columns: 1fr; }
