@@ -11,7 +11,7 @@
                     <li><RouterLink to="/sobre">Sobre</RouterLink></li>
                     <li><RouterLink to="/horarios">Horários</RouterLink></li>
                     <li><RouterLink to="/planos">Planos</RouterLink></li>
-                    <li><RouterLink to="/admin/login">Acesso Admin</RouterLink></li> 
+                    <li><RouterLink to="/admin">Acesso Admin</RouterLink></li>
                 </ul>
             </div>
             <div class="footer-col">

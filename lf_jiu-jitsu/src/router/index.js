@@ -12,6 +12,7 @@ const router = createRouter({
     { path: '/horarios', name: 'horarios', component: () => import('../views/HorariosView.vue') },
     { path: '/area-do-aluno', name: 'area-aluno', component: () => import('../views/AlunoAreaView.vue') },
     { path: '/aluno', redirect: { name: 'area-aluno' } },
+    { path: '/admin', name: 'admin', component: () => import('@/views/Admin.vue')}
   ],
   scrollBehavior: () => ({ top: 0 }),
 })
