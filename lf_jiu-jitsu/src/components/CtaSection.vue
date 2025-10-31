@@ -1,13 +1,15 @@
 <template>
-  <AgendamentoModal v-model="isModalOpen" />
-
   <section class="cta-section">
     <div class="container">
       <h2>Pronto para Começar sua Jornada?</h2>
       <p>Sua primeira aula é o primeiro passo para uma grande transformação.</p>
 
       <div class="button-wrapper">
-        <button class="cta-button" @click="openModal">
+        <button 
+          class="cta-button" 
+          @click="$emit('openTrialModal')" 
+          title="Agenda sua aula experimental no modal"
+        >
           Agende sua Aula Grátis
         </button>
       </div>
@@ -16,15 +18,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
 
-import AgendamentoModal from '@/components/AulaExperimental.vue'; 
-
-const isModalOpen = ref(false);
-
-const openModal = () => {
-  isModalOpen.value = true;
-};
+defineEmits(['openTrialModal']);
 </script>
 
 <style scoped>

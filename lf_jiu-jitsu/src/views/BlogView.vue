@@ -9,16 +9,30 @@
     </section>
 
     <section class="latest-articles">
-      <div class="container">
-        <h2>Últimos Artigos</h2>
-        <div class="articles-grid">
-          <ArticleCard
-            v-for="(article, index) in latestArticles"
-            :key="index"
-            :title="article.title"
-            :excerpt="article.excerpt"
-            :image="article.image"
-          />
+      <div class="container articles-and-events-grid">
+        
+        <div class="articles-column">
+          <h2>Últimos Artigos</h2>
+          <div class="articles-grid">
+            <ArticleCard
+              v-for="(article, index) in latestArticles"
+              :key="index"
+              :title="article.title"
+              :excerpt="article.excerpt"
+              :image="article.image"
+            />
+          </div>
+        </div>
+
+        <div class="events-column">
+          <h2>Próximos Eventos e Avisos</h2>
+          <div class="events-list">
+            <article v-for="(event, i) in events" :key="i" class="event-item">
+                <span class="event-date">{{ event.date }}</span>
+                <h4>{{ event.title }}</h4>
+                <p class="event-desc">{{ event.description }}</p>
+            </article>
+          </div>
         </div>
       </div>
     </section>
@@ -28,6 +42,7 @@
 <script setup>
 import { ref } from 'vue'
 import ArticleCard from '@/components/ArticleCard.vue'
+
 
 import img1 from '@/assets/images/publico/1.jpg'
 import img2 from '@/assets/images/publico/2.jpg'
@@ -49,6 +64,12 @@ const latestArticles = ref([
     excerpt: 'Jovens talentos brilham no pódio do campeonato brasileiro sem kimono.',
     image: img3,
   },
+])
+
+const events = ref([
+    { date: '15 NOV', title: 'Campeonato Interno', description: 'Inscrições abertas na secretaria. Premiação para todas as categorias.' },
+    { date: '25 DEZ', title: 'Confraternização Anual', description: 'Churrasco de final de ano e troca de faixas festiva.' },
+    { date: '01 FEV', title: 'Semana do Iniciante', description: 'Treinos focados em fundamentos básicos e novas turmas.' },
 ])
 </script>
 
@@ -88,12 +109,62 @@ const latestArticles = ref([
   margin: 0 auto;
   padding: 0 16px;
 }
+.articles-and-events-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 40px;
+}
 .articles-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 30px;
+  margin-top: 20px;
 }
-@media (max-width: 768px) {
+
+
+.events-column h2 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 10px;
+}
+.events-list {
+    display: grid;
+    gap: 15px;
+}
+.event-item {
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    border-left: 5px solid var(--primary-blue);
+    border-radius: 8px;
+    background-color: var(--white);
+}
+.event-date {
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--primary-blue);
+    display: block;
+    margin-bottom: 5px;
+}
+.event-item h4 {
+    font-size: 18px;
+    margin: 0 0 5px;
+}
+.event-desc {
+    font-size: 14px;
+    color: var(--text-light);
+    margin: 0;
+}
+
+@media (max-width: 900px) {
+  .articles-and-events-grid {
+    grid-template-columns: 1fr;
+  }
+  .articles-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 600px) {
   .articles-grid {
     grid-template-columns: 1fr;
   }

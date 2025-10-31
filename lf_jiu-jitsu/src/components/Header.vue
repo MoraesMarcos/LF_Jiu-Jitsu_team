@@ -10,6 +10,7 @@
           <li><RouterLink to="/sobre">Sobre</RouterLink></li>
           <li><RouterLink to="/horarios">Horários</RouterLink></li>
           <li><RouterLink to="/planos">Planos</RouterLink></li>
+          <li><RouterLink to="/instrutores">Instrutores</RouterLink></li>
           <li><RouterLink to="/blog">Blog</RouterLink></li>
           <li><RouterLink to="/contato">Contato</RouterLink></li>
         </ul>
@@ -36,6 +37,7 @@ defineEmits(['openTrialModal'])
 </script>
 
 <style scoped>
+
 .header {
   background: var(--white, #fff);
   border-bottom: 1px solid var(--border-color, #e5e7eb);

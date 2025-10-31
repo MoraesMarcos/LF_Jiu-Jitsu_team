@@ -12,6 +12,7 @@
           <li><RouterLink to="/sobre">Sobre</RouterLink></li>
           <li><RouterLink to="/horarios">Horários</RouterLink></li>
           <li><RouterLink to="/planos">Planos</RouterLink></li>
+          <li><RouterLink to="/instrutores">Instrutores</RouterLink></li>
           <li><RouterLink to="/admin">Acesso Admin</RouterLink></li>
         </ul>
       </div>
@@ -47,6 +48,7 @@ import { RouterLink } from 'vue-router'
 </script>
 
 <style scoped>
+
 .footer {
   background-color: var(--dark-gray);
   color: var(--white);
