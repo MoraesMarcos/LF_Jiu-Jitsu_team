@@ -9,28 +9,32 @@
     </section>
 
     <section class="latest-articles">
-      <div class="container articles-and-events-grid">
+      <div class="container articles-and-sidebar-grid">
         
         <div class="articles-column">
           <h2>Últimos Artigos</h2>
           <div class="articles-grid">
             <ArticleCard
-              v-for="(article, index) in latestArticles"
+              v-for="(article, index) in displayedPosts"
               :key="index"
               :title="article.title"
               :excerpt="article.excerpt"
               :image="article.image"
             />
           </div>
+          <div class="load-more-wrapper" v-if="hasMorePosts">
+              <button @click="loadMore" class="btn btn-primary">
+                  Carregar mais posts
+              </button>
+          </div>
         </div>
 
-        <div class="events-column">
-          <h2>Próximos Eventos e Avisos</h2>
-          <div class="events-list">
-            <article v-for="(event, i) in events" :key="i" class="event-item">
-                <span class="event-date">{{ event.date }}</span>
-                <h4>{{ event.title }}</h4>
-                <p class="event-desc">{{ event.description }}</p>
+        <div class="sidebar-column">
+          <h2>Mural de Notícias</h2>
+          <div class="news-list">
+            <article v-for="(news, i) in newsItems" :key="i" class="news-item">
+                <h4>{{ news.title }}</h4>
+                <p class="news-desc">{{ news.excerpt }}</p>
             </article>
           </div>
         </div>
@@ -40,37 +44,28 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import ArticleCard from '@/components/ArticleCard.vue'
+import { blogStore } from '@/store/blogStore'
 
+import { articleStore as newsStore } from '@/store/newsStore'
 
-import img1 from '@/assets/images/publico/1.jpg'
-import img2 from '@/assets/images/publico/2.jpg'
-import img3 from '@/assets/images/publico/3.jpg'
+const postsToShow = ref(6) 
 
-const latestArticles = ref([
-  {
-    title: 'Sul-Americano de Jiu-Jitsu Kids 2025',
-    excerpt: 'Jovem atleta conquista medalha de ouro no campeonato Sul-Americano Kids da IBJJF.',
-    image: img1,
-  },
-  {
-    title: 'Equipe de Campeões',
-    excerpt: 'Equipe celebra as inúmeras medalhas conquistadas em competições nacionais e internacionais.',
-    image: img2,
-  },
-  {
-    title: 'Brasileiro de Jiu-Jitsu Kids 2025',
-    excerpt: 'Jovens talentos brilham no pódio do campeonato brasileiro sem kimono.',
-    image: img3,
-  },
-])
+const displayedPosts = computed(() => {
+  return blogStore.posts.slice(0, postsToShow.value)
+})
 
-const events = ref([
-    { date: '15 NOV', title: 'Campeonato Interno', description: 'Inscrições abertas na secretaria. Premiação para todas as categorias.' },
-    { date: '25 DEZ', title: 'Confraternização Anual', description: 'Churrasco de final de ano e troca de faixas festiva.' },
-    { date: '01 FEV', title: 'Semana do Iniciante', description: 'Treinos focados em fundamentos básicos e novas turmas.' },
-])
+const hasMorePosts = computed(() => {
+  return postsToShow.value < blogStore.posts.length
+})
+
+const loadMore = () => {
+  postsToShow.value += 6 
+}
+
+const newsItems = computed(() => newsStore.latestArticles)
+
 </script>
 
 <style scoped>
@@ -109,59 +104,73 @@ const events = ref([
   margin: 0 auto;
   padding: 0 16px;
 }
-.articles-and-events-grid {
+.articles-and-sidebar-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 3fr 1fr;
   gap: 40px;
+}
+
+.articles-column h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 10px;
 }
 .articles-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr); 
   gap: 30px;
   margin-top: 20px;
 }
+.load-more-wrapper {
+  text-align: center;
+  margin-top: 40px;
+}
 
+.sidebar-column {
 
-.events-column h2 {
+  position: sticky;
+  top: 100px; 
+  align-self: start;
+}
+.sidebar-column h2 {
     font-size: 28px;
     margin-bottom: 20px;
     border-bottom: 2px solid var(--border-color);
     padding-bottom: 10px;
 }
-.events-list {
+.news-list {
     display: grid;
     gap: 15px;
 }
-.event-item {
+.news-item {
     padding: 15px;
     border: 1px solid var(--border-color);
     border-left: 5px solid var(--primary-blue);
     border-radius: 8px;
     background-color: var(--white);
 }
-.event-date {
-    font-size: 12px;
-    font-weight: bold;
-    color: var(--primary-blue);
-    display: block;
-    margin-bottom: 5px;
-}
-.event-item h4 {
+.news-item h4 {
     font-size: 18px;
     margin: 0 0 5px;
 }
-.event-desc {
+.news-desc {
     font-size: 14px;
     color: var(--text-light);
     margin: 0;
 }
 
+
 @media (max-width: 900px) {
-  .articles-and-events-grid {
+  .articles-and-sidebar-grid {
     grid-template-columns: 1fr;
   }
   .articles-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .sidebar-column {
+    position: static;
+    top: auto;
   }
 }
 @media (max-width: 600px) {

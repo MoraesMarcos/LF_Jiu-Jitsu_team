@@ -172,6 +172,102 @@
           </div>
         </article>
 
+        <article class="card mt-20">
+          <h3>Mural de Notícias (Máx. 4)</h3>
+          <p class="muted tiny">
+            Usado na Home. A notícia mais antiga será removida
+            automaticamente se o limite de 4 for atingido.
+          </p>
+
+          <ul class="list mt-16">
+            <li
+              v-for="(item, idx) in newsItems"
+              :key="idx"
+              class="list-item"
+            >
+              <div>
+                <strong>{{ item.title }}</strong>
+                <div class="muted tiny">{{ item.excerpt }}</div>
+              </div>
+              <button class="btn sm" @click="removeNews(idx)">Remover</button>
+            </li>
+          </ul>
+
+          <div class="row mt-16">
+            <input
+              v-model="newNewsItem.title"
+              type="text"
+              placeholder="Título da Notícia"
+              style="flex-grow: 1;"
+            />
+            <input
+              v-model="newNewsItem.excerpt"
+              type="text"
+              placeholder="Resumo da Notícia"
+              style="flex-grow: 1;"
+            />
+          </div>
+          <div class="row mt-8">
+              <input
+              v-model="newNewsItem.image"
+              type="text"
+              placeholder="Caminho da Imagem (ex: /src/assets/images/publico/nova.jpg)"
+              style="flex-grow: 1;"
+            />
+            <button class="btn btn-secondary sm" @click="addNews">
+              Publicar Notícia
+            </button>
+          </div>
+        </article>
+
+        <article class="card mt-20">
+          <h3>Posts do Blog (Ilimitado)</h3>
+          <p class="muted tiny">
+            Isso atualiza a página /blog. Os posts são ilimitados e
+            listados do mais novo para o mais antigo.
+          </p>
+
+          <ul class="list mt-16">
+            <li
+              v-for="(post, idx) in blogPosts"
+              :key="idx"
+              class="list-item"
+            >
+              <div>
+                <strong>{{ post.title }}</strong>
+                <div class="muted tiny">{{ post.excerpt }}</div>
+              </div>
+              <button class="btn sm" @click="removeBlogPost(idx)">Remover</button>
+            </li>
+          </ul>
+
+          <div class="row mt-16">
+            <input
+              v-model="newBlogPost.title"
+              type="text"
+              placeholder="Título do Post"
+              style="flex-grow: 1;"
+            />
+            <input
+              v-model="newBlogPost.excerpt"
+              type="text"
+              placeholder="Resumo do Post"
+              style="flex-grow: 1;"
+            />
+          </div>
+          <div class="row mt-8">
+              <input
+              v-model="newBlogPost.image"
+              type="text"
+              placeholder="Caminho da Imagem (ex: /src/assets/images/publico/nova.jpg)"
+              style="flex-grow: 1;"
+            />
+            <button class="btn btn-secondary sm" @click="addBlogPost">
+              Publicar Post
+            </button>
+          </div>
+        </article>
+
         <div class="row end mt-20">
           <button class="btn danger" @click="sair">Sair do painel</button>
         </div>
@@ -181,7 +277,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { articleStore as newsStore } from '@/store/newsStore'
+import { blogStore } from '@/store/blogStore'
 
 const logado = ref(false)
 const login = ref({ email: '', senha: '' })
@@ -192,7 +290,6 @@ const resumo = ref({
   pagamentosPendentes: 3,
   vencimentoProximo: '10/11/2025'
 })
-
 const alunos = ref([
   {
     nome: 'João Silva',
@@ -216,25 +313,46 @@ const alunos = ref([
     vencimento: '12/11/2025'
   }
 ])
-
 const avisos = ref([
   { titulo: 'Treino extra', msg: 'Sábado 9h • turma competição' },
   { titulo: 'Pagamento novembro', msg: 'Regularizar até dia 10/11' }
 ])
-
 const novoAvisoTitulo = ref('')
 const novoAvisoMsg = ref('')
+
+const newsItems = computed(() => newsStore.latestArticles)
+const newNewsItem = ref({ title: '', excerpt: '', image: '' })
+
+const addNews = () => {
+  if (!newNewsItem.value.title || !newNewsItem.value.excerpt || !newNewsItem.value.image) return;
+  newsStore.addArticle({ ...newNewsItem.value })
+  newNewsItem.value = { title: '', excerpt: '', image: '' }
+}
+const removeNews = (index) => {
+  newsStore.latestArticles.splice(index, 1)
+}
+
+// --- LÓGICA DO BLOG (Ilimitado) ---
+const blogPosts = computed(() => blogStore.posts)
+const newBlogPost = ref({ title: '', excerpt: '', image: '' })
+
+const addBlogPost = () => {
+  if (!newBlogPost.value.title || !newBlogPost.value.excerpt || !newBlogPost.value.image) return;
+  blogStore.addBlogPost({ ...newBlogPost.value })
+  newBlogPost.value = { title: '', excerpt: '', image: '' }
+}
+const removeBlogPost = (index) => {
+  blogStore.removeBlogPost(index)
+}
 
 onMounted(() => {
   logado.value = localStorage.getItem('admin_logado') === '1'
 })
-
 function entrar() {
   erroLogin.value = ''
-
   if (
     login.value.email === 'admin@lfjiujitsu.com' &&
-    login.value.senha === '1234'
+    login.value.senha === '1Mudar123'
   ) {
     logado.value = true
     localStorage.setItem('admin_logado', '1')
@@ -242,20 +360,16 @@ function entrar() {
     erroLogin.value = 'Credenciais inválidas.'
   }
 }
-
 function sair() {
   logado.value = false
   localStorage.removeItem('admin_logado')
 }
-
 function cadastrarAluno() {
   alert('⚠ Em breve: tela de cadastro de aluno.')
 }
-
 function editarAluno(aluno) {
   alert('Editar dados de ' + aluno.nome)
 }
-
 function adicionarAviso() {
   if (!novoAvisoTitulo.value || !novoAvisoMsg.value) return
   avisos.value.push({
@@ -265,18 +379,15 @@ function adicionarAviso() {
   novoAvisoTitulo.value = ''
   novoAvisoMsg.value = ''
 }
-
 function removerAviso(idx) {
   avisos.value.splice(idx, 1)
 }
-
 function recuperarSenha() {
   alert('Contato com o responsável da academia para redefinir senha.')
 }
 </script>
 
 <style scoped>
-
 .auth-shell {
   display: grid;
   grid-template-columns: minmax(240px, 480px) 1fr;
@@ -398,6 +509,9 @@ function recuperarSenha() {
 .center {
   text-align: center;
 }
+.error { 
+  color: #b91c1c; 
+}
 
 .container {
   max-width: 1140px;
@@ -435,11 +549,20 @@ function recuperarSenha() {
   align-items: center;
   gap: 12px;
 }
+.row input {
+  flex-grow: 1;
+}
+.row .btn {
+  flex-shrink: 0;
+}
 .space-between {
   justify-content: space-between;
 }
 .center-mobile {
   flex-wrap: wrap;
+}
+.end { 
+  justify-content: flex-end; 
 }
 
 .table {

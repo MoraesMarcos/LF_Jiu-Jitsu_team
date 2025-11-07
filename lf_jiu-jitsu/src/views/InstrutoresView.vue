@@ -10,8 +10,8 @@
         
         <div class="instructors-grid">
           <InstructorCard 
-            v-for="(instructor, index) in instructors" 
-            :key="index" 
+            v-for="instructor in instructors" 
+            :key="instructor.slug" 
             :instructor="instructor" 
           />
         </div>
@@ -27,23 +27,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed } from 'vue';
 import { RouterLink } from 'vue-router';
 import PageHeader from '@/components/PageHeader.vue';
 import InstructorCard from '@/components/InstrutorCard.vue';
+import { instructorStore } from '@/store/instructorStore';
 
+const instructors = computed(() => instructorStore.instructors);
 
-import instrutorPrincipal from '@/assets/images/instrutores/instrutor_principal.png';
-import instrutorAdulto from '@/assets/images/instrutores/instrutor_adulto.jpg';
-import instrutoraFemininoKids from '@/assets/images/instrutores/instrutor_kids_feminino.png';
-import instrutorAuxiliar from '@/assets/images/instrutores/instrutor_auxiliar.jpg';
-
-const instructors = ref([
-    { name: 'Instrutor Principal', rank: 'Faixa Preta', image: instrutorPrincipal, bio: 'Líder da equipe, com 20 anos de experiência e formação de campeões.' },
-    { name: 'Instrutor Adultos', rank: 'Faixa Roxa', image: instrutorAdulto, bio: 'Especialista em preparação física e Jiu-Jitsu No-Gi.' },
-    { name: 'Instrutora Feminino/Kids', rank: 'Faixa Roxa', image: instrutoraFemininoKids, bio: 'Focada em defesa pessoal feminina e desenvolvimento infantil.' },
-    { name: 'Auxiliar Técnico', rank: 'Faixa Azul', image: instrutorAuxiliar, bio: 'Auxilia nas turmas de iniciantes, garantindo a base técnica correta.' }
-]);
 </script>
 
 <style scoped>
