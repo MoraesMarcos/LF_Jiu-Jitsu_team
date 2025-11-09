@@ -1,6 +1,6 @@
 <template>
   <main class="admin">
-    <!-- ====== LOGIN ====== -->
+    
     <section v-if="!logado" class="auth-shell">
       <aside class="auth-left">
         <div class="brand-wrap">
@@ -60,7 +60,6 @@
       </section>
     </section>
 
-    <!-- ====== PAINEL ====== -->
     <section v-else class="container">
       <header class="page-head">
         <h1>Painel Administrativo</h1>
@@ -92,7 +91,6 @@
           </article>
         </div>
 
-        <!-- Alunos -->
         <article class="card mt-20">
           <div class="row space-between center-mobile">
             <h3>Alunos e Situação</h3>
@@ -122,7 +120,6 @@
           </table>
         </article>
 
-        <!-- Avisos -->
         <article class="card mt-20">
           <h3>Avisos gerais</h3>
           <ul class="list">
@@ -162,7 +159,6 @@
           </div>
         </article>
 
-        <!-- Notícias (mural) -->
         <article class="card mt-20">
           <h3>Mural de Notícias (Máx. 4)</h3>
           <p class="muted tiny">Usado na Home. A mais antiga sai quando atingir 4.</p>
@@ -216,7 +212,6 @@
           </div>
         </article>
 
-        <!-- Blog -->
         <article class="card mt-20">
           <h3>Posts do Blog (Ilimitado)</h3>
           <p class="muted tiny">Atualiza /blog. Mostra do mais novo para o mais antigo.</p>
@@ -283,12 +278,11 @@ import { ref, onMounted, computed } from 'vue'
 import { articleStore } from '@/store/newsStore'
 import { blogStore } from '@/store/blogStore'
 
-/* ---------- auth ---------- */
 const logado = ref(false)
 const login = ref({ email: '', senha: '' })
 const loginTouched = ref({ email: false, senha: false })
 const erroLogin = ref('')
-const toast = ref({ msg: '', type: 'ok' }) // ok | warn | error
+const toast = ref({ msg: '', type: 'ok' }) 
 const showToast = (msg, type='ok', ttl=2500) => {
   toast.value = { msg, type }
   setTimeout(() => (toast.value.msg = ''), ttl)
@@ -316,7 +310,6 @@ function sair() {
   showToast('Sessão encerrada.', 'warn')
 }
 
-/* ---------- resumo/alunos (mock) ---------- */
 const resumo = ref({ alunosAtivos: 27, pagamentosPendentes: 3, vencimentoProximo: '10/11/2025' })
 const alunos  = ref([
   { nome: 'João Silva',  faixa: 'Branca',       plano: 'Mensal', status: 'Em dia',   vencimento: '10/11/2025' },
@@ -324,7 +317,6 @@ const alunos  = ref([
   { nome: 'Carlos Lima', faixa: 'Cinza (Kids)', plano: 'Kids',   status: 'Em dia',   vencimento: '12/11/2025' },
 ])
 
-/* ---------- avisos ---------- */
 const avisos = ref([
   { titulo: 'Treino extra', msg: 'Sábado 9h • turma competição' },
   { titulo: 'Pagamento novembro', msg: 'Regularizar até dia 10/11' },
@@ -341,8 +333,7 @@ function adicionarAviso() {
 }
 function removerAviso(idx) { avisos.value.splice(idx, 1); showToast('Aviso removido.', 'warn') }
 
-/* ---------- mural de notícias (STORE) ---------- */
-const newsItems   = articleStore.latestArticles  // computed
+const newsItems   = articleStore.latestArticles 
 const newNewsItem = ref({ title: '', excerpt: '', image: '' })
 const newsTouched = ref({ title: false, excerpt: false, image: false })
 
@@ -360,8 +351,7 @@ function removeNews(idx) {
   showToast('Notícia removida.', 'warn')
 }
 
-/* ---------- blog (STORE) ---------- */
-const blogPosts   = blogStore.posts  // computed
+const blogPosts   = blogStore.posts  
 const newBlogPost = ref({ title: '', excerpt: '', image: '' })
 const blogTouched = ref({ title: false, excerpt: false, image: false })
 
@@ -379,13 +369,12 @@ function removeBlogPost(index) {
   showToast('Post removido.', 'warn')
 }
 
-/* ---------- placeholders ---------- */
 function cadastrarAluno() { showToast('Em breve: tela de cadastro de aluno.', 'warn') }
 function editarAluno(a)   { showToast(`Edição de ${a.nome} (placeholder).`, 'warn') }
 </script>
 
 <style scoped>
-/* (estilos iguais aos seus, com classes .is-invalid, .error e .toast) */
+
 .auth-shell{display:grid;grid-template-columns:minmax(240px,480px) 1fr;min-height:100vh;background:#f6f7fb}
 .auth-left{background:#121a24;color:#cbd5e1;display:grid;place-items:center;padding:32px 16px}
 .brand-wrap{text-align:center}.brand-title{color:#e2e8f0;font-weight:800;font-size:28px;letter-spacing:.4px}.brand-subtitle{color:#9aa8b6;margin-top:8px}

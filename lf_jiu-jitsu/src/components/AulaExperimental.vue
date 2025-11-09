@@ -3,7 +3,7 @@
     <Transition name="modal-fade">
       <div v-if="modelValue" class="modal-overlay" @click.self="closeModal">
         <div class="modal-card" role="dialog" aria-modal="true">
-          <!-- FORM VIEW -->
+
           <template v-if="viewState === 'form'">
             <header class="modal-header">
               <h2>Agendar Aula Experimental</h2>
@@ -15,11 +15,10 @@
                 Preencha seus dados e escolha a turma, dia e horário. Entraremos em contato pelo WhatsApp para confirmar.
               </p>
 
-              <!-- Aviso de erro geral -->
               <div v-if="toastError" class="alert alert-error">{{ toastError }}</div>
 
               <form @submit.prevent="submit">
-                <!-- Nome -->
+
                 <label class="label">Nome completo *</label>
                 <input
                   v-model="form.name"
@@ -30,7 +29,6 @@
                 />
                 <p v-if="errors.name" class="input-error">{{ errors.name }}</p>
 
-                <!-- Telefone -->
                 <label class="label mt">WhatsApp/Telefone *</label>
                 <input
                   v-model="form.phone"
@@ -224,7 +222,6 @@ function disableTime(t) {
 
 async function submit() {
   toastError.value = ''
-
 
   if (!validateAll()) return
 

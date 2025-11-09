@@ -9,9 +9,8 @@ import InstrutoresView from '@/views/InstrutoresView.vue'
 import BlogView from '@/views/BlogView.vue'
 import ContatosView from '@/views/ContatosView.vue'
 
-// Áreas
 import Admin from '@/views/Admin.vue'
-import AdminRecuperacao from '@/views/AdminRecuperacao.vue'   // <-- NOVA
+import AdminRecuperacao from '@/views/AdminRecuperacao.vue'   
 import AlunoAreaView from '@/views/AlunoAreaView.vue'
 
 const router = createRouter({

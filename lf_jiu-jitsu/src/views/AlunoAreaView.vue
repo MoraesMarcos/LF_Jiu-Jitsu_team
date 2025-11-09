@@ -92,7 +92,7 @@
             </ul>
           </article>
 
-          <!-- Pagamentos -->      <article class="card payments">
+          <article class="card payments">
             <h3>Pagamentos</h3>
             <table class="table">
               <thead>
@@ -115,7 +115,7 @@
         </div>
 
         <div class="grid-2">
-          <!-- Próximas Aulas -->
+
           <article class="card classes">
             <h3>Próximas Aulas</h3>
             <ul class="list">
@@ -135,7 +135,6 @@
             </ul>
           </article>
 
-          <!-- Avisos -->
           <article class="card notices">
             <h3>Avisos</h3>
             <ul class="bullets">
@@ -144,7 +143,6 @@
           </article>
         </div>
 
-        <!-- Atualizar Dados -->
         <article class="card update">
           <h3>Atualizar Dados</h3>
           <form class="form" @submit.prevent="salvarPerfil" novalidate>
@@ -203,15 +201,13 @@ import {
   togglePresenceWithRules,
   canGenerateInvoice,
   validateProfile
-} from '@/rules' // se não estiver usando, pode remover
+} from '@/rules'
 
-// ====== ESTADO DE AUTENTICAÇÃO ======
 const logado = ref(false)
 const lembrar = ref(true)
 const login = ref({ email: '', senha: '' })
 const erroLogin = ref('')
 
-// erros por campo (login)
 const emailError = ref('')
 const senhaError = ref('')
 
@@ -220,7 +216,6 @@ onMounted(() => {
   if (logado.value) inicializarDados()
 })
 
-/** ─── Validação de campo: E-MAIL ─────────────────────────── **/
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 function onEmailBlur() {
   if (!login.value.email) {
@@ -232,11 +227,10 @@ function onEmailBlur() {
   }
 }
 function onEmailInput() {
-  // limpa mensagem enquanto digita, se tiver conteúdo
+
   if (login.value.email) emailError.value = ''
 }
 
-/** ─── Validação de campo: SENHA ──────────────────────────── **/
 function onSenhaBlur() {
   if (!login.value.senha) {
     senhaError.value = 'Campo obrigatório.'
@@ -250,16 +244,13 @@ function onSenhaInput() {
   if (login.value.senha) senhaError.value = ''
 }
 
-/** ─── Submit de Login ────────────────────────────────────── **/
 function entrar() {
   erroLogin.value = ''
 
-  // valida no blur/submit também
   onEmailBlur()
   onSenhaBlur()
   if (emailError.value || senhaError.value) return
 
-  // regra geral (opcional): mantém validação consolidada
   const msg = validateLogin({ email: login.value.email, senha: login.value.senha })
   if (msg) {
     erroLogin.value = msg
@@ -275,7 +266,6 @@ function sair() {
   localStorage.removeItem('aluno_logado')
 }
 
-// ====== DADOS DO ALUNO / DASHBOARD ======
 const aluno = ref({
   nome: 'Aluno LF',
   faixa: 'Branca',
@@ -293,7 +283,8 @@ const iniciais = computed(() =>
     .toUpperCase()
 )
 
-const vencido = computed(() => false) // pode virar uma rule baseada em data real
+const vencido = computed(() => false)
+
 const frequencia = ref(0)
 
 const pagamentos = ref([
@@ -315,21 +306,19 @@ const avisos = ref([
 ])
 
 function inicializarDados() {
-  // exemplo simples de frequência do mês
+
   frequencia.value = proximasAulas.value.filter(a => a.confirmado).length + 6
 }
 
-// ====== PRESENÇA (rule) ======
 function toggleConfirmar(aula) {
   const res = togglePresenceWithRules(aula)
   if (!res.ok) {
-    alert(res.message) // você pode trocar por um toast
+    alert(res.message) 
     return
   }
   inicializarDados()
 }
 
-// ====== PAGAMENTO (rule) ======
 function gerarBoleto() {
   const res = canGenerateInvoice(pagamentos.value)
   if (!res.ok) {
@@ -339,7 +328,6 @@ function gerarBoleto() {
   alert(`Boleto/PIX gerado para ${res.pendente.mes} no valor de R$ ${res.pendente.valor.toFixed(2)}.`)
 }
 
-// ====== PERFIL (rule) ======
 const alunoEdicao = ref({
   nome: aluno.value.nome,
   telefone: '',
@@ -369,7 +357,6 @@ function resetarEdicao() {
   }
 }
 
-// ====== UX ======
 function recuperarSenha() {
   alert('Enviamos instruções de recuperação para seu e-mail.')
 }

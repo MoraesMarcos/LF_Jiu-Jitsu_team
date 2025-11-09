@@ -39,7 +39,7 @@ const router = useRouter()
 const email   = ref('')
 const touched = ref(false)
 const toast   = ref('')
-const toastType = ref('ok') // ok | warn | error
+const toastType = ref('ok')
 
 const valido = computed(() => email.value.toLowerCase() === 'admin@lfjiujitsu.com')
 
@@ -51,7 +51,7 @@ function enviar() {
     setTimeout(() => (toast.value = ''), 2500)
     return
   }
-  // Simula envio de link
+
   toast.value = 'Enviamos um link de recuperação para admin@lfjiujitsu.com.'
   toastType.value = 'ok'
   setTimeout(() => {

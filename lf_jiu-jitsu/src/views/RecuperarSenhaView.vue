@@ -60,9 +60,6 @@ function validar() {
 function enviar() {
   if (!validar()) return
 
-  // Aqui futuramente você integra com seu backend (ENVIO REAL)
-  // Exemplo: await api.post('/recuperar-senha', { email: email.value })
-
   sucesso.value = true
   setTimeout(() => (sucesso.value = false), 3000)
 }

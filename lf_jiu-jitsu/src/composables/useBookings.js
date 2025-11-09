@@ -1,8 +1,7 @@
-// src/composables/useBookings.js
 import { ref } from 'vue'
 
 const STORAGE_KEY = 'lfjj_bookings'
-const CAPACITY_PER_SLOT = 4 // ajuste a capacidade por horário conforme sua realidade
+const CAPACITY_PER_SLOT = 4
 
 function loadAll() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]') }
@@ -39,7 +38,7 @@ export function useBookings() {
   const create = (payload) => {
     const booking = {
       id: crypto.randomUUID(),
-      status: 'booked', // booked | attended | cancelled
+      status: 'booked', 
       createdAt: new Date().toISOString(),
       ...payload,
     }
