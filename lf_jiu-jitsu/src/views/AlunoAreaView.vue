@@ -1,8 +1,7 @@
 <template>
   <main class="aluno">
-   
+    <!-- ====== LOGIN ====== -->
     <section v-if="!logado" class="auth-shell">
-      
       <aside class="auth-left">
         <div class="brand-wrap">
           <div class="brand-title">LF Jiu-Jitsu</div>
@@ -21,19 +20,38 @@
             <p class="muted">Bem-vindo de volta! Acesse sua conta.</p>
           </header>
 
-          <form @submit.prevent="entrar" class="auth-form">
+          <!-- novalidate para evitar o tooltip nativo do navegador -->
+          <form @submit.prevent="entrar" class="auth-form" novalidate>
             <label class="auth-label">
               <span class="label-caption">E-MAIL</span>
-              <input v-model.trim="login.email" type="email" placeholder="seuemail@exemplo.com" required />
+              <input
+                v-model.trim="login.email"
+                type="email"
+                placeholder="seuemail@exemplo.com"
+                :class="['input-base', { 'input--invalid': !!emailError }]"
+                @blur="onEmailBlur"
+                @input="onEmailInput"
+                autocomplete="email"
+              />
+              <small v-if="emailError" class="error">{{ emailError }}</small>
             </label>
 
             <label class="auth-label">
               <span class="label-caption">SENHA</span>
-              <input v-model="login.senha" type="password" placeholder="•••••••" required />
+              <input
+                v-model="login.senha"
+                type="password"
+                placeholder="•••••••"
+                :class="['input-base', { 'input--invalid': !!senhaError }]"
+                @blur="onSenhaBlur"
+                @input="onSenhaInput"
+                autocomplete="current-password"
+              />
+              <small v-if="senhaError" class="error">{{ senhaError }}</small>
             </label>
 
             <div class="auth-row-right">
-              <a href="#" class="link tiny" @click.prevent="recuperarSenha">Esqueceu sua senha?</a>
+              <RouterLink to="/recuperar-senha" class="link tiny">Esqueceu sua senha?</RouterLink>
             </div>
 
             <button type="submit" class="btn btn-primary btn-block">Entrar</button>
@@ -49,6 +67,7 @@
       </section>
     </section>
 
+    <!-- ====== DASHBOARD ====== -->
     <section v-else class="container">
       <header class="page-head">
         <h1>Área do Aluno</h1>
@@ -57,6 +76,7 @@
 
       <section class="dashboard">
         <div class="grid-2">
+          <!-- Perfil -->
           <article class="card profile">
             <div class="profile-head">
               <div class="avatar" :title="aluno.nome">{{ iniciais }}</div>
@@ -72,7 +92,7 @@
             </ul>
           </article>
 
-          <article class="card payments">
+          <!-- Pagamentos -->      <article class="card payments">
             <h3>Pagamentos</h3>
             <table class="table">
               <thead>
@@ -95,6 +115,7 @@
         </div>
 
         <div class="grid-2">
+          <!-- Próximas Aulas -->
           <article class="card classes">
             <h3>Próximas Aulas</h3>
             <ul class="list">
@@ -103,13 +124,18 @@
                   <strong>{{ aula.dia }} · {{ aula.hora }}</strong>
                   <div class="muted">{{ aula.modalidade }} — Instrutor: {{ aula.prof }}</div>
                 </div>
-                <button class="btn sm" :class="{'btn-primary': !aula.confirmado}" @click="toggleConfirmar(aula)">
+                <button
+                  class="btn sm"
+                  :class="{'btn-primary': !aula.confirmado}"
+                  @click="toggleConfirmar(aula)"
+                >
                   {{ aula.confirmado ? 'Confirmado' : 'Confirmar presença' }}
                 </button>
               </li>
             </ul>
           </article>
 
+          <!-- Avisos -->
           <article class="card notices">
             <h3>Avisos</h3>
             <ul class="bullets">
@@ -118,21 +144,25 @@
           </article>
         </div>
 
+        <!-- Atualizar Dados -->
         <article class="card update">
           <h3>Atualizar Dados</h3>
-          <form class="form" @submit.prevent="salvarPerfil">
+          <form class="form" @submit.prevent="salvarPerfil" novalidate>
             <div class="grid-3">
               <label>
                 Nome
                 <input v-model.trim="alunoEdicao.nome" type="text" required />
+                <small v-if="perfilErrors.nome" class="error">{{ perfilErrors.nome }}</small>
               </label>
               <label>
                 Telefone (WhatsApp)
                 <input v-model.trim="alunoEdicao.telefone" type="tel" placeholder="(00) 90000-0000" />
+                <small v-if="perfilErrors.telefone" class="error">{{ perfilErrors.telefone }}</small>
               </label>
               <label>
                 E-mail
                 <input v-model.trim="alunoEdicao.email" type="email" required />
+                <small v-if="perfilErrors.email" class="error">{{ perfilErrors.email }}</small>
               </label>
             </div>
             <div class="grid-2">
@@ -168,23 +198,74 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import {
+  validateLogin,
+  togglePresenceWithRules,
+  canGenerateInvoice,
+  validateProfile
+} from '@/rules' // se não estiver usando, pode remover
 
+// ====== ESTADO DE AUTENTICAÇÃO ======
 const logado = ref(false)
 const lembrar = ref(true)
 const login = ref({ email: '', senha: '' })
 const erroLogin = ref('')
+
+// erros por campo (login)
+const emailError = ref('')
+const senhaError = ref('')
 
 onMounted(() => {
   logado.value = localStorage.getItem('aluno_logado') === '1'
   if (logado.value) inicializarDados()
 })
 
+/** ─── Validação de campo: E-MAIL ─────────────────────────── **/
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+function onEmailBlur() {
+  if (!login.value.email) {
+    emailError.value = 'Campo obrigatório.'
+  } else if (!emailRegex.test(login.value.email)) {
+    emailError.value = 'Informe um e-mail válido.'
+  } else {
+    emailError.value = ''
+  }
+}
+function onEmailInput() {
+  // limpa mensagem enquanto digita, se tiver conteúdo
+  if (login.value.email) emailError.value = ''
+}
+
+/** ─── Validação de campo: SENHA ──────────────────────────── **/
+function onSenhaBlur() {
+  if (!login.value.senha) {
+    senhaError.value = 'Campo obrigatório.'
+  } else if (String(login.value.senha).length < 4) {
+    senhaError.value = 'A senha deve ter pelo menos 4 caracteres.'
+  } else {
+    senhaError.value = ''
+  }
+}
+function onSenhaInput() {
+  if (login.value.senha) senhaError.value = ''
+}
+
+/** ─── Submit de Login ────────────────────────────────────── **/
 function entrar() {
   erroLogin.value = ''
-  if (!login.value.email || login.value.senha.length < 4) {
-    erroLogin.value = 'Verifique seu e-mail e senha.'
+
+  // valida no blur/submit também
+  onEmailBlur()
+  onSenhaBlur()
+  if (emailError.value || senhaError.value) return
+
+  // regra geral (opcional): mantém validação consolidada
+  const msg = validateLogin({ email: login.value.email, senha: login.value.senha })
+  if (msg) {
+    erroLogin.value = msg
     return
   }
+
   logado.value = true
   if (lembrar.value) localStorage.setItem('aluno_logado', '1')
   inicializarDados()
@@ -194,6 +275,7 @@ function sair() {
   localStorage.removeItem('aluno_logado')
 }
 
+// ====== DADOS DO ALUNO / DASHBOARD ======
 const aluno = ref({
   nome: 'Aluno LF',
   faixa: 'Branca',
@@ -211,7 +293,7 @@ const iniciais = computed(() =>
     .toUpperCase()
 )
 
-const vencido = computed(() => false)
+const vencido = computed(() => false) // pode virar uma rule baseada em data real
 const frequencia = ref(0)
 
 const pagamentos = ref([
@@ -222,8 +304,8 @@ const pagamentos = ref([
 
 const proximasAulas = ref([
   { dia: 'Seg (Hoje)', hora: '19:00', modalidade: 'Jiu-Jitsu Gi', prof: 'Sensei Lucas', confirmado: false },
-  { dia: 'Qua', hora: '19:00', modalidade: 'No-Gi', prof: 'Sensei João', confirmado: false },
-  { dia: 'Sex', hora: '18:30', modalidade: 'Fundamentos', prof: 'Sensei Ana', confirmado: true },
+  { dia: 'Qua',        hora: '19:00', modalidade: 'No-Gi',        prof: 'Sensei João',  confirmado: false },
+  { dia: 'Sex',        hora: '18:30', modalidade: 'Fundamentos',  prof: 'Sensei Ana',   confirmado: true  },
 ])
 
 const avisos = ref([
@@ -233,18 +315,31 @@ const avisos = ref([
 ])
 
 function inicializarDados() {
+  // exemplo simples de frequência do mês
   frequencia.value = proximasAulas.value.filter(a => a.confirmado).length + 6
 }
 
+// ====== PRESENÇA (rule) ======
 function toggleConfirmar(aula) {
-  aula.confirmado = !aula.confirmado
+  const res = togglePresenceWithRules(aula)
+  if (!res.ok) {
+    alert(res.message) // você pode trocar por um toast
+    return
+  }
   inicializarDados()
 }
 
+// ====== PAGAMENTO (rule) ======
 function gerarBoleto() {
-  alert('Boleto/PIX gerado!')
+  const res = canGenerateInvoice(pagamentos.value)
+  if (!res.ok) {
+    alert(res.message)
+    return
+  }
+  alert(`Boleto/PIX gerado para ${res.pendente.mes} no valor de R$ ${res.pendente.valor.toFixed(2)}.`)
 }
 
+// ====== PERFIL (rule) ======
 const alunoEdicao = ref({
   nome: aluno.value.nome,
   telefone: '',
@@ -252,9 +347,14 @@ const alunoEdicao = ref({
   objetivo: 'saude',
   whatsapp: true,
 })
+const perfilErrors = ref({ nome: null, email: null, telefone: null })
 const salvo = ref(false)
 
 function salvarPerfil() {
+  const { ok, errors } = validateProfile(alunoEdicao.value)
+  perfilErrors.value = errors
+  if (!ok) return
+
   aluno.value.nome = alunoEdicao.value.nome
   salvo.value = true
   setTimeout(() => (salvo.value = false), 2500)
@@ -269,13 +369,13 @@ function resetarEdicao() {
   }
 }
 
+// ====== UX ======
 function recuperarSenha() {
   alert('Enviamos instruções de recuperação para seu e-mail.')
 }
 </script>
 
 <style scoped>
-
 .auth-shell {
   display: grid;
   grid-template-columns: minmax(240px, 480px) 1fr;
@@ -327,7 +427,8 @@ function recuperarSenha() {
   color:#94a3b8;
   font-weight: 700;
 }
-.auth-form input {
+
+.input-base {
   width: 100%;
   height: 40px;
   border: 1px solid #e5e7eb;
@@ -335,11 +436,16 @@ function recuperarSenha() {
   padding: 8px 12px;
   font-size: 14.5px;
   background: #fff;
+  transition: border-color .15s ease, box-shadow .15s ease;
 }
-.auth-form input:focus {
+.input-base:focus {
   border-color:#60a5fa;
   box-shadow: 0 0 0 3px rgba(96,165,250,.25);
   outline: none;
+}
+.input--invalid {
+  border-color:#ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239,68,68,.12) !important;
 }
 
 .auth-row-right {
@@ -370,11 +476,7 @@ function recuperarSenha() {
 .row { display: flex; align-items: center; gap: 12px; }
 .end { justify-content: flex-end; }
 
-.login h2 { margin: 0 0 8px; }
 .form { display: grid; gap: 12px; }
-.grid-2 .form, .grid-3 .form { grid-column: 1 / -1; }
-.remember { display: flex; align-items: center; gap: 8px; }
-.error { color: #b91c1c; }
 
 .profile-head { display: flex; gap: 12px; align-items: center; }
 .avatar {
@@ -412,6 +514,7 @@ input:focus, select:focus, textarea:focus { border-color: #60a5fa; box-shadow: 0
 .link { color: #1d4ed8; }
 
 .muted { color: #64748b; }
+.error { color: #b91c1c; font-size: 12.5px; margin-top: 4px; display: inline-block; }
 
 @media (max-width: 960px) {
   .auth-shell { grid-template-columns: 1fr; }

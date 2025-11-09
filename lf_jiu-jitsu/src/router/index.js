@@ -1,5 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+
+// VIEWS principais
+import HomeView from '@/views/HomeView.vue'
+import AboutView from '@/views/AboutView.vue'
+import HorariosView from '@/views/HorariosView.vue'
+import PlanosView from '@/views/PlanosView.vue'
+import InstrutoresView from '@/views/InstrutoresView.vue'
+import BlogView from '@/views/BlogView.vue'
+import ContatosView from '@/views/ContatosView.vue'
+
+// Áreas
+import Admin from '@/views/Admin.vue'
+import AdminRecuperacao from '@/views/AdminRecuperacao.vue'   // <-- NOVA
+import AlunoAreaView from '@/views/AlunoAreaView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,7 +34,9 @@ const router = createRouter({
     { path: '/horarios', name: 'horarios', component: () => import('../views/HorariosView.vue') },
     { path: '/area-do-aluno', name: 'area-aluno', component: () => import('../views/AlunoAreaView.vue') },
     { path: '/aluno', redirect: { name: 'area-aluno' } },
-    { path: '/admin', name: 'admin', component: () => import('@/views/Admin.vue')}
+    { path: '/admin/recuperar', name: 'admin-rec',   component: AdminRecuperacao },
+    { path: '/admin', name: 'admin', component: () => import('@/views/Admin.vue')},
+    {path: '/recuperar-senha', name: 'recuperar-senha', component: () => import('@/views/RecuperarSenhaView.vue')}
   ],
   scrollBehavior: () => ({ top: 0 }),
 })

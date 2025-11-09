@@ -1,91 +1,112 @@
 <template>
-
   <Teleport to="body">
-
     <Transition name="modal-fade">
-      <div v-if="modelValue" class="modal-overlay" @click="closeModal">
-        <div class="modal-card" @click.stop>
-          
-          <div v-if="viewState === 'form'" class="modal-content">
-            <div class="modal-header">
-              <div>
-                <h2>Agende sua Aula Experimental</h2>
-                <p>É rápido, fácil e o primeiro passo para começar.</p>
-              </div>
-              <button class="close-button" @click="closeModal">✕</button>
-            </div>
+      <div v-if="modelValue" class="modal-overlay" @click.self="closeModal">
+        <div class="modal-card" role="dialog" aria-modal="true">
+          <!-- FORM VIEW -->
+          <template v-if="viewState === 'form'">
+            <header class="modal-header">
+              <h2>Agendar Aula Experimental</h2>
+              <button class="icon-close" @click="closeModal" aria-label="Fechar">×</button>
+            </header>
 
-            <form @submit.prevent="handleSubmit">
-              <div class="form-group">
-                <label for="name">NOME COMPLETO *</label>
-                <input type="text" id="name" v-model="form.name" placeholder="Seu nome aqui" required />
-              </div>
+            <section class="modal-body">
+              <p class="muted">
+                Preencha seus dados e escolha a turma, dia e horário. Entraremos em contato pelo WhatsApp para confirmar.
+              </p>
 
-              <div class="form-group">
-                  <label for="phone">WHATSAPP / TELEFONE *</label>
-                  <input type="tel" id="phone" v-model="form.phone" placeholder="(XX) XXXXX-XXXX" required />
-              </div>
-              
-              <div class="form-group">
-                  <label>QUAL TIPO DE AULA? *</label>
+              <!-- Aviso de erro geral -->
+              <div v-if="toastError" class="alert alert-error">{{ toastError }}</div>
+
+              <form @submit.prevent="submit">
+                <!-- Nome -->
+                <label class="label">Nome completo *</label>
+                <input
+                  v-model="form.name"
+                  @blur="validateField('name')"
+                  :class="['input', { 'input--invalid': !!errors.name }]"
+                  placeholder="Seu nome completo"
+                  autocomplete="name"
+                />
+                <p v-if="errors.name" class="input-error">{{ errors.name }}</p>
+
+                <!-- Telefone -->
+                <label class="label mt">WhatsApp/Telefone *</label>
+                <input
+                  v-model="form.phone"
+                  @blur="validateField('phone')"
+                  :class="['input', { 'input--invalid': !!errors.phone }]"
+                  placeholder="(81) 99999-0000"
+                  inputmode="tel"
+                  autocomplete="tel"
+                />
+                <p v-if="errors.phone" class="input-error">{{ errors.phone }}</p>
+
+                <label class="label mt">Tipo de aula *</label>
+                <select
+                  v-model="form.classType"
+                  @change="onChangeClassType"
+                  @blur="validateField('classType')"
+                  :class="['input', { 'input--invalid': !!errors.classType }]"
+                >
+                  <option disabled value="">Selecione a turma</option>
+                  <option v-for="opt in classTypes" :key="opt" :value="opt">{{ opt }}</option>
+                </select>
+                <p v-if="errors.classType" class="input-error">{{ errors.classType }}</p>
+
+                <div v-if="availableDays.length" class="mt">
+                  <label class="label">Escolha o dia *</label>
                   <div class="selector-group">
-                      <button 
-                        type="button" 
-                        v-for="classType in classTypes" 
-                        :key="classType"
-                        :class="{ selected: selectedClassType === classType }"
-                        @click="selectClassType(classType)"
-                      >
-                        {{ classType }}
-                      </button>
+                    <button
+                      type="button"
+                      v-for="day in availableDays"
+                      :key="day.date"
+                      :class="['selector', { selected: form.date === day.date }]"
+                      @click="selectDay(day.date)"
+                    >
+                      {{ day.label }}
+                    </button>
                   </div>
-              </div>
+                  <p v-if="errors.date" class="input-error">{{ errors.date }}</p>
+                </div>
 
-              <div class="form-group" v-if="selectedClassType">
-                  <label>ESCOLHA O DIA *</label>
+                <div v-if="availableTimes.length" class="mt">
+                  <label class="label">Escolha o horário *</label>
                   <div class="selector-group">
-                      <button 
-                        type="button" 
-                        v-for="day in availableDays" 
-                        :key="day.date"
-                        :class="{ selected: selectedDay === day.date }"
-                        @click="selectDay(day.date)"
-                      >
-                        {{ day.label }}
-                      </button>
+                    <button
+                      type="button"
+                      v-for="t in availableTimes"
+                      :key="t"
+                      :disabled="disableTime(t)"
+                      :class="['selector', { selected: form.time === t, disabled: disableTime(t) }]"
+                      @click="selectTime(t)"
+                    >
+                      {{ t }}
+                    </button>
                   </div>
-              </div>
+                  <p v-if="errors.time" class="input-error">{{ errors.time }}</p>
+                </div>
 
-              <div class="form-group" v-if="selectedDay">
-                  <label>ESCOLHA O HORÁRIO (VAGAS PARA INICIANTES) *</label>
-                  <div class="selector-group">
-                       <button 
-                        type="button" 
-                        v-for="time in availableTimes" 
-                        :key="time"
-                        :class="{ selected: selectedTime === time }"
-                        @click="selectTime(time)"
-                      >
-                        {{ time }}
-                      </button>
-                  </div>
-              </div>
-              
-              <button type="submit" class="btn btn-primary submit-btn" :disabled="isLoading">
-                {{ isLoading ? 'Enviando...' : 'Confirmar Agendamento' }}
-              </button>
-            </form>
-          </div>
+                <div class="actions mt-lg">
+                  <button type="submit" class="btn btn-primary" :disabled="isLoading">
+                    {{ isLoading ? 'Enviando...' : 'Agendar' }}
+                  </button>
+                  <button type="button" class="btn btn-secondary" @click="closeModal" :disabled="isLoading">
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            </section>
+          </template>
 
-          <div v-if="viewState === 'success'" class="modal-content success-view">
-            <div class="success-icon">✓</div>
-            <h2>Agendamento Confirmado!</h2>
-            <p>
-              Tudo certo, {{ form.name }}! Entraremos em contato pelo WhatsApp em breve.
-              <br>Mal podemos esperar para te ver no tatame.
-            </p>
-            <button class="btn btn-primary" @click="closeModal">Fechar</button>
-          </div>
+          <template v-else>
+            <section class="success-wrap">
+              <div class="success-icon">✔</div>
+              <h3>Tudo certo, {{ firstName }}!</h3>
+              <p>Recebemos seu pedido. Em breve entraremos em contato pelo WhatsApp para confirmar sua aula.</p>
+              <button class="btn btn-primary mt" @click="closeModal">Fechar</button>
+            </section>
+          </template>
         </div>
       </div>
     </Transition>
@@ -93,228 +114,252 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch } from 'vue';
+import { computed, reactive, ref, watch } from 'vue'
+import { isRequired, minChars, onlyLettersSpaces, isBRPhone, normalizePhone } from '@/utils/validators'
+import { useBookings } from '@/composables/useBookings'
+import { validateBooking } from '@/rules' 
 
-const props = defineProps({
-  modelValue: Boolean
-});
-const emit = defineEmits(['update:modelValue']);
+const props = defineProps({ modelValue: { type: Boolean, default: false } })
+const emit = defineEmits(['update:modelValue'])
 
-const closeModal = () => {
-  emit('update:modelValue', false);
-};
-
-const viewState = ref('form');
-const isLoading = ref(false);
+const viewState = ref('form') 
+const isLoading = ref(false)
+const toastError = ref('')
 
 const form = reactive({
   name: '',
-  phone: ''
-});
+  phone: '',
+  classType: '',
+  date: '',
+  time: '',
+})
 
-const classTypes = ref(['Adulto', 'Feminino', 'Kids']);
-const selectedClassType = ref(null);
+const errors = reactive({
+  name: null,
+  phone: null,
+  classType: null,
+  date: null,
+  time: null,
+})
 
-const availableSlots = ref({
-    Adulto: [
-        { date: '2025-09-22', label: 'Seg, 22/09', times: ['07:00', '18:00', '19:30'] },
-        { date: '2025-09-23', label: 'Ter, 23/09', times: ['18:00', '19:30'] },
-        { date: '2025-09-24', label: 'Qua, 24/09', times: ['07:00', '19:30'] }
-    ],
-    Feminino: [
-        { date: '2025-09-23', label: 'Ter, 23/09', times: ['19:00'] },
-        { date: '2025-09-25', label: 'Qui, 25/09', times: ['19:00'] }
-    ],
-    Kids: [
-        { date: '2025-09-22', label: 'Seg, 22/09', times: ['17:00'] },
-        { date: '2025-09-24', label: 'Qua, 24/09', times: ['17:00'] }
-    ]
-});
+const rules = {
+  name: [(v) => isRequired(v), minChars(3), onlyLettersSpaces],
+  phone: [(v) => isRequired(v), isBRPhone],
+  classType: [isRequired],
+  date: [isRequired],
+  time: [isRequired],
+}
 
-const selectedDay = ref(null);
-const selectedTime = ref(null);
+function validateField(key) {
+  const value = form[key]
+  const fieldRules = rules[key]
+  for (const rule of fieldRules) {
+    const res = typeof rule === 'function' ? rule(value) : rule
+    if (res !== true) { errors[key] = res; return false }
+  }
+  errors[key] = null
+  return true
+}
+
+function validateAll() {
+  const keys = Object.keys(form)
+  const results = keys.map(k => validateField(k))
+  return results.every(Boolean)
+}
+
+const classTypes = ['Adulto Iniciante', 'Feminino', 'Kids']
+
+const availableSlots = {
+  'Adulto Iniciante': [
+    { date: '2025-11-10', label: 'Seg, 10/11', times: ['19:00', '20:00'] },
+    { date: '2025-11-12', label: 'Qua, 12/11', times: ['19:00', '20:00'] },
+  ],
+  'Feminino': [
+    { date: '2025-11-11', label: 'Ter, 11/11', times: ['18:30'] },
+  ],
+  'Kids': [
+    { date: '2025-11-13', label: 'Qui, 13/11', times: ['17:00'] },
+  ],
+}
 
 const availableDays = computed(() => {
-    if (!selectedClassType.value) return [];
-    return availableSlots.value[selectedClassType.value];
-});
+  if (!form.classType) return []
+  return availableSlots[form.classType] || []
+})
 
 const availableTimes = computed(() => {
-    if (!selectedDay.value) return [];
-    const dayData = availableDays.value.find(d => d.date === selectedDay.value);
-    return dayData ? dayData.times : [];
-});
+  if (!form.classType || !form.date) return []
+  const day = (availableSlots[form.classType] || []).find(d => d.date === form.date)
+  return day ? day.times : []
+})
 
-const selectClassType = (type) => {
-    selectedClassType.value = type;
-    selectedDay.value = null; 
-    selectedTime.value = null;
-};
+const firstName = computed(() => (form.name || '').trim().split(' ')[0] || 'aluno(a)')
 
-const selectDay = (date) => {
-    selectedDay.value = date;
-    selectedTime.value = null; 
-};
+function onChangeClassType() {
+  form.date = ''
+  form.time = ''
+  errors.date = null
+  errors.time = null
+}
 
-const selectTime = (time) => {
-    selectedTime.value = time;
-};
+function selectDay(date) {
+  form.date = date
+  errors.date = null
+  form.time = ''
+  errors.time = null
+}
 
-const handleSubmit = async () => {
-  if (!form.name || !form.phone || !selectedClassType.value || !selectedDay.value || !selectedTime.value) {
-      alert('Por favor, preencha todos os campos obrigatórios.');
-      return;
+function selectTime(t) {
+  if (disableTime(t)) return
+  form.time = t
+  errors.time = null
+}
+
+const { hasActiveBooking, isSlotTaken, hasCapacity, getByPhone, create } = useBookings()
+
+function disableTime(t) {
+  if (!form.classType || !form.date) return true
+  return isSlotTaken(form.classType, form.date, t)
+}
+
+async function submit() {
+  toastError.value = ''
+
+
+  if (!validateAll()) return
+
+  form.phone = normalizePhone(form.phone)
+
+  const ruleMessage = validateBooking({
+    hasActiveBooking,
+    hasCapacity,
+    getPreviousBookings: getByPhone,
+    form
+  })
+
+  if (ruleMessage) {
+    toastError.value = ruleMessage
+    return
   }
-  
-  isLoading.value = true;
-  
-  console.log('Enviando dados:', { ...form, classType: selectedClassType.value, day: selectedDay.value, time: selectedTime.value });
-  await new Promise(resolve => setTimeout(resolve, 1500)); 
-  
-  isLoading.value = false;
-  viewState.value = 'success'; 
-};
 
-
-watch(() => props.modelValue, (isShowing) => {
-  if (!isShowing) {
-    
-    setTimeout(() => {
-      viewState.value = 'form';
-      form.name = '';
-      form.phone = '';
-      selectedClassType.value = null;
-      selectedDay.value = null;
-      selectedTime.value = null;
-    }, 300);
+  isLoading.value = true
+  try {
+    create({
+      name: form.name.trim(),
+      phone: form.phone,
+      classType: form.classType,
+      date: form.date,
+      time: form.time,
+    })
+    viewState.value = 'success'
+  } catch (e) {
+    toastError.value = 'Ocorreu um erro ao agendar. Tente novamente.'
+  } finally {
+    isLoading.value = false
   }
-});
+}
+
+function resetForm() {
+  form.name = ''
+  form.phone = ''
+  form.classType = ''
+  form.date = ''
+  form.time = ''
+  Object.keys(errors).forEach(k => errors[k] = null)
+  toastError.value = ''
+  viewState.value = 'form'
+}
+
+function closeModal() {
+  emit('update:modelValue', false)
+}
+
+watch(() => props.modelValue, (val) => {
+  if (!val) {
+    setTimeout(() => resetForm(), 200) 
+  }
+})
 </script>
 
 <style scoped>
+
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(31, 41, 55, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.55);
+  display: grid; place-items: center;
+  padding: 20px;
   z-index: 1000;
 }
+
 .modal-card {
-  background-color: white;
+  width: 100%;
+  max-width: 640px;
+  background: var(--white);
   border-radius: 16px;
-  width: 90%;
-  max-width: 700px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-  max-height: 90vh;
-  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  overflow: hidden;
 }
-.modal-content {
-  padding: 30px 40px;
-}
+
 .modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--border-color);
-  padding-bottom: 20px;
-  margin-bottom: 20px;
 }
-.modal-header h2 {
-  font-size: 28px;
-  text-align: left;
-  margin-bottom: 5px;
-}
-.modal-header p {
-  font-size: 16px;
-  color: var(--text-light);
-}
-.close-button {
-  background: none;
-  border: none;
-  font-size: 24px;
-  color: #9CA3AF;
+
+.icon-close {
+  border: 0; background: transparent; font-size: 22px; line-height: 1;
   cursor: pointer;
 }
-.form-group {
-  margin-bottom: 20px;
-}
-.form-group label {
-  display: block;
-  font-size: 14px;
-  font-weight: bold;
-  color: var(--medium-gray);
-  margin-bottom: 8px;
-}
-.form-group input {
-  width: 100%;
-  padding: 12px 15px;
-  border: 1px solid #D1D5DB;
+
+.modal-body { padding: 20px; }
+.muted { color: var(--text-light); margin-bottom: 16px; font-size: 14px; }
+
+.label { display: block; font-weight: 600; margin-bottom: 8px; }
+.mt { margin-top: 14px; }
+.mt-lg { margin-top: 20px; }
+
+.input {
+  width: 100%; padding: 10px 12px;
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  font-size: 15px;
+  outline: none;
 }
-.selector-group {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+.input:focus { box-shadow: 0 0 0 3px rgba(37,99,235,.12); border-color: var(--primary-blue); }
+.input--invalid { border-color:#ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,.12) !important; }
+.input-error { color:#ef4444; font-size: 12px; margin-top:6px; }
+
+.selector-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.selector {
+  padding: 8px 12px; border: 1px solid var(--border-color);
+  border-radius: 999px; background: #fff; cursor: pointer;
+  font-size: 14px;
 }
-.selector-group button {
-  padding: 10px 20px;
-  border: 1px solid #D1D5DB;
-  background-color: white;
-  border-radius: 20px;
-  font-size: 15px;
-  cursor: pointer;
-  transition: all 0.2s;
+.selector.selected { background: var(--primary-blue); color: #fff; border-color: var(--primary-blue); }
+.selector.disabled { opacity: .45; cursor: not-allowed; }
+
+.actions { display: flex; gap: 12px; }
+
+.btn {
+  padding: 10px 16px; border-radius: 10px; border: 0; cursor: pointer;
+  font-weight: 600;
 }
-.selector-group button.selected {
-  background-color: #DBEAFE;
-  border-color: var(--primary-blue);
-  color: var(--primary-blue);
-  font-weight: bold;
+.btn-primary { background: var(--primary-blue); color: #fff; }
+.btn-primary:disabled { opacity: .7; cursor: wait; }
+.btn-secondary { background: #e5e7eb; color: #111827; }
+
+.alert {
+  padding: 10px 12px; border-radius: 10px; margin-bottom: 12px;
+  font-size: 14px;
 }
-.submit-btn {
-  width: 100%;
-  padding: 15px;
-  margin-top: 20px;
-}
-.submit-btn:disabled {
-  background-color: #9CA3AF;
-  cursor: not-allowed;
-}
-.success-view {
-  text-align: center;
-  padding: 60px 40px;
-}
+.alert-error { background: #fee2e2; color: #7f1d1d; border: 1px solid #fecaca; }
+
+.success-wrap { padding: 32px 28px; text-align: center; }
 .success-icon {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  background-color: #D1FAE5;
-  color: #10B981;
-  font-size: 40px;
-  font-weight: bold;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0 auto 20px;
+  width: 64px; height: 64px; border-radius: 999px;
+  display: grid; place-items: center; margin: 0 auto 12px;
+  background: #dcfce7; color: #14532d; font-size: 28px; font-weight: 700;
 }
-.success-view h2 {
-  font-size: 28px;
-  margin-bottom: 15px;
-}
-.success-view p {
-  margin-bottom: 30px;
-  line-height: 1.6;
-}
-.modal-fade-enter-active, .modal-fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-.modal-fade-enter-from, .modal-fade-leave-to {
-  opacity: 0;
-}
+
+.modal-fade-enter-active, .modal-fade-leave-active { transition: opacity .2s ease; }
+.modal-fade-enter-from, .modal-fade-leave-to { opacity: 0; }
 </style>
