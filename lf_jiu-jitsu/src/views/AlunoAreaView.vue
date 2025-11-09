@@ -1,6 +1,6 @@
 <template>
   <main class="aluno">
-    <!-- ====== LOGIN ====== -->
+
     <section v-if="!logado" class="auth-shell">
       <aside class="auth-left">
         <div class="brand-wrap">
@@ -20,7 +20,6 @@
             <p class="muted">Bem-vindo de volta! Acesse sua conta.</p>
           </header>
 
-          <!-- novalidate para evitar o tooltip nativo do navegador -->
           <form @submit.prevent="entrar" class="auth-form" novalidate>
             <label class="auth-label">
               <span class="label-caption">E-MAIL</span>
@@ -67,7 +66,6 @@
       </section>
     </section>
 
-    <!-- ====== DASHBOARD ====== -->
     <section v-else class="container">
       <header class="page-head">
         <h1>Área do Aluno</h1>
@@ -76,7 +74,7 @@
 
       <section class="dashboard">
         <div class="grid-2">
-          <!-- Perfil -->
+
           <article class="card profile">
             <div class="profile-head">
               <div class="avatar" :title="aluno.nome">{{ iniciais }}</div>
