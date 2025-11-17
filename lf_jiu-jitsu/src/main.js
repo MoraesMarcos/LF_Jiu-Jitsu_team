@@ -3,7 +3,6 @@ import App from './App.vue'
 import router from './router'
 import './assets/main.css'
 
-// Importa o Firebase para garantir inicialização
 import './firebase'
 
 const app = createApp(App)

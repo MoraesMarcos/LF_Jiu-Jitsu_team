@@ -1,6 +1,3 @@
-// src/utils/validators.js
-
-// Validações de campo
 export const isRequired = (v) =>
   !!(v && String(v).trim().length) || 'Campo obrigatório.'
 
@@ -13,12 +10,10 @@ export const onlyLettersSpaces = (v) =>
 export const isBRPhone = (v) =>
   (/^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/).test(String(v || '').trim()) || 'Telefone inválido. Ex.: (81) 99999-0000'
 
-// Normalizador simples
 export const normalizePhone = (v) => String(v || '').replace(/\D/g, '')
 
-// Regras de negócio auxiliares
 export const isPast = (isoDate) => {
-  // compara apenas data (ignora horário)
+
   const today = new Date(new Date().toDateString())
   const d = new Date(isoDate + 'T00:00:00')
   return d < today
