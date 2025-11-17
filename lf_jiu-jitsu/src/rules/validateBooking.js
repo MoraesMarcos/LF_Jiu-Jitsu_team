@@ -1,15 +1,10 @@
+// src/rules/validateBooking.js
 import { preventRebooking } from './preventRebooking'
 import { validateDateRules } from './dateRules'
 import { trialLimitRule } from './trialLimitRule'
 import { checkSlotCapacity } from './slotCapacity'
 
-export function validateBooking({
-  hasActiveBooking,
-  hasCapacity,
-  getPreviousBookings,
-  form
-}) {
- 
+export function validateBooking({ hasActiveBooking, hasCapacity, getPreviousBookings, form }) {
   const r1 = preventRebooking(hasActiveBooking, form.phone)
   if (r1) return r1
 
