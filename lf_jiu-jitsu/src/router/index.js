@@ -10,6 +10,7 @@ import CheckInDetailView from '@/views/CheckInDetailView.vue'
 import AlunoAgendaView from '@/views/aluno/AlunoAgendaView.vue'
 import AlunoAgendaDetailView from '@/views/aluno/AlunoAgendaDetailView.vue'
 import RecuperarSenhaView from '@/views/RecuperarSenhaView.vue'
+import BlogView from '@/views/BlogView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -25,7 +26,13 @@ const router = createRouter({
     { path: '/aluno', name: 'area-aluno', component: AlunoAgendaView },
     { path: '/aluno/agenda/:id', name: 'area-aluno-agenda-detalhe', component: AlunoAgendaDetailView },
     { path: '/recuperar-senha', name: 'recuperar-senha', component: RecuperarSenhaView },
-    { path: '/blog', redirect: '/' },
+
+    {
+      path: '/blog',
+      name: 'blog',
+      component: BlogView
+    },
+
     { path: '/sobre', redirect: '/' },
     { path: '/admin', redirect: '/checkin' }
   ],

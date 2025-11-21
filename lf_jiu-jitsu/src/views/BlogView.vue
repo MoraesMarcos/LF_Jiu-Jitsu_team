@@ -1,43 +1,50 @@
 <template>
-  <main>
-    <section class="featured-article">
-      <div class="container">
-        <h2>Artigo em Destaque</h2>
-        <h3>Conquistas no Jiu-Jitsu Infantil</h3>
-        <p>Destaques dos jovens talentos que conquistaram medalhas em campeonatos nacionais e internacionais de Jiu-Jitsu.</p>
-      </div>
-    </section>
+  <main class="blog-view">
+    <PageHeader title="Blog LF Jiu-Jitsu"
+      subtitle="Notícias, dicas e novidades sobre o mundo do Jiu-Jitsu e nossa equipe." />
 
-    <section class="latest-articles">
-      <div class="container articles-and-sidebar-grid">
-        
-        <div class="articles-column">
-          <h2>Últimos Artigos</h2>
-          <div class="articles-grid">
-            <ArticleCard
-              v-for="(article, index) in displayedPosts"
-              :key="index"
-              :title="article.title"
-              :excerpt="article.excerpt"
-              :image="article.image"
-            />
+    <section class="content-area">
+      <div class="container layout-grid">
+
+        <div class="main-column">
+          <h2 class="section-title">Últimas Postagens</h2>
+
+          <div class="posts-grid">
+            <ArticleCard v-for="(post, index) in visiblePosts" :key="index" :title="post.title" :excerpt="post.excerpt"
+              :image="post.image" />
           </div>
-          <div class="load-more-wrapper" v-if="hasMorePosts">
-              <button @click="loadMore" class="btn btn-primary">
-                  Carregar mais posts
-              </button>
+
+          <div class="load-more-wrap" v-if="hasMorePosts">
+            <button class="btn btn-secondary" @click="loadMore">
+              Carregar mais postagens
+            </button>
           </div>
         </div>
 
-        <div class="sidebar-column">
-          <h2>Mural de Notícias</h2>
-          <div class="news-list">
-            <article v-for="(news, i) in newsItems" :key="i" class="news-item">
-                <h4>{{ news.title }}</h4>
-                <p class="news-desc">{{ news.excerpt }}</p>
-            </article>
+        <aside class="sidebar">
+          <div class="sidebar-card">
+            <h3>📅 Próximos Eventos</h3>
+            <ul class="event-list">
+              <li v-for="(event, index) in events" :key="index" class="event-item">
+                <div class="event-date">
+                  <span class="day">{{ event.day }}</span>
+                  <span class="month">{{ event.month }}</span>
+                </div>
+                <div class="event-info">
+                  <h4>{{ event.title }}</h4>
+                  <p>{{ event.info }}</p>
+                </div>
+              </li>
+            </ul>
           </div>
-        </div>
+
+          <div class="sidebar-cta">
+            <h3>Quer participar?</h3>
+            <p>Alguns eventos são abertos ao público. Agende uma visita!</p>
+            <button class="btn btn-primary" @click="$emit('openTrialModal')">Fale Conosco</button>
+          </div>
+        </aside>
+
       </div>
     </section>
   </main>
@@ -45,136 +52,189 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import PageHeader from '@/components/PageHeader.vue'
 import ArticleCard from '@/components/ArticleCard.vue'
-import { blogStore } from '@/store/blogStore'
+import { blogStore } from '@/store/blogStore.js'
+import { eventStore } from '@/store/eventStore.js'
 
-import { articleStore as newsStore } from '@/store/newsStore'
+defineEmits(['openTrialModal'])
 
-const postsToShow = ref(6) 
+// --- Lógica de Paginação do Blog ---
 
-const displayedPosts = computed(() => {
-  return blogStore.posts.slice(0, postsToShow.value)
+// Quantos posts mostramos inicialmente
+const itemsToShow = ref(6)
+// Quantos posts adicionamos a cada clique no botão
+const itemsToLoad = 3
+
+// Computed que retorna todos os posts da store
+const allPosts = computed(() => blogStore.posts)
+
+// Computed que "corta" a lista para mostrar apenas a quantidade atual
+const visiblePosts = computed(() => {
+  return allPosts.value.slice(0, itemsToShow.value)
 })
 
+// Verifica se ainda tem posts para mostrar (para esconder o botão quando acabar)
 const hasMorePosts = computed(() => {
-  return postsToShow.value < blogStore.posts.length
+  return itemsToShow.value < allPosts.value.length
 })
 
-const loadMore = () => {
-  postsToShow.value += 6 
+// Função chamada ao clicar no botão
+function loadMore() {
+  itemsToShow.value += itemsToLoad
 }
 
-const newsItems = computed(() => newsStore.latestArticles)
-
+// --- Lógica de Eventos ---
+const events = computed(() => eventStore.events)
 </script>
 
 <style scoped>
-.featured-article {
-  background: linear-gradient(90deg, #2563eb 0%, #3b82f6 100%);
-  color: var(--white, #fff);
-  padding: 80px 0;
-}
-.featured-article .container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 0 16px;
-}
-.featured-article h2 {
-  color: var(--white, #fff);
-  text-align: left;
-  font-size: 24px;
-  margin-bottom: 5px;
-}
-.featured-article h3 {
-  color: var(--white, #fff);
-  font-size: 42px;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-.featured-article p {
-  color: #dbeafe;
-  font-size: 18px;
+.content-area {
+  padding: 60px 0;
+  background-color: #f8fafc;
 }
 
-.latest-articles {
-  padding: 80px 0;
-}
-.latest-articles .container {
-  max-width: 1140px;
-  margin: 0 auto;
-  padding: 0 16px;
-}
-.articles-and-sidebar-grid {
+.layout-grid {
   display: grid;
   grid-template-columns: 3fr 1fr;
   gap: 40px;
+  align-items: start;
 }
 
-.articles-column h2 {
-  font-size: 28px;
+.section-title {
+  margin-bottom: 24px;
+  font-size: 24px;
+  color: var(--primary-navy);
+  border-left: 4px solid var(--accent-blue);
+  padding-left: 12px;
+}
+
+.posts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+/* Estilo do botão Carregar Mais */
+.load-more-wrap {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.load-more-wrap .btn {
+  padding: 12px 30px;
+  cursor: pointer;
+}
+
+/* --- Sidebar Styles --- */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.sidebar-card {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar-card h3 {
+  font-size: 18px;
   margin-bottom: 20px;
-  border-bottom: 2px solid var(--border-color);
+  color: var(--primary-navy);
+  border-bottom: 2px solid #f1f5f9;
   padding-bottom: 10px;
 }
-.articles-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr); 
-  gap: 30px;
-  margin-top: 20px;
+
+.event-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
-.load-more-wrapper {
+
+.event-item {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.event-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.event-date {
+  background-color: #eef2ff;
+  color: var(--accent-blue);
+  border-radius: 8px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid #c7d2fe;
+}
+
+.event-date .day {
+  font-weight: 800;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.event-date .month {
+  font-size: 10px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.event-info h4 {
+  font-size: 15px;
+  margin: 0 0 6px;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.event-info p {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.sidebar-cta {
+  background: var(--primary-navy);
+  color: white;
+  padding: 24px;
+  border-radius: 12px;
   text-align: center;
-  margin-top: 40px;
 }
 
-.sidebar-column {
-
-  position: sticky;
-  top: 100px; 
-  align-self: start;
-}
-.sidebar-column h2 {
-    font-size: 28px;
-    margin-bottom: 20px;
-    border-bottom: 2px solid var(--border-color);
-    padding-bottom: 10px;
-}
-.news-list {
-    display: grid;
-    gap: 15px;
-}
-.news-item {
-    padding: 15px;
-    border: 1px solid var(--border-color);
-    border-left: 5px solid var(--primary-blue);
-    border-radius: 8px;
-    background-color: var(--white);
-}
-.news-item h4 {
-    font-size: 18px;
-    margin: 0 0 5px;
-}
-.news-desc {
-    font-size: 14px;
-    color: var(--text-light);
-    margin: 0;
+.sidebar-cta h3 {
+  color: white;
+  margin-bottom: 8px;
 }
 
+.sidebar-cta p {
+  color: #cbd5e1;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.sidebar-cta .btn {
+  width: 100%;
+  font-size: 14px;
+}
 
 @media (max-width: 900px) {
-  .articles-and-sidebar-grid {
-    grid-template-columns: 1fr;
-  }
-  .articles-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .sidebar-column {
-    position: static;
-    top: auto;
-  }
-}
-@media (max-width: 600px) {
-  .articles-grid {
+  .layout-grid {
     grid-template-columns: 1fr;
   }
 }
