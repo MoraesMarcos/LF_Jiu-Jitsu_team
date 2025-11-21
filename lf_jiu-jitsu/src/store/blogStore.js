@@ -1,60 +1,47 @@
 import { reactive } from 'vue'
 
+// Imagens de exemplo (para manter compatibilidade se resetar)
 import img1 from '@/assets/images/publico/1.jpg'
 import img2 from '@/assets/images/publico/2.jpg'
 import img3 from '@/assets/images/publico/3.jpg'
-import img4 from '@/assets/images/publico/4.jpg'
+
+const KEY = 'lf_blog_v1'
+
+const defaultPosts = [
+  { id: 1, title: 'Sul-Americano Kids', excerpt: 'Medalha de ouro conquistada!', image: img1 },
+  { id: 2, title: 'Equipe Campeã', excerpt: 'Muitas medalhas no estadual.', image: img2 },
+  { id: 3, title: 'Brasileiro Sem Kimono', excerpt: 'Resultados expressivos.', image: img3 },
+]
+
+const stored = localStorage.getItem(KEY)
+const initialData = stored ? JSON.parse(stored) : defaultPosts
 
 export const blogStore = reactive({
-  posts: [
-    {
-      title: 'Sul-Americano de Jiu-Jitsu Kids 2025',
-      excerpt: 'Jovem atleta conquista medalha de ouro no campeonato Sul-Americano Kids da IBJJF.',
-      image: img1,
-    },
-    {
-      title: 'Equipe de Campeões',
-      excerpt: 'Equipe celebra as inúmeras medalhas conquistadas em competições nacionais e internacionais.',
-      image: img2,
-    },
-    {
-      title: 'Brasileiro de Jiu-Jitsu Kids 2025',
-      excerpt: 'Jovens talentos brilham no pódio do campeonato brasileiro sem kimono.',
-      image: img3,
-    },
-    {
-      title: 'Nossa Casa, Sua Família',
-      excerpt: 'Conheça a história e os valores da nossa equipe.',
-      image: img4,
-    },
-    {
-      title: 'Post Antigo 1',
-      excerpt: 'Este é um post mais antigo para testes.',
-      image: img1,
-    },
-    {
-      title: 'Post Antigo 2',
-      excerpt: 'Este é um post mais antigo para testes.',
-      image: img2,
-    },
-    {
-      title: 'Post Antigo 3',
-      excerpt: 'Este é um post mais antigo para testes.',
-      image: img3,
-    },
-    {
-      title: 'Post Antigo 4',
-      excerpt: 'Este é um post mais antigo para testes.',
-      image: img4,
-    }
-  ],
+  posts: initialData,
 
-  addBlogPost(newPost) {
-
-    this.posts.unshift(newPost)
+  save() {
+    localStorage.setItem(KEY, JSON.stringify(this.posts))
   },
 
-  removeBlogPost(index) {
-    this.posts.splice(index, 1)
+  addBlogPost(post) {
+    const newPost = { ...post, id: Date.now() }
+    this.posts.unshift(newPost)
+    this.save()
+  },
+
+  removeBlogPost(id) {
+    const index = this.posts.findIndex(p => p.id === id)
+    if (index !== -1) {
+      this.posts.splice(index, 1)
+      this.save()
+    }
+  },
+
+  updateBlogPost(updatedPost) {
+    const index = this.posts.findIndex(p => p.id === updatedPost.id)
+    if (index !== -1) {
+      this.posts[index] = updatedPost
+      this.save()
+    }
   }
 })
