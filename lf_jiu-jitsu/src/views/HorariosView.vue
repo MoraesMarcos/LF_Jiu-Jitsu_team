@@ -1,18 +1,20 @@
 <template>
     <main class="horarios-view">
-
-        <PageHeader title="Horários de Aulas" subtitle="Encontre a turma perfeita para você ou para o seu filho." />
+        <PageHeader title="Horários de Aulas" subtitle="Encontre a turma perfeita para você." />
 
         <section class="schedule-section">
             <div class="container">
+
+                <div v-if="Object.keys(availableSlots).length === 0" class="empty-state">
+                    <p>Nenhum horário cadastrado no momento.</p>
+                </div>
+
                 <div v-for="(slots, modality) in availableSlots" :key="modality" class="modality-card">
                     <h2>{{ modality }}</h2>
 
                     <div class="schedule-grid">
                         <div v-for="dayData in slots" :key="dayData.date" class="day-column">
-
                             <h3>{{ dayData.label }}</h3>
-
                             <div class="time-list">
                                 <span v-for="time in dayData.times" :key="time" class="time-slot">
                                     {{ time }}
@@ -23,37 +25,55 @@
                 </div>
 
                 <div class="observation">
-                    <p>* Estes são os horários disponíveis para aulas experimentais/iniciantes. Consulte a recepção para
-                        horários de turmas avançadas.</p>
+                    <p>* Estes são os horários oficiais atualizados.</p>
                 </div>
-
             </div>
         </section>
 
         <CtaSection @openTrialModal="$emit('openTrialModal')" />
-
     </main>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
 import CtaSection from '@/components/CtaSection.vue';
+import { scheduleStore } from '@/store/scheduleStore'; // Importa a store
 
 defineEmits(['openTrialModal']);
 
-const availableSlots = ref({
-    Adulto: [
-        { date: '2025-09-22', label: 'Segunda-feira', times: ['17:45', '19:30'] },
-        { date: '2025-09-23', label: 'Terça-feira', times: ['18:00', '19:30'] },
-        { date: '2025-09-24', label: 'Quarta-feira', times: ['07:00', '19:30'] },
-        { date: '2025-09-25', label: 'Quinta-feira', times: ['18:00', '19:30'] },
-        { date: '2025-09-26', label: 'Sexta-feira', times: ['07:00', '19:30'] }
-    ],
-    Kids: [
-        { date: '2025-09-22', label: 'Segunda-feira', times: ['17:00'] },
-        { date: '2025-09-24', label: 'Quarta-feira', times: ['17:00'] }
-    ]
+// Transforma a lista plana da store no formato aninhado que a view espera
+// Formato alvo: { 'Adulto': [ { label: 'Segunda-feira', times: ['19:30'] } ] }
+const availableSlots = computed(() => {
+    const raw = scheduleStore.classes;
+    const grouped = {};
+
+    // 1. Agrupar por Modalidade
+    raw.forEach(cls => {
+        if (!grouped[cls.modality]) {
+            grouped[cls.modality] = {};
+        }
+        // 2. Agrupar por Dia dentro da Modalidade
+        if (!grouped[cls.modality][cls.day]) {
+            grouped[cls.modality][cls.day] = [];
+        }
+        // Adiciona o horário e ordena
+        grouped[cls.modality][cls.day].push(cls.time);
+        grouped[cls.modality][cls.day].sort();
+    });
+
+    // 3. Transformar objetos em Arrays para o v-for
+    const result = {};
+    for (const mod in grouped) {
+        result[mod] = Object.keys(grouped[mod]).map(day => ({
+            label: day,
+            times: grouped[mod][day],
+            // Ordenação simples dos dias para exibição (Segunda vem antes de Terça)
+            order: ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'].indexOf(day)
+        })).sort((a, b) => a.order - b.order);
+    }
+
+    return result;
 });
 </script>
 
@@ -68,19 +88,23 @@ const availableSlots = ref({
     padding: 0 16px;
 }
 
+.empty-state {
+    text-align: center;
+    font-size: 18px;
+    color: #64748b;
+    padding: 40px;
+}
+
 .modality-card {
     background-color: var(--white);
     border-radius: 16px;
-    /* Ajustado para o novo design (borda arredondada) */
     padding: 40px;
     margin-bottom: 40px;
-    /* Nova sombra suave */
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
 }
 
 .modality-card h2 {
     font-size: 32px;
-    /* Atualizado: De primary-blue para primary-navy */
     color: var(--primary-navy);
     margin-bottom: 25px;
     border-bottom: 2px solid var(--border-color);
@@ -89,7 +113,7 @@ const availableSlots = ref({
 
 .schedule-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 20px;
 }
 
@@ -97,11 +121,10 @@ const availableSlots = ref({
     background-color: var(--light-gray);
     padding: 20px;
     border-radius: 12px;
-    /* Mais arredondado */
 }
 
 .day-column h3 {
-    font-size: 18px;
+    font-size: 16px;
     margin-top: 0;
     margin-bottom: 15px;
     color: var(--dark-gray);
@@ -112,25 +135,18 @@ const availableSlots = ref({
 .time-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
     justify-content: center;
 }
 
 .time-slot {
     display: inline-block;
-    /* Atualizado: De primary-blue para accent-blue */
     background-color: var(--accent-blue);
     color: white;
-    padding: 8px 16px;
-    border-radius: 8px;
+    padding: 6px 12px;
+    border-radius: 6px;
     font-size: 14px;
     font-weight: 700;
-    transition: transform 0.2s;
-}
-
-.time-slot:hover {
-    transform: scale(1.05);
-    background-color: var(--primary-navy);
 }
 
 .observation {
