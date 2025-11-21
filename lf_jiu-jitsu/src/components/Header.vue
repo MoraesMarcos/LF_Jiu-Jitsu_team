@@ -7,23 +7,32 @@
 
       <nav class="nav">
         <ul>
-          <li><RouterLink to="/sobre">Sobre</RouterLink></li>
-          <li><RouterLink to="/horarios">Horários</RouterLink></li>
-          <li><RouterLink to="/planos">Planos</RouterLink></li>
-          <li><RouterLink to="/instrutores">Instrutores</RouterLink></li>
-          <li><RouterLink to="/blog">Blog</RouterLink></li>
-          <li><RouterLink to="/contato">Contato</RouterLink></li>
-          
+          <li>
+            <RouterLink to="/sobre">Sobre</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/horarios">Horários</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/planos">Planos</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/instrutores">Instrutores</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/blog">Blog</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/contato">Contato</RouterLink>
+          </li>
         </ul>
       </nav>
 
       <div class="actions">
-    
         <RouterLink :to="{ name: 'area-aluno' }" class="login-link">
           Área do Aluno
         </RouterLink>
 
-        
         <button type="button" @click="$emit('openTrialModal')" class="btn btn-primary">
           Agendar Aula
         </button>
@@ -38,7 +47,7 @@ defineEmits(['openTrialModal'])
 </script>
 
 <style scoped>
-
+/* ... (Mantenha o estilo que você já tem no arquivo original) ... */
 .header {
   background: var(--white, #fff);
   border-bottom: 1px solid var(--border-color, #e5e7eb);
@@ -47,12 +56,14 @@ defineEmits(['openTrialModal'])
   top: 0;
   z-index: 100;
 }
+
 .header .container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
 }
+
 .logo img {
   height: 50px;
   width: auto;
@@ -66,13 +77,15 @@ defineEmits(['openTrialModal'])
   padding: 0;
   margin: 0;
 }
+
 .nav :deep(a) {
   color: #0f172a;
   text-decoration: none;
   font-weight: 500;
 }
+
 .nav :deep(a.router-link-active) {
-  color: #1d4ed8;             
+  color: #1d4ed8;
 }
 
 .actions {
@@ -80,6 +93,7 @@ defineEmits(['openTrialModal'])
   align-items: center;
   gap: 16px;
 }
+
 .login-link {
   display: inline-block;
   padding: 8px 12px;
@@ -89,7 +103,14 @@ defineEmits(['openTrialModal'])
   color: #1d4ed8;
   font-weight: 700;
   text-decoration: none;
+  transition: all 0.2s;
 }
+
+.login-link:hover {
+  background: #e0e7ff;
+  border-color: #a5b4fc;
+}
+
 .btn.btn-primary {
   padding: 8px 12px;
   border-radius: 8px;
@@ -98,11 +119,5 @@ defineEmits(['openTrialModal'])
   color: #fff;
   font-weight: 700;
   cursor: pointer;
-}
-.btn.btn-primary:focus,
-.login-link:focus,
-.nav :deep(a:focus) {
-  outline: 2px solid #60a5fa;
-  outline-offset: 2px;
 }
 </style>

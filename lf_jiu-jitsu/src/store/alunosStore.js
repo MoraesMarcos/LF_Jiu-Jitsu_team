@@ -3,7 +3,6 @@ import { reactive } from 'vue'
 const KEY = 'lf_alunos_v1'
 const LOGGED_KEY = 'lf_aluno_logged_data'
 
-// Dados iniciais de exemplo
 const defaultAlunos = [
     { id: 1, name: 'Pedro Silva', username: 'lf.pedrosilva', password: '123', plan: 'Mensal', status: 'Ativo' },
     { id: 2, name: 'Maria Souza', username: 'lf.mariasouza', password: '123', plan: 'Trimestral', status: 'Pendente' }
@@ -12,22 +11,18 @@ const defaultAlunos = [
 const stored = localStorage.getItem(KEY)
 const initialList = stored ? JSON.parse(stored) : defaultAlunos
 
-// Tenta recuperar sessão ativa
 const storedSession = localStorage.getItem(LOGGED_KEY)
 const initialSession = storedSession ? JSON.parse(storedSession) : null
 
 export const alunosStore = reactive({
     list: initialList,
-    currentUser: initialSession, // Aluno logado atualmente
+    currentUser: initialSession,
 
     save() {
         localStorage.setItem(KEY, JSON.stringify(this.list))
     },
 
-    // Adiciona aluno e gera o login padrão
     addAluno(data) {
-        // Gera username: lf. + nome sem espaços e minúsculo
-        // Ex: "João Silva" -> "lf.joaosilva"
         const cleanName = data.name.toLowerCase().replace(/\s+/g, '').normalize('NFD').replace(/[\u0300-\u036f]/g, "")
         const username = `lf.${cleanName}`
 
@@ -35,7 +30,7 @@ export const alunosStore = reactive({
             id: Date.now(),
             ...data,
             username: username,
-            password: '123', // Senha padrão inicial
+            password: '123',
             status: 'Ativo'
         }
 
@@ -51,7 +46,6 @@ export const alunosStore = reactive({
         }
     },
 
-    // Função de Login do Aluno
     login(username, password) {
         const aluno = this.list.find(a => a.username === username && a.password === password)
         if (aluno) {
@@ -65,5 +59,20 @@ export const alunosStore = reactive({
     logout() {
         this.currentUser = null
         localStorage.removeItem(LOGGED_KEY)
+    },
+
+    // Nova função para resetar senha
+    recoverPassword(username) {
+        const index = this.list.findIndex(a => a.username === username)
+
+        if (index !== -1) {
+            // Define uma senha temporária fixa para teste
+            const tempPass = 'mudar123'
+            this.list[index].password = tempPass
+            this.save()
+            return { ok: true, tempPass }
+        }
+
+        return { ok: false }
     }
 })

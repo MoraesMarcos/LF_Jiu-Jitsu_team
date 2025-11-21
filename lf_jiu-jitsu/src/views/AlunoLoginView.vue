@@ -15,6 +15,9 @@
                 <div class="input-group">
                     <label>Senha</label>
                     <input v-model="password" type="password" placeholder="••••••" required>
+                    <div class="forgot-wrap">
+                        <router-link to="/recuperar-senha" class="forgot-link">Esqueci minha senha</router-link>
+                    </div>
                 </div>
 
                 <p v-if="error" class="error-msg">{{ error }}</p>
@@ -39,7 +42,7 @@ const error = ref('')
 
 function handleLogin() {
     if (alunosStore.login(username.value, password.value)) {
-        router.push('/aluno') // Redireciona para a agenda do aluno
+        router.push('/aluno')
     } else {
         error.value = 'Usuário ou senha incorretos.'
     }
@@ -104,6 +107,22 @@ function handleLogin() {
 .input-group input:focus {
     border-color: var(--accent-blue);
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Estilo do Link de Esqueci a Senha */
+.forgot-wrap {
+    text-align: right;
+    margin-top: 6px;
+}
+
+.forgot-link {
+    font-size: 12px;
+    color: var(--accent-blue);
+    text-decoration: none;
+}
+
+.forgot-link:hover {
+    text-decoration: underline;
 }
 
 .btn-primary {

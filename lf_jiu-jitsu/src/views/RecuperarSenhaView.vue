@@ -2,66 +2,57 @@
   <main class="recover-shell">
     <div class="recover-card">
 
-      <a href="/aluno" class="back-link">← Voltar</a>
+      <router-link to="/login-aluno" class="back-link">← Voltar para Login</router-link>
 
-      <h1 class="title">Recuperar Senha</h1>
+      <h1 class="title">Recuperar Acesso</h1>
       <p class="muted">
-        Informe o seu e-mail para enviarmos as instruções de recuperação.
+        Informe seu usuário (ex: <strong>lf.nome</strong>). Vamos simular o envio de uma nova senha.
       </p>
 
-      <form @submit.prevent="enviar" novalidate>
+      <form @submit.prevent="enviar">
         <label class="form-label">
-          E-mail
-          <input
-            type="email"
-            v-model.trim="email"
-            placeholder="seuemail@exemplo.com"
-            class="input-base"
-            :class="{ 'input--invalid': !!erro }"
-            @blur="validar"
-          />
-          <small v-if="erro" class="error">{{ erro }}</small>
+          Usuário do Aluno
+          <input type="text" v-model.trim="username" placeholder="lf.seu.nome" class="input-base" required />
         </label>
 
         <button class="btn btn-primary btn-block" type="submit">
-          Enviar instruções
+          Recuperar Senha
         </button>
 
-        <p v-if="sucesso" class="success">
-          ✅ Enviamos as instruções para o seu e-mail!
-        </p>
+        <div v-if="feedback.msg" :class="['feedback-box', feedback.type]">
+          {{ feedback.msg }}
+        </div>
       </form>
     </div>
   </main>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
+import { alunosStore } from '@/store/alunosStore'
 
-const email = ref('')
-const erro = ref('')
-const sucesso = ref(false)
-
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
-
-function validar() {
-  if (!email.value) {
-    erro.value = 'Campo obrigatório.'
-    return false
-  }
-  if (!emailRegex.test(email.value)) {
-    erro.value = 'Informe um e-mail válido.'
-    return false
-  }
-  erro.value = ''
-  return true
-}
+const username = ref('')
+const feedback = reactive({ type: '', msg: '' })
 
 function enviar() {
-  if (!validar()) return
+  feedback.msg = ''
 
-  sucesso.value = true
-  setTimeout(() => (sucesso.value = false), 3000)
+  if (!username.value.startsWith('lf.')) {
+    feedback.type = 'error'
+    feedback.msg = 'O usuário deve começar com "lf."'
+    return
+  }
+
+  const result = alunosStore.recoverPassword(username.value)
+
+  if (result.ok) {
+    feedback.type = 'success'
+    // Mensagem explicativa para o teste local
+    feedback.msg = `✅ Sucesso! (Simulação: Sua nova senha temporária é "${result.tempPass}". Use-a para logar.)`
+  } else {
+    feedback.type = 'error'
+    feedback.msg = 'Usuário não encontrado em nossa base.'
+  }
 }
 </script>
 
@@ -78,77 +69,96 @@ function enviar() {
   background: #fff;
   padding: 32px;
   border-radius: 12px;
-  box-shadow: 0 6px 22px rgba(0,0,0,.06);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .06);
   width: 100%;
   max-width: 420px;
 }
 
 .title {
   margin: 12px 0 4px;
-  font-size: 26px;
+  font-size: 24px;
+  color: var(--primary-navy);
 }
 
 .muted {
   color: #64748b;
   margin-bottom: 20px;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .form-label {
   display: grid;
   gap: 6px;
   margin-bottom: 16px;
+  font-weight: 600;
+  font-size: 14px;
 }
 
 .input-base {
   width: 100%;
   height: 42px;
   border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 10px 12px;
   font-size: 15px;
-}
-.input-base:focus {
-  border-color:#60a5fa;
-  box-shadow: 0 0 0 3px rgba(96,165,250,.25);
   outline: none;
 }
-.input--invalid {
-  border-color:#ef4444 !important;
-  box-shadow: 0 0 0 3px rgba(239,68,68,.12) !important;
-}
 
-.error {
-  color: #b91c1c;
-  font-size: 13px;
-}
-
-.success {
-  margin-top: 12px;
-  color: #14532d;
-}
-
-.back-link {
-  font-size: 13px;
-  color: #1d4ed8;
-  text-decoration: none;
-}
-.back-link:hover {
-  text-decoration: underline;
+.input-base:focus {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, .15);
 }
 
 .btn-block {
   width: 100%;
-  height: 42px;
+  height: 45px;
+  margin-top: 10px;
 }
 
 .btn-primary {
-  background: #1d4ed8;
+  background: var(--primary-navy);
   color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
+  font-weight: 700;
+  transition: background 0.2s;
 }
+
 .btn-primary:hover {
-  background: #1e40af;
+  background: var(--accent-blue);
+}
+
+.back-link {
+  font-size: 13px;
+  color: #64748b;
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+.back-link:hover {
+  color: var(--accent-blue);
+}
+
+.feedback-box {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.feedback-box.success {
+  background: #dcfce7;
+  color: #14532d;
+  border: 1px solid #bbf7d0;
+}
+
+.feedback-box.error {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
 }
 </style>
