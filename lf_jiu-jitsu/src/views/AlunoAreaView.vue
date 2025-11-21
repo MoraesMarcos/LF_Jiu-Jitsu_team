@@ -1,6 +1,6 @@
 <template>
   <main class="aluno">
-
+    <!-- ========== AUTH ========== -->
     <section v-if="!logado" class="auth-shell">
       <aside class="auth-left">
         <div class="brand-wrap">
@@ -11,7 +11,7 @@
 
       <section class="auth-right">
         <div class="auth-toplink">
-          <a href="/" class="back-link">← Voltar para o site</a>
+          <RouterLink to="/" class="back-link">← Voltar para o site</RouterLink>
         </div>
 
         <div class="auth-card">
@@ -54,27 +54,41 @@
             </div>
 
             <button type="submit" class="btn btn-primary btn-block">Entrar</button>
-
             <p v-if="erroLogin" class="error mt-8">{{ erroLogin }}</p>
 
             <p class="muted center mt-16">
               Ainda não é membro?
-              <a href="/planos" class="link strong">Conheça nossos planos.</a>
+              <RouterLink to="/planos" class="link strong">Conheça nossos planos.</RouterLink>
             </p>
           </form>
         </div>
       </section>
     </section>
 
+    <!-- ========== ÁREA LOGADA / LAYOUT ========== -->
     <section v-else class="container">
       <header class="page-head">
         <h1>Área do Aluno</h1>
         <p class="muted">Acompanhe suas aulas, pagamentos e atualize seus dados.</p>
       </header>
 
-      <section class="dashboard">
-        <div class="grid-2">
+      <!-- Navegação interna da Área do Aluno -->
+      <nav class="aluno-tabs">
+        <RouterLink :to="{ name: 'area-aluno' }" class="tab" :class="{ active: isDashboard }">Dashboard</RouterLink>
+        <RouterLink :to="{ name: 'area-aluno-agenda' }" class="tab" :class="{ active: isAgenda }">Agenda / Check-in</RouterLink>
+      </nav>
 
+      <!-- Conteúdo das rotas filhas OU dashboard embutido -->
+      <RouterView v-slot="{ Component }">
+        <Transition name="fade" mode="out-in">
+          <component v-if="!isDashboard" :is="Component" />
+        </Transition>
+      </RouterView>
+
+      <!-- Dashboard embutido (rota name === 'area-aluno') -->
+      <section v-if="isDashboard" class="dashboard">
+        <div class="grid-2">
+          <!-- Perfil -->
           <article class="card profile">
             <div class="profile-head">
               <div class="avatar" :title="aluno.nome">{{ iniciais }}</div>
@@ -85,11 +99,12 @@
             </div>
             <ul class="keyvals">
               <li><span>Frequência (mês)</span><strong>{{ frequencia }}</strong></li>
-              <li><span>Vencimento do Plano</span><strong :class="{'danger': vencido}">{{ aluno.vencimento }}</strong></li>
+              <li><span>Vencimento do Plano</span><strong :class="{ danger: vencido }">{{ aluno.vencimento }}</strong></li>
               <li><span>Presenças no ano</span><strong>{{ aluno.presencasAno }}</strong></li>
             </ul>
           </article>
 
+          <!-- Pagamentos -->
           <article class="card payments">
             <h3>Pagamentos</h3>
             <table class="table">
@@ -101,7 +116,7 @@
                   <td>{{ p.mes }}</td>
                   <td>R$ {{ p.valor.toFixed(2) }}</td>
                   <td>
-                    <span class="badge" :class="{'ok': p.status==='Pago', 'warn': p.status==='Pendente'}">
+                    <span class="badge" :class="{ ok: p.status === 'Pago', warn: p.status === 'Pendente' }">
                       {{ p.status }}
                     </span>
                   </td>
@@ -113,7 +128,7 @@
         </div>
 
         <div class="grid-2">
-
+          <!-- Próximas aulas -->
           <article class="card classes">
             <h3>Próximas Aulas</h3>
             <ul class="list">
@@ -124,7 +139,7 @@
                 </div>
                 <button
                   class="btn sm"
-                  :class="{'btn-primary': !aula.confirmado}"
+                  :class="{ 'btn-primary': !aula.confirmado }"
                   @click="toggleConfirmar(aula)"
                 >
                   {{ aula.confirmado ? 'Confirmado' : 'Confirmar presença' }}
@@ -133,6 +148,7 @@
             </ul>
           </article>
 
+          <!-- Avisos -->
           <article class="card notices">
             <h3>Avisos</h3>
             <ul class="bullets">
@@ -141,6 +157,7 @@
           </article>
         </div>
 
+        <!-- Atualização de dados -->
         <article class="card update">
           <h3>Atualizar Dados</h3>
           <form class="form" @submit.prevent="salvarPerfil" novalidate>
@@ -161,6 +178,7 @@
                 <small v-if="perfilErrors.email" class="error">{{ perfilErrors.email }}</small>
               </label>
             </div>
+
             <div class="grid-2">
               <label>
                 Objetivo no Jiu-Jitsu
@@ -171,11 +189,12 @@
                   <option value="recreativo">Recreativo</option>
                 </select>
               </label>
-              <label>
-                Notificações por WhatsApp
+              <label class="row" style="gap:8px">
                 <input type="checkbox" v-model="alunoEdicao.whatsapp" />
+                Notificações por WhatsApp
               </label>
             </div>
+
             <div class="row">
               <button class="btn btn-primary" type="submit">Salvar alterações</button>
               <button class="btn" type="button" @click="resetarEdicao">Cancelar</button>
@@ -194,6 +213,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import {
   validateLogin,
   togglePresenceWithRules,
@@ -201,62 +221,49 @@ import {
   validateProfile
 } from '@/rules'
 
+// ===== estado de auth =====
 const logado = ref(false)
-const lembrar = ref(true)
 const login = ref({ email: '', senha: '' })
 const erroLogin = ref('')
-
 const emailError = ref('')
 const senhaError = ref('')
+
+// rota atual para decidir se mostra dashboard embutido
+const route = useRoute()
+const isDashboard = computed(() => route.name === 'area-aluno')
+const isAgenda = computed(() => route.name === 'area-aluno-agenda' || route.name === 'area-aluno-agenda-detalhe')
 
 onMounted(() => {
   logado.value = localStorage.getItem('aluno_logado') === '1'
   if (logado.value) inicializarDados()
 })
 
+// ===== validações de login =====
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 function onEmailBlur() {
-  if (!login.value.email) {
-    emailError.value = 'Campo obrigatório.'
-  } else if (!emailRegex.test(login.value.email)) {
-    emailError.value = 'Informe um e-mail válido.'
-  } else {
-    emailError.value = ''
-  }
+  if (!login.value.email) emailError.value = 'Campo obrigatório.'
+  else if (!emailRegex.test(login.value.email)) emailError.value = 'Informe um e-mail válido.'
+  else emailError.value = ''
 }
-function onEmailInput() {
-
-  if (login.value.email) emailError.value = ''
-}
+function onEmailInput() { if (login.value.email) emailError.value = '' }
 
 function onSenhaBlur() {
-  if (!login.value.senha) {
-    senhaError.value = 'Campo obrigatório.'
-  } else if (String(login.value.senha).length < 4) {
-    senhaError.value = 'A senha deve ter pelo menos 4 caracteres.'
-  } else {
-    senhaError.value = ''
-  }
+  if (!login.value.senha) senhaError.value = 'Campo obrigatório.'
+  else if (String(login.value.senha).length < 4) senhaError.value = 'A senha deve ter pelo menos 4 caracteres.'
+  else senhaError.value = ''
 }
-function onSenhaInput() {
-  if (login.value.senha) senhaError.value = ''
-}
+function onSenhaInput() { if (login.value.senha) senhaError.value = '' }
 
 function entrar() {
   erroLogin.value = ''
-
-  onEmailBlur()
-  onSenhaBlur()
+  onEmailBlur(); onSenhaBlur()
   if (emailError.value || senhaError.value) return
 
   const msg = validateLogin({ email: login.value.email, senha: login.value.senha })
-  if (msg) {
-    erroLogin.value = msg
-    return
-  }
+  if (msg) { erroLogin.value = msg; return }
 
   logado.value = true
-  if (lembrar.value) localStorage.setItem('aluno_logado', '1')
+  localStorage.setItem('aluno_logado', '1')
   inicializarDados()
 }
 function sair() {
@@ -264,6 +271,7 @@ function sair() {
   localStorage.removeItem('aluno_logado')
 }
 
+// ===== dados de exemplo (mock) =====
 const aluno = ref({
   nome: 'Aluno LF',
   faixa: 'Branca',
@@ -271,24 +279,16 @@ const aluno = ref({
   vencimento: '10/11/2025',
   presencasAno: 48,
 })
-
 const iniciais = computed(() =>
-  aluno.value.nome
-    .split(' ')
-    .map(p => p[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase()
+  aluno.value.nome.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase()
 )
-
 const vencido = computed(() => false)
-
 const frequencia = ref(0)
 
 const pagamentos = ref([
-  { mes: 'Set/2025', valor: 62.00, status: 'Pago' },
-  { mes: 'Out/2025', valor: 62.00, status: 'Pago' },
-  { mes: 'Nov/2025', valor: 62.00, status: 'Pendente' },
+  { mes: 'Set/2025', valor: 62.0, status: 'Pago' },
+  { mes: 'Out/2025', valor: 62.0, status: 'Pago' },
+  { mes: 'Nov/2025', valor: 62.0, status: 'Pendente' },
 ])
 
 const proximasAulas = ref([
@@ -304,28 +304,22 @@ const avisos = ref([
 ])
 
 function inicializarDados() {
-
   frequencia.value = proximasAulas.value.filter(a => a.confirmado).length + 6
 }
 
 function toggleConfirmar(aula) {
   const res = togglePresenceWithRules(aula)
-  if (!res.ok) {
-    alert(res.message) 
-    return
-  }
+  if (!res.ok) { alert(res.message); return }
   inicializarDados()
 }
 
 function gerarBoleto() {
   const res = canGenerateInvoice(pagamentos.value)
-  if (!res.ok) {
-    alert(res.message)
-    return
-  }
+  if (!res.ok) { alert(res.message); return }
   alert(`Boleto/PIX gerado para ${res.pendente.mes} no valor de R$ ${res.pendente.valor.toFixed(2)}.`)
 }
 
+// ===== edição de perfil =====
 const alunoEdicao = ref({
   nome: aluno.value.nome,
   telefone: '',
@@ -354,20 +348,20 @@ function resetarEdicao() {
     whatsapp: true,
   }
 }
-
-function recuperarSenha() {
-  alert('Enviamos instruções de recuperação para seu e-mail.')
-}
 </script>
 
 <style scoped>
+/* animação */
+.fade-enter-active, .fade-leave-active { transition: opacity .2s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+
+/* ---------- Auth ---------- */
 .auth-shell {
   display: grid;
   grid-template-columns: minmax(240px, 480px) 1fr;
   min-height: 100vh;
   background: #f6f7fb;
 }
-
 .auth-left {
   background: #121a24;
   color: #cbd5e1;
@@ -376,139 +370,100 @@ function recuperarSenha() {
   padding: 32px 16px;
 }
 .brand-wrap { text-align: center; }
-.brand-title {
-  color: #e2e8f0;
-  font-weight: 800;
-  font-size: 28px;
-  letter-spacing: .4px;
-}
+.brand-title { color:#e2e8f0; font-weight: 800; font-size: 28px; letter-spacing:.4px; }
 .brand-subtitle { color:#9aa8b6; margin-top: 8px; }
 
-.auth-right {
-  background: #fff;
-  display: grid;
-  grid-template-rows: auto 1fr;
-  padding: 32px 24px;
-}
-.auth-toplink { max-width: 480px; margin: 0 auto 8px auto; width: 100%; }
-.back-link { color:#64748b; font-size: 13px; text-decoration:none; }
+.auth-right { background:#fff; display:grid; grid-template-rows:auto 1fr; padding:32px 24px; }
+.auth-toplink { max-width:480px; margin:0 auto 8px; width:100%; }
+.back-link { color:#64748b; font-size:13px; text-decoration:none; }
 .back-link:hover { text-decoration: underline; }
 
-.auth-card {
-  max-width: 480px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 16px 4px 32px 4px;
-}
+.auth-card { max-width:480px; width:100%; margin:0 auto; padding:16px 4px 32px; }
+.auth-head h1 { margin:0 0 4px; font-size:28px; }
+.auth-head .muted { margin:0 0 20px; }
 
-.auth-head h1 { margin: 0 0 4px; font-size: 28px; }
-.auth-head .muted { margin: 0 0 20px; }
-
-.auth-form { display: grid; gap: 14px; }
-.auth-label { display: grid; gap: 6px; }
-.label-caption {
-  font-size: 11px;
-  letter-spacing: .06em;
-  color:#94a3b8;
-  font-weight: 700;
-}
+.auth-form { display:grid; gap:14px; }
+.auth-label { display:grid; gap:6px; }
+.label-caption { font-size:11px; letter-spacing:.06em; color:#94a3b8; font-weight:700; }
 
 .input-base {
-  width: 100%;
-  height: 40px;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 8px 12px;
-  font-size: 14.5px;
-  background: #fff;
-  transition: border-color .15s ease, box-shadow .15s ease;
+  width:100%; height:40px; border:1px solid #e5e7eb; border-radius:10px;
+  padding:8px 12px; font-size:14.5px; background:#fff;
+  transition:border-color .15s ease, box-shadow .15s ease;
 }
-.input-base:focus {
-  border-color:#60a5fa;
-  box-shadow: 0 0 0 3px rgba(96,165,250,.25);
-  outline: none;
+.input-base:focus { border-color:#60a5fa; box-shadow:0 0 0 3px rgba(96,165,250,.25); outline:none; }
+.input--invalid { border-color:#ef4444 !important; box-shadow:0 0 0 3px rgba(239,68,68,.12) !important; }
+
+.auth-row-right { display:flex; justify-content:flex-end; margin-top:-4px; }
+.tiny { font-size:12px; }
+.strong { font-weight:700; }
+.btn-block { width:100%; height:42px; }
+.mt-8 { margin-top:8px; }
+.mt-16 { margin-top:16px; }
+.center { text-align:center; }
+
+/* ---------- Área logada ---------- */
+.container { max-width:1140px; margin:0 auto; padding:0 16px; }
+.aluno { padding:0; }
+.page-head h1 { margin:0; }
+.page-head .muted { color:#64748b; margin-top:6px; }
+
+.aluno-tabs { display:flex; gap:10px; margin:16px 0 8px; }
+.aluno-tabs .tab {
+  padding:8px 14px; border:1px solid #e5e7eb; border-radius:10px; background:#fff; text-decoration:none; color:#0f172a;
 }
-.input--invalid {
-  border-color:#ef4444 !important;
-  box-shadow: 0 0 0 3px rgba(239,68,68,.12) !important;
-}
+.aluno-tabs .tab.active { background:#eef2ff; color:#1d4ed8; border-color:#bfd3ff; }
 
-.auth-row-right {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: -4px;
-}
+.card { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:16px; box-shadow:0 6px 16px rgba(0,0,0,.04); }
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:20px; }
+.grid-3 { display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; }
+.row { display:flex; align-items:center; gap:12px; }
+.end { justify-content:flex-end; }
 
-.tiny { font-size: 12px; }
-.strong { font-weight: 700; }
+.form { display:grid; gap:12px; }
 
-.btn-block { width: 100%; height: 42px; }
-.mt-8 { margin-top: 8px; }
-.mt-16 { margin-top: 16px; }
-.center { text-align: center; }
+.profile-head { display:flex; gap:12px; align-items:center; }
+.avatar { width:56px; height:56px; border-radius:50%; background:#e5efff; color:#1d4ed8; display:grid; place-items:center; font-weight:800; }
 
-.container { max-width: 1140px; margin: 0 auto; padding: 0 16px; }
-.aluno { padding: 0; } 
-.page-head h1 { margin: 0; }
-.page-head .muted { color: #64748b; margin-top: 6px; }
+.keyvals { list-style:none; margin:12px 0 0; padding:0; display:grid; gap:8px; }
+.keyvals li { display:flex; justify-content:space-between; border-top:1px dashed #e5e7eb; padding-top:8px; }
+.danger { color:#b91c1c; }
 
-.card {
-  background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
-  padding: 16px; box-shadow: 0 6px 16px rgba(0,0,0,.04);
-}
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
-.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.row { display: flex; align-items: center; gap: 12px; }
-.end { justify-content: flex-end; }
+.table { width:100%; border-collapse:collapse; margin-top:8px; }
+.table th, .table td { text-align:left; padding:8px; border-bottom:1px solid #e5e7eb; }
+.badge { padding:4px 8px; border-radius:999px; font-weight:700; font-size:12px; }
+.badge.ok { background:#dcfce7; color:#14532d; }
+.badge.warn { background:#fff7ed; color:#9a3412; }
 
-.form { display: grid; gap: 12px; }
+.list { list-style:none; margin:0; padding:0; display:grid; gap:10px; }
+.list-item { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #f1f5f9; }
 
-.profile-head { display: flex; gap: 12px; align-items: center; }
-.avatar {
-  width: 56px; height: 56px; border-radius: 50%;
-  background: #e5efff; color: #1d4ed8; display: grid; place-items: center;
-  font-weight: 800;
-}
-.keyvals { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; }
-.keyvals li { display: flex; justify-content: space-between; border-top: 1px dashed #e5e7eb; padding-top: 8px; }
-.danger { color: #b91c1c; }
+.bullets { margin:8px 0 0; padding-left:18px; }
 
-.table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-.table th, .table td { text-align: left; padding: 8px; border-bottom: 1px solid #e5e7eb; }
-.badge { padding: 4px 8px; border-radius: 999px; font-weight: 700; font-size: 12px; }
-.badge.ok { background: #dcfce7; color: #14532d; }
-.badge.warn { background: #fff7ed; color: #9a3412; }
-
-.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-.list-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
-
-.bullets { margin: 8px 0 0; padding-left: 18px; }
-
-.ok { color: #14532d; }
+.ok { color:#14532d; }
 
 input, select, textarea {
-  width: 100%; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; font-size: 16px;
+  width:100%; border:1px solid #e5e7eb; border-radius:10px; padding:10px 12px; font-size:16px;
 }
-input:focus, select:focus, textarea:focus { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,.25); outline: none; }
+input:focus, select:focus, textarea:focus { border-color:#60a5fa; box-shadow:0 0 0 3px rgba(96,165,250,.25); outline:none; }
 
-.btn { padding: 10px 14px; border-radius: 10px; border: 1px solid #e5e7eb; background: #fff; cursor: pointer; }
-.btn.sm { padding: 6px 10px; }
-.btn-primary { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
-.btn-secondary { background: #e5efff; color: #1d4ed8; border-color: #bfd3ff; }
-.btn.danger { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
-.link { color: #1d4ed8; }
+.btn { padding:10px 14px; border-radius:10px; border:1px solid #e5e7eb; background:#fff; cursor:pointer; }
+.btn.sm { padding:6px 10px; }
+.btn-primary { background:#1d4ed8; color:#fff; border-color:#1d4ed8; }
+.btn-secondary { background:#e5efff; color:#1d4ed8; border-color:#bfd3ff; }
+.btn.danger { background:#fee2e2; color:#991b1b; border-color:#fecaca; }
+.link { color:#1d4ed8; }
 
-.muted { color: #64748b; }
-.error { color: #b91c1c; font-size: 12.5px; margin-top: 4px; display: inline-block; }
+.muted { color:#64748b; }
+.error { color:#b91c1c; font-size:12.5px; margin-top:4px; display:inline-block; }
 
 @media (max-width: 960px) {
-  .auth-shell { grid-template-columns: 1fr; }
-  .auth-left { min-height: 220px; }
-  .auth-right { padding: 24px 16px; }
+  .auth-shell { grid-template-columns:1fr; }
+  .auth-left { min-height:220px; }
+  .auth-right { padding:24px 16px; }
 }
-
 @media (max-width: 900px) {
-  .grid-2 { grid-template-columns: 1fr; }
-  .grid-3 { grid-template-columns: 1fr; }
+  .grid-2 { grid-template-columns:1fr; }
+  .grid-3 { grid-template-columns:1fr; }
 }
 </style>

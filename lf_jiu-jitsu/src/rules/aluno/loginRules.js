@@ -1,9 +1,6 @@
 export function validateLogin({ email, senha }) {
-  if (!email || !email.includes('@') || email.startsWith('@') || email.endsWith('@')) {
-    return 'Informe um e-mail válido.'
-  }
-  if (!senha || String(senha).length < 4) {
-    return 'A senha deve ter pelo menos 4 caracteres.'
-  }
-  return null
+  if (!email) return 'Informe um e-mail.'
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return 'Informe um e-mail válido.'
+  if (!senha || String(senha).length < 8) return 'A senha deve ter pelo menos 8 caracteres.'
+  return ''
 }

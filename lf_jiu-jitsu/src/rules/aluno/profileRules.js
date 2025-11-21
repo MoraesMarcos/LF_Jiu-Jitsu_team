@@ -1,18 +1,7 @@
-export function validateProfile(form) {
+export function validateProfile(data) {
   const errors = { nome: null, email: null, telefone: null }
-
-  if (!form.nome || String(form.nome).trim().length < 3) {
-    errors.nome = 'Informe seu nome (mínimo 3 caracteres).'
-  }
-
-  if (!form.email || !form.email.includes('@')) {
-    errors.email = 'Informe um e-mail válido.'
-  }
-
-  if (form.telefone && !/^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/.test(String(form.telefone))) {
-    errors.telefone = 'Telefone inválido. Ex.: (81) 99999-0000'
-  }
-
-  const ok = !errors.nome && !errors.email && !errors.telefone
-  return { ok, errors }
+  if (!data.nome || data.nome.trim().length < 3) errors.nome = 'Informe um nome válido.'
+  if (!data.email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(data.email)) errors.email = 'E-mail inválido.'
+  if (data.telefone && data.telefone.replace(/\D/g, '').length < 10) errors.telefone = 'Telefone incompleto.'
+  return { ok: !errors.nome && !errors.email && !errors.telefone, errors }
 }
