@@ -1,119 +1,102 @@
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue';
 
-// chave base no localStorage
-const LS_SCHEDULE = 'lf_schedule_v1'
+const classes = ref([]);
+const selectedDate = ref(new Date().toISOString().split('T')[0]);
 
-function buildMockWeek() {
-  // constrói a semana a partir de hoje (seg → dom)
-  const now = new Date()
-  const base = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const daysAhead = [0, 1, 2, 3, 4, 5, 6] // 7 dias
+function getNextSevenDays() {
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() + i);
+    days.push(d.toISOString().split('T')[0]);
+  }
+  return days;
+}
 
-  let id = 1000
-  const sessions = []
+function generateMockClasses() {
+  const days = getNextSevenDays();
+  const mocks = [];
+  days.forEach(day => {
+    mocks.push({
+      id: `aula-${day}-1900`,
+      name: 'Jiu-Jitsu Adulto',
+      coach: 'Mestre Silva',
+      date: day,
+      time: '19:00',
+      start: `${day}T19:00:00`,
+      end: `${day}T20:30:00`,
+      capacity: 20,
+      attendees: [],
+      classType: 'Adulto'
+    });
+    mocks.push({
+      id: `aula-${day}-1700`,
+      name: 'Jiu-Jitsu Kids',
+      coach: 'Instrutora Ana',
+      date: day,
+      time: '17:00',
+      start: `${day}T17:00:00`,
+      end: `${day}T18:00:00`,
+      capacity: 15,
+      attendees: [],
+      classType: 'Kids'
+    });
+  });
+  classes.value = mocks;
+}
 
-  const templates = [
-    { hour: '07:00', name: 'Jiu-Jitsu (Adulto) — Gi', coach: 'Sensei Lucas', capacity: 20, durationMin: 60 },
-    { hour: '18:00', name: 'Jiu-Jitsu — No-Gi',       coach: 'Sensei João',  capacity: 25, durationMin: 60 },
-    { hour: '19:30', name: 'Fundamentos',             coach: 'Sensei Ana',   capacity: 16, durationMin: 60 },
-  ]
+export function useBookings(currentUserId) {
 
-  for (const d of daysAhead) {
-    const day = new Date(base)
-    day.setDate(base.getDate() + d)
+  onMounted(() => {
+    if (classes.value.length === 0) generateMockClasses();
+  });
 
-    for (const t of templates) {
-      const [h, m] = t.hour.split(':').map(Number)
-      const start = new Date(day)
-      start.setHours(h, m, 0, 0)
-      const end = new Date(start)
-      end.setMinutes(end.getMinutes() + t.durationMin)
+  const days = computed(() => getNextSevenDays());
 
-      sessions.push({
-        id: String(id++),
-        date: day.toISOString().slice(0, 10), // YYYY-MM-DD
-        start: start.toISOString(),
-        end: end.toISOString(),
-        name: t.name,
-        coach: t.coach,
-        capacity: t.capacity,
-        attendees: [], // alunos confirmados (IDs)
-      })
+  const listByDate = computed(() => {
+    return classes.value.filter(c => c.date === selectedDate.value)
+      .sort((a, b) => a.time.localeCompare(b.time));
+  });
+
+  const getById = (id) => classes.value.find(c => c.id === id);
+  const attendeesCount = (id) => getById(id)?.attendees?.length || 0;
+  const isBooked = (id) => (getById(id)?.attendees || []).includes(currentUserId);
+
+  const hasActiveBooking = (userId) => classes.value.some(c => c.attendees.includes(userId));
+
+  const hasCapacity = (classType, date, time) => {
+    const session = classes.value.find(c => c.classType === classType && c.date === date && c.time === time);
+    if (!session) return true;
+    return (session.attendees.length < (session.capacity || 20));
+  };
+
+  const getPreviousBookings = async () => [];
+
+  const replaceSession = async (session) => {
+    const index = classes.value.findIndex(c => c.id === session.id);
+    if (index !== -1) {
+      // Simula a lógica de toggle localmente
+      const attendees = classes.value[index].attendees;
+      if (attendees.includes(currentUserId)) {
+        const idx = attendees.indexOf(currentUserId);
+        attendees.splice(idx, 1);
+      } else {
+        attendees.push(currentUserId);
+      }
     }
-  }
-  return sessions
-}
-
-function loadSchedule() {
-  const raw = localStorage.getItem(LS_SCHEDULE)
-  if (raw) {
-    try { return JSON.parse(raw) } catch { /* noop */ }
-  }
-  const mock = buildMockWeek()
-  localStorage.setItem(LS_SCHEDULE, JSON.stringify(mock))
-  return mock
-}
-
-function saveSchedule(sessions) {
-  localStorage.setItem(LS_SCHEDULE, JSON.stringify(sessions))
-}
-
-export function useBookings(userId = 'aluno_demo') {
-  const sessions = ref(loadSchedule())
-  const todayISO = new Date().toISOString().slice(0, 10)
-  const selectedDate = ref(todayISO)
-
-  const days = computed(() => {
-    // retorna a lista de datas presentes na agenda (ordenadas)
-    const set = Array.from(new Set(sessions.value.map(s => s.date))).sort()
-    return set
-  })
-
-  const listByDate = computed(() =>
-    sessions.value
-      .filter(s => s.date === selectedDate.value)
-      .sort((a, b) => a.start.localeCompare(b.start))
-  )
-
-  const getById = (id) => sessions.value.find(s => s.id === String(id))
-
-  const persist = () => saveSchedule(sessions.value)
-
-  const isBooked = (id) => {
-    const s = getById(id)
-    return !!s && (s.attendees || []).includes(userId)
-  }
-
-  const attendeesCount = (id) => {
-    const s = getById(id)
-    return s ? (s.attendees?.length || 0) : 0
-  }
-
-  const addBooking = (id) => {
-    const s = getById(id)
-    if (!s) return
-    s.attendees = [...(s.attendees || []), userId]
-    persist()
-  }
-
-  const removeBooking = (id) => {
-    const s = getById(id)
-    if (!s) return
-    s.attendees = (s.attendees || []).filter(x => x !== userId)
-    persist()
-  }
-
-  const replaceSession = (updated) => {
-    const idx = sessions.value.findIndex(s => s.id === updated.id)
-    if (idx >= 0) {
-      sessions.value[idx] = { ...updated }
-      persist()
-    }
-  }
+    return { ok: true };
+  };
 
   return {
-    sessions, days, selectedDate, listByDate,
-    getById, isBooked, attendeesCount,
-    addBooking, removeBooking, replaceSession
-  }
+    days,
+    selectedDate,
+    listByDate,
+    attendeesCount,
+    isBooked,
+    getById,
+    replaceSession,
+    hasActiveBooking,
+    hasCapacity,
+    getPreviousBookings
+  };
 }
