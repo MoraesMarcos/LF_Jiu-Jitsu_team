@@ -1,6 +1,6 @@
 <template>
   <div class="plan-card" :class="{ featured: plan.featured }">
-    <div v-if="plan.featured" class="featured-badge">MAIS POPULAR</div>
+    <div v-if="plan.featured" class="featured-badge">RECOMENDADO</div>
     <h3>{{ plan.name }}</h3>
     <div class="price-container">
       <span class="price">{{ plan.price }}</span>
@@ -12,19 +12,11 @@
       </li>
     </ul>
 
-    <router-link
-      v-if="action === 'link'"
-      to="/planos"
-      class="cta-button"
-    >
+    <router-link v-if="action === 'link'" to="/planos" class="cta-button">
       Quero este plano
     </router-link>
 
-    <button
-      v-else
-      class="cta-button"
-      @click="$emit('select-plan', plan)"
-    >
+    <button v-else class="cta-button" @click="$emit('select-plan', plan)">
       Quero este plano
     </button>
   </div>
@@ -47,83 +39,107 @@ defineEmits(['select-plan']);
 
 <style scoped>
 .plan-card {
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 30px;
+  border-radius: 16px;
+  padding: 40px 30px;
   width: 320px;
   display: flex;
   flex-direction: column;
-  background-color: #fff;
+  background-color: var(--white);
   text-align: left;
   position: relative;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+  transition: transform 0.3s ease;
 }
+
+.plan-card:hover {
+  transform: translateY(-5px);
+}
+
 .plan-card.featured {
-  border: 2px solid #3b82f6;
+  border: 2px solid var(--accent-blue);
   transform: scale(1.05);
   z-index: 10;
+  box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.15), 0 10px 10px -5px rgba(59, 130, 246, 0.1);
 }
+
+.plan-card.featured:hover {
+  transform: scale(1.05) translateY(-5px);
+}
+
 .featured-badge {
   position: absolute;
   top: -15px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #3b82f6;
+  background-color: var(--accent-blue);
   color: white;
-  padding: 5px 15px;
-  border-radius: 15px;
+  padding: 6px 16px;
+  border-radius: 20px;
   font-size: 12px;
-  font-weight: bold;
+  font-weight: 800;
+  letter-spacing: 0.5px;
 }
+
 .plan-card h3 {
-  font-size: 20px;
+  font-size: 22px;
   margin-bottom: 20px;
   text-align: center;
-  color: #1e293b;
+  color: var(--primary-navy);
 }
+
 .price-container {
   text-align: center;
-  margin-bottom: 25px;
+  margin-bottom: 30px;
 }
+
 .price {
-  font-size: 36px;
-  font-weight: bold;
-  color: #1e293b;
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--primary-navy);
 }
+
 .period {
   font-size: 16px;
-  color: #64748b;
+  color: var(--medium-gray);
 }
+
 .features-list {
   list-style: none;
   padding: 0;
-  margin-bottom: 30px;
+  margin-bottom: 35px;
   flex-grow: 1;
 }
+
 .features-list li {
-  margin-bottom: 12px;
-  color: #475569;
+  margin-bottom: 14px;
+  color: var(--medium-gray);
+  font-weight: 500;
 }
+
 .cta-button {
   display: block;
   text-align: center;
   text-decoration: none;
   width: 100%;
-  padding: 12px;
-  border: 1px solid #3b82f6;
-  background-color: #fff;
-  color: #3b82f6;
-  border-radius: 6px;
+  padding: 14px;
+  border: 2px solid var(--accent-blue);
+  background-color: transparent;
+  color: var(--accent-blue);
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 700;
   transition: all 0.2s ease;
+  font-family: var(--font-family-sans);
 }
+
 .featured .cta-button {
-  background-color: #3b82f6;
-  color: #fff;
+  background-color: var(--accent-blue);
+  color: var(--white);
 }
+
 .cta-button:hover {
-  opacity: 0.9;
-  transform: translateY(-2px);
+  background-color: var(--primary-navy);
+  border-color: var(--primary-navy);
+  color: var(--white);
 }
 </style>

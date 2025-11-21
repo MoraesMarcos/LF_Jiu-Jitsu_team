@@ -40,9 +40,7 @@ import { ref } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
 import CtaSection from '@/components/CtaSection.vue';
 
-
 defineEmits(['openTrialModal']);
-
 
 const availableSlots = ref({
     Adulto: [
@@ -72,16 +70,18 @@ const availableSlots = ref({
 
 .modality-card {
     background-color: var(--white);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 30px;
+    border-radius: 16px;
+    /* Ajustado para o novo design (borda arredondada) */
+    padding: 40px;
     margin-bottom: 40px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    /* Nova sombra suave */
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
 }
 
 .modality-card h2 {
-    font-size: 28px;
-    color: var(--primary-blue);
+    font-size: 32px;
+    /* Atualizado: De primary-blue para primary-navy */
+    color: var(--primary-navy);
     margin-bottom: 25px;
     border-bottom: 2px solid var(--border-color);
     padding-bottom: 10px;
@@ -95,8 +95,9 @@ const availableSlots = ref({
 
 .day-column {
     background-color: var(--light-gray);
-    padding: 15px;
-    border-radius: 8px;
+    padding: 20px;
+    border-radius: 12px;
+    /* Mais arredondado */
 }
 
 .day-column h3 {
@@ -111,24 +112,31 @@ const availableSlots = ref({
 .time-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
     justify-content: center;
 }
 
 .time-slot {
     display: inline-block;
-    background-color: var(--primary-blue);
+    /* Atualizado: De primary-blue para accent-blue */
+    background-color: var(--accent-blue);
     color: white;
-    padding: 6px 12px;
-    border-radius: 4px;
+    padding: 8px 16px;
+    border-radius: 8px;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 700;
+    transition: transform 0.2s;
+}
+
+.time-slot:hover {
+    transform: scale(1.05);
+    background-color: var(--primary-navy);
 }
 
 .observation {
     margin-top: 20px;
     text-align: center;
-    color: var(--text-light);
+    color: var(--medium-gray);
     font-style: italic;
     font-size: 14px;
 }

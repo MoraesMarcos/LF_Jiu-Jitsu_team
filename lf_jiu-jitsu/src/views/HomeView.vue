@@ -1,11 +1,14 @@
 <template>
   <main>
     <Hero @openTrialModal="openModal" />
+
     <Modalidades />
     <AboutSection />
     <InstrutorSection />
+
     <PlanoSection @openTrialModal="$emit('openTrialModal')" />
-    <CtaSection />
+
+    <CtaSection @openTrialModal="openModal" />
   </main>
 </template>
 
@@ -20,7 +23,7 @@ import Hero from '@/components/Hero.vue';
 const emit = defineEmits(['openTrialModal']);
 
 const openModal = () => {
-
+  // Repassa o evento para o componente pai (App.vue)
   emit('openTrialModal');
 };
 </script>
