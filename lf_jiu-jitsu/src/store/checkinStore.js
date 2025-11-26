@@ -1,20 +1,9 @@
-// src/store/checkinStore.js
 import { reactive } from 'vue'
 import { alunosStore } from './alunosStore'
 
-// Datas de exemplo (você pode ajustar)
 const DATA_BASE = '2025-11-25'
 
-/**
- * turma:
- *  - 'adulto'
- *  - 'kids'
- *  - 'feminino'
- *  - 'misto'
- */
-
 const sessoesMock = [
-  // --- Terça, 25/11 ---
   {
     id: '25-11-05h-adulto',
     data: DATA_BASE,
@@ -23,7 +12,7 @@ const sessoesMock = [
     instrutor: 'Mestre Silva',
     turma: 'adulto',
     capacidade: 18,
-    presencas: [2, 5] // Pedro Silva, Carlos Gabriel
+    presencas: [2, 5]
   },
   {
     id: '25-11-09h-misto',
@@ -43,7 +32,7 @@ const sessoesMock = [
     instrutor: 'Professor João',
     turma: 'misto',
     capacidade: 25,
-    presencas: [2, 5, 9] // já tem 3/25
+    presencas: [2, 5, 9]
   },
   {
     id: '25-11-14h-adulto',
@@ -63,7 +52,7 @@ const sessoesMock = [
     instrutor: 'Instrutora Ana',
     turma: 'feminino',
     capacidade: 18,
-    presencas: [4, 6, 7, 8] // Ana, Cristiane, Dayse, Karlinha -> 4/18
+    presencas: [4, 6, 7, 8]
   },
   {
     id: '25-11-17h30-kids',
@@ -90,35 +79,39 @@ const sessoesMock = [
 export const checkinStore = reactive({
   sessoes: sessoesMock,
 
-  // Sessões filtradas por data e perfil do aluno
-  sessoesDoDia (dataIso) {
+  sessoesDoDia(dataIso) {
     const user = alunosStore.currentUser
     if (!user) return []
 
     return this.sessoes.filter(s => {
       const mesmaData = s.data === dataIso
-      const mesmaTurma =
-        s.turma === user.perfilTreino ||
-        s.turma === 'misto' // mistas aparecem para todo mundo
-      return mesmaData && mesmaTurma
+
+      let acessoPermitido = false
+
+      if (user.profile === 'kids') {
+        acessoPermitido = (s.turma === 'kids')
+      } else if (user.profile === 'feminino') {
+        acessoPermitido = (s.turma === 'feminino' || s.turma === 'misto')
+      } else {
+        acessoPermitido = (s.turma === 'adulto' || s.turma === 'misto')
+      }
+
+      return mesmaData && acessoPermitido
     })
   },
 
-  // Contagem de presentes
-  presentesNaSessao (idSessao) {
+  presentesNaSessao(idSessao) {
     const s = this.sessoes.find(s => s.id === idSessao)
     return s ? s.presencas.length : 0
   },
 
-  // Se o usuário atual já está presente
-  isChecked (idSessao) {
+  isChecked(idSessao) {
     const s = this.sessoes.find(s => s.id === idSessao)
     if (!s || !alunosStore.currentUser) return false
     return s.presencas.includes(alunosStore.currentUser.id)
   },
 
-  // Alterna check-in do aluno atual
-  toggleCheckin (idSessao) {
+  toggleCheckin(idSessao) {
     const s = this.sessoes.find(s => s.id === idSessao)
     const user = alunosStore.currentUser
     if (!s || !user) return
@@ -131,8 +124,7 @@ export const checkinStore = reactive({
     }
   },
 
-  // Nomes da lista de presença
-  listaPresenca (idSessao) {
+  listaPresenca(idSessao) {
     const s = this.sessoes.find(s => s.id === idSessao)
     if (!s) return []
     return alunosStore.lista.filter(a => s.presencas.includes(a.id))

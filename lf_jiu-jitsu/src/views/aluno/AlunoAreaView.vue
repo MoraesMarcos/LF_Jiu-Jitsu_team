@@ -1,7 +1,5 @@
-<!-- src/views/aluno/AlunoAreaView.vue -->
 <template>
   <main class="aluno-shell">
-    <!-- Se não estiver logado -->
     <section v-if="!currentUser" class="not-auth">
       <p>Você precisa entrar na Área do Aluno.</p>
       <RouterLink to="/login-aluno" class="btn btn-primary">Ir para login</RouterLink>
@@ -20,25 +18,15 @@
         </button>
       </header>
 
-      <!-- Tabs internas -->
       <nav class="tabs" aria-label="Seções da Área do Aluno">
-        <button
-          class="tab"
-          :class="{ active: activeTab === 'dashboard' }"
-          @click="activeTab = 'dashboard'"
-        >
+        <button class="tab" :class="{ active: activeTab === 'dashboard' }" @click="activeTab = 'dashboard'">
           Dashboard
         </button>
-        <button
-          class="tab"
-          :class="{ active: activeTab === 'agenda' }"
-          @click="activeTab = 'agenda'"
-        >
+        <button class="tab" :class="{ active: activeTab === 'agenda' }" @click="activeTab = 'agenda'">
           Agenda / Check-in
         </button>
       </nav>
 
-      <!-- DASHBOARD -->
       <section v-if="activeTab === 'dashboard'" class="dashboard" aria-label="Resumo do aluno">
         <div class="grid-3">
           <article class="card highlight" aria-label="Resumo de plano e faixa do aluno">
@@ -152,7 +140,6 @@
         </article>
       </section>
 
-      <!-- AGENDA / CHECK-IN -->
       <section v-else class="agenda" aria-label="Agenda de aulas para check-in">
         <header class="agenda-head">
           <h2>Agenda / Check-in</h2>
@@ -163,26 +150,14 @@
         </header>
 
         <div class="date-strip" role="tablist" aria-label="Dias disponíveis">
-          <button
-            v-for="d in days"
-            :key="d"
-            class="day-pill"
-            :class="{ active: selectedDate === d }"
-            @click="selectedDate = d"
-            role="tab"
-            :aria-selected="selectedDate === d"
-          >
+          <button v-for="d in days" :key="d" class="day-pill" :class="{ active: selectedDate === d }"
+            @click="selectedDate = d" role="tab" :aria-selected="selectedDate === d">
             {{ formatDate(d) }}
           </button>
         </div>
 
         <div v-if="listByDate.length" class="list">
-          <article
-            v-for="s in listByDate"
-            :key="s.id"
-            class="card session"
-            :aria-label="`Turma de ${s.name} das ${toHour(s.start)} às ${toHour(s.end)}`"
-          >
+          <article v-for="s in listByDate" :key="s.id" class="card session">
             <div class="info">
               <div class="time">{{ toHour(s.start) }}–{{ toHour(s.end) }}</div>
               <div class="name">{{ s.name }}</div>
@@ -190,16 +165,11 @@
             </div>
 
             <div class="right">
-              <div class="cap">
-                <span class="dot" :class="{ on: attendeesCount(s.id) > 0 }" aria-hidden="true"></span>
-                {{ attendeesCount(s.id) }}/{{ s.capacity }}
-              </div>
-              <button
-                class="btn"
-                :class="isBooked(s.id) ? 'btn-checked' : 'btn-primary'"
-                @click="toggle(s)"
-                :aria-pressed="isBooked(s.id)"
-              >
+              <button class="btn-text" @click="abrirListaPresenca(s.id, s.name)">
+                Ver lista ({{ attendeesCount(s.id) }}/{{ s.capacity }})
+              </button>
+
+              <button class="btn" :class="isBooked(s.id) ? 'btn-checked' : 'btn-primary'" @click="toggle(s)">
                 {{ isBooked(s.id) ? 'Check-in realizado' : 'Fazer check-in' }}
               </button>
             </div>
@@ -209,28 +179,44 @@
         <p v-else class="muted center-msg">Nenhuma aula neste dia para o seu perfil.</p>
       </section>
     </section>
+
+    <div v-if="modalAberto" class="modal-overlay" @click.self="fecharModal">
+      <div class="modal-card">
+        <header class="modal-header">
+          <h3>Lista de Presença</h3>
+          <p>{{ modalTitulo }}</p>
+          <button class="icon-close" @click="fecharModal">×</button>
+        </header>
+        <div class="modal-body">
+          <ul v-if="listaAtual.length > 0" class="presenca-list">
+            <li v-for="aluno in listaAtual" :key="aluno.id">
+              <span class="dot"></span> {{ aluno.name }} ({{ aluno.belt }})
+            </li>
+          </ul>
+          <p v-else class="muted">Nenhum aluno confirmado ainda.</p>
+        </div>
+      </div>
+    </div>
   </main>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { useRouter, RouterLink } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { alunosStore } from '@/store/alunosStore'
+import { checkinStore } from '@/store/checkinStore'
 import { useBookings } from '@/composables/useBookings'
 import { toggleBookingWithRules } from '@/rules'
 
 const router = useRouter()
-
 const currentUser = computed(() => alunosStore.currentUser)
 
-// se abrir /aluno sem estar logado
 onMounted(() => {
   if (!currentUser.value) {
     router.replace('/login-aluno')
   }
 })
 
-// reage ao logout
 watch(currentUser, (val) => {
   if (!val) {
     router.replace('/login-aluno')
@@ -239,19 +225,17 @@ watch(currentUser, (val) => {
 
 const activeTab = ref('dashboard')
 
-// iniciais avatar
 const iniciais = computed(() =>
   currentUser.value?.name
     ? currentUser.value.name
-        .split(' ')
-        .map(p => p[0])
-        .slice(0, 2)
-        .join('')
-        .toUpperCase()
+      .split(' ')
+      .map(p => p[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase()
     : 'LF'
 )
 
-// ---- Dashboard (mock visual) ----
 const stats = ref({
   aulasMes: 8,
   presencasAno: 42,
@@ -271,7 +255,6 @@ const pagamentos = ref([
   { mes: 'Dez/2025', valor: 70, status: 'Pendente' }
 ])
 
-// Perfil edição (mock – só visual)
 const perfil = ref({
   nome: '',
   telefone: '',
@@ -288,7 +271,7 @@ onMounted(() => {
   }
 })
 
-function salvarPerfil () {
+function salvarPerfil() {
   if (!perfil.value.nome || !perfil.value.email) return
   salvo.value = true
   setTimeout(() => {
@@ -296,7 +279,7 @@ function salvarPerfil () {
   }, 2000)
 }
 
-function resetarPerfil () {
+function resetarPerfil() {
   if (currentUser.value) {
     perfil.value = {
       nome: currentUser.value.name,
@@ -308,14 +291,12 @@ function resetarPerfil () {
   }
 }
 
-function logout () {
+function logout() {
   alunosStore.logout()
-  // watch em currentUser faz o redirect
 }
 
-// --------- Agenda / Check-in ---------
 const userId = computed(() => currentUser.value?.id || 'aluno_demo')
-const userProfile = computed(() => currentUser.value?.profile || 'Adulto/Misto')
+const userProfile = computed(() => currentUser.value?.profile || 'adulto')
 
 const {
   days,
@@ -326,7 +307,7 @@ const {
   replaceSession
 } = useBookings(userId, userProfile)
 
-function formatDate (isoDate) {
+function formatDate(isoDate) {
   const d = new Date(isoDate + 'T00:00:00')
   return d.toLocaleDateString('pt-BR', {
     weekday: 'short',
@@ -335,14 +316,14 @@ function formatDate (isoDate) {
   })
 }
 
-function toHour (iso) {
+function toHour(iso) {
   return new Date(iso).toLocaleTimeString('pt-BR', {
     hour: '2-digit',
     minute: '2-digit'
   })
 }
 
-function toggle (session) {
+function toggle(session) {
   const updated = { ...session }
   const res = toggleBookingWithRules(updated, userId.value, new Date())
   if (!res.ok) {
@@ -351,10 +332,24 @@ function toggle (session) {
   }
   replaceSession(updated)
 }
+
+const modalAberto = ref(false)
+const modalTitulo = ref('')
+const listaAtual = ref([])
+
+function abrirListaPresenca(sessionId, sessionName) {
+  modalTitulo.value = sessionName
+  listaAtual.value = checkinStore.listaPresenca(sessionId)
+  modalAberto.value = true
+}
+
+function fecharModal() {
+  modalAberto.value = false
+  listaAtual.value = []
+}
 </script>
 
 <style scoped>
-/* (mantive o mesmo CSS que você já tinha, com pequenos ajustes) */
 .aluno-shell {
   padding: 32px 0 64px;
   background: #f8fafc;
@@ -390,7 +385,6 @@ function toggle (session) {
   font-size: 14px;
 }
 
-/* TABS */
 .tabs {
   display: inline-flex;
   padding: 4px;
@@ -415,7 +409,6 @@ function toggle (session) {
   color: #1d4ed8;
 }
 
-/* CARDS / GRID */
 .grid-3 {
   display: grid;
   gap: 18px;
@@ -486,7 +479,6 @@ function toggle (session) {
   color: #fee2e2;
 }
 
-/* Tabela pagamentos */
 .table {
   width: 100%;
   border-collapse: collapse;
@@ -501,7 +493,6 @@ function toggle (session) {
   text-align: left;
 }
 
-/* Lista aulas */
 .list {
   list-style: none;
   padding: 0;
@@ -516,7 +507,6 @@ function toggle (session) {
   border-bottom: 1px solid #f1f5f9;
 }
 
-/* Agenda */
 .agenda-head {
   margin-bottom: 14px;
 }
@@ -574,27 +564,6 @@ function toggle (session) {
   gap: 12px;
 }
 
-.cap {
-  font-weight: 600;
-  font-size: 14px;
-  color: #475569;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: #e5e7eb;
-}
-
-.dot.on {
-  background: #22c55e;
-}
-
-/* Botões */
 .btn {
   padding: 9px 14px;
   border-radius: 999px;
@@ -630,6 +599,16 @@ function toggle (session) {
   border-color: #fecaca;
 }
 
+.btn-text {
+  background: transparent;
+  border: none;
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 .badge {
   display: inline-block;
   padding: 4px 8px;
@@ -650,7 +629,6 @@ function toggle (session) {
   color: #92400e;
 }
 
-/* Form perfil */
 .form {
   display: grid;
   gap: 12px;
@@ -690,14 +668,93 @@ function toggle (session) {
   margin-top: 40px;
 }
 
-/* Responsivo */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-card {
+  background: white;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.modal-header p {
+  margin: 0;
+  font-size: 12px;
+  color: #64748b;
+  position: absolute;
+  top: 40px;
+  left: 16px;
+}
+
+.icon-close {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.modal-body {
+  padding: 24px 16px 16px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.presenca-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.presenca-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  background: #22c55e;
+  border-radius: 50%;
+}
+
 @media (max-width: 960px) {
   .grid-3 {
     grid-template-columns: 1fr;
   }
+
   .grid-2 {
     grid-template-columns: 1fr;
   }
+
   .aluno-head {
     flex-direction: column;
     align-items: flex-start;
