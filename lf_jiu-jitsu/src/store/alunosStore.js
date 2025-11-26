@@ -1,78 +1,132 @@
+// src/store/alunosStore.js
 import { reactive } from 'vue'
 
-const KEY = 'lf_alunos_v1'
-const LOGGED_KEY = 'lf_aluno_logged_data'
+/**
+ * perfisTreino:
+ *  - 'adulto'
+ *  - 'kids'
+ *  - 'feminino'
+ *  - 'misto'
+ */
 
-const defaultAlunos = [
-    { id: 1, name: 'Pedro Silva', username: 'lf.pedrosilva', password: '123', plan: 'Mensal', status: 'Ativo' },
-    { id: 2, name: 'Maria Souza', username: 'lf.mariasouza', password: '123', plan: 'Trimestral', status: 'Pendente' }
+const alunosMock = [
+  {
+    id: 1,
+    nome: 'Maria Souza',
+    login: 'lf.mariasouza',
+    faixa: 'Branca',
+    plano: 'Trimestral',
+    perfilTreino: 'feminino'
+  },
+  {
+    id: 2,
+    nome: 'Pedro Silva',
+    login: 'lf.pedrosilva',
+    faixa: 'Azul',
+    plano: 'Mensal',
+    perfilTreino: 'adulto'
+  },
+  {
+    id: 3,
+    nome: 'João Kids',
+    login: 'lf.joaokids',
+    faixa: 'Branca',
+    plano: 'Mensal',
+    perfilTreino: 'kids'
+  },
+  {
+    id: 4,
+    nome: 'Ana Feminina',
+    login: 'lf.anafem',
+    faixa: 'Azul',
+    plano: 'Mensal',
+    perfilTreino: 'feminino'
+  },
+  {
+    id: 5,
+    nome: 'Carlos Gabriel',
+    login: 'lf.carlosgabriel',
+    faixa: 'Roxa',
+    plano: 'Mensal',
+    perfilTreino: 'adulto'
+  },
+  {
+    id: 6,
+    nome: 'Cristiane Lima',
+    login: 'lf.cristiane',
+    faixa: 'Branca',
+    plano: 'Mensal',
+    perfilTreino: 'feminino'
+  },
+  {
+    id: 7,
+    nome: 'Dayse Albuquerque',
+    login: 'lf.dayse',
+    faixa: 'Azul',
+    plano: 'Trimestral',
+    perfilTreino: 'feminino'
+  },
+  {
+    id: 8,
+    nome: 'Karlinha Magalhães',
+    login: 'lf.karlinha',
+    faixa: 'Branca',
+    plano: 'Mensal',
+    perfilTreino: 'feminino'
+  },
+  {
+    id: 9,
+    nome: 'Perfil Privado',
+    login: 'lf.privado',
+    faixa: 'Branca',
+    plano: 'Mensal',
+    perfilTreino: 'misto'
+  }
 ]
 
-const stored = localStorage.getItem(KEY)
-const initialList = stored ? JSON.parse(stored) : defaultAlunos
-
-const storedSession = localStorage.getItem(LOGGED_KEY)
-const initialSession = storedSession ? JSON.parse(storedSession) : null
-
-export const alunosStore = reactive({
-    list: initialList,
-    currentUser: initialSession,
-
-    save() {
-        localStorage.setItem(KEY, JSON.stringify(this.list))
-    },
-
-    addAluno(data) {
-        const cleanName = data.name.toLowerCase().replace(/\s+/g, '').normalize('NFD').replace(/[\u0300-\u036f]/g, "")
-        const username = `lf.${cleanName}`
-
-        const newAluno = {
-            id: Date.now(),
-            ...data,
-            username: username,
-            password: '123',
-            status: 'Ativo'
-        }
-
-        this.list.push(newAluno)
-        this.save()
-    },
-
-    removeAluno(id) {
-        const index = this.list.findIndex(a => a.id === id)
-        if (index !== -1) {
-            this.list.splice(index, 1)
-            this.save()
-        }
-    },
-
-    login(username, password) {
-        const aluno = this.list.find(a => a.username === username && a.password === password)
-        if (aluno) {
-            this.currentUser = aluno
-            localStorage.setItem(LOGGED_KEY, JSON.stringify(aluno))
-            return true
-        }
-        return false
-    },
-
-    logout() {
-        this.currentUser = null
-        localStorage.removeItem(LOGGED_KEY)
-    },
-
-    // Nova função para resetar senha
-    recoverPassword(username) {
-        const index = this.list.findIndex(a => a.username === username)
-
-        if (index !== -1) {
-            // Define uma senha temporária fixa para teste
-            const tempPass = 'mudar123'
-            this.list[index].password = tempPass
-            this.save()
-            return { ok: true, tempPass }
-        }
-
-        return { ok: false }
-    }
+const state = reactive({
+  currentUser: null,
+  lista: alunosMock
 })
+
+function normalizarAluno (a) {
+  if (!a) return null
+  return {
+    ...a,
+    // aliases pro front:
+    name: a.nome ?? a.name,
+    belt: a.faixa ?? a.belt ?? 'Branca',
+    plan: a.plano ?? a.plan ?? 'Mensal',
+    profile: a.perfilTreino ?? a.profile ?? 'adulto'
+  }
+}
+
+// começa logado com a Maria, igual antes (pode tirar se quiser sempre começar deslogado)
+state.currentUser = normalizarAluno(alunosMock[0])
+
+export const alunosStore = {
+  get currentUser () {
+    return state.currentUser
+  },
+  get lista () {
+    return state.lista
+  },
+
+  login (username, password) {
+    // PoC: senha fixa 123
+    const aluno = state.lista.find(a => a.login === username)
+    if (!aluno) return false
+    if (password && password !== '123') return false
+    state.currentUser = normalizarAluno(aluno)
+    return true
+  },
+
+  logout () {
+    state.currentUser = null
+  }
+}
+
+// helper
+export function getAlunoById (id) {
+  return state.lista.find(a => a.id === id) || null
+}

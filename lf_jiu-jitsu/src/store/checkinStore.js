@@ -1,82 +1,140 @@
 // src/store/checkinStore.js
 import { reactive } from 'vue'
+import { alunosStore } from './alunosStore'
 
-const STORAGE_KEY = 'lf_checkin_classes_v1'
+// Datas de exemplo (você pode ajustar)
+const DATA_BASE = '2025-11-25'
 
-// dados mock: gere IDs legíveis (ex.: 2025-11-20-0530)
-function mkId(date, time) {
-  return `${date}-${time.replace(':', '')}`
-}
+/**
+ * turma:
+ *  - 'adulto'
+ *  - 'kids'
+ *  - 'feminino'
+ *  - 'misto'
+ */
 
-// data de hoje (YYYY-MM-DD)
-function todayISO() {
-  const d = new Date()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${d.getFullYear()}-${m}-${day}`
-}
-
-// carrega/salva
-function load() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (raw) return JSON.parse(raw)
-  } catch {}
-  return null
-}
-function save(state) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.classes))
-}
-
-// cria estado inicial (se não houver no localStorage)
-const defaultDate = todayISO()
-const initial = load() ?? [
-  { id: mkId(defaultDate, '05:30'), date: defaultDate, time: '05:30', coach: 'Thiago Victor', capacity: 20, attendees: [] },
-  { id: mkId(defaultDate, '06:30'), date: defaultDate, time: '06:30', coach: 'Thiago Victor', capacity: 25, attendees: [] },
-  { id: mkId(defaultDate, '07:30'), date: defaultDate, time: '07:30', coach: 'Thiago Victor', capacity: 25, attendees: [] },
-  { id: mkId(defaultDate, '12:30'), date: defaultDate, time: '12:30', coach: 'Carlos Henrique', capacity: 24, attendees: [] },
-  { id: mkId(defaultDate, '16:00'), date: defaultDate, time: '16:00', coach: 'Ronaldo Valença', capacity: 25, attendees: [] },
-  { id: mkId(defaultDate, '17:00'), date: defaultDate, time: '17:00', coach: 'Ronaldo Valença', capacity: 25, attendees: [] },
+const sessoesMock = [
+  // --- Terça, 25/11 ---
+  {
+    id: '25-11-05h-adulto',
+    data: DATA_BASE,
+    hora: '05:00',
+    titulo: 'Treino Normal Adulto',
+    instrutor: 'Mestre Silva',
+    turma: 'adulto',
+    capacidade: 18,
+    presencas: [2, 5] // Pedro Silva, Carlos Gabriel
+  },
+  {
+    id: '25-11-09h-misto',
+    data: DATA_BASE,
+    hora: '09:00',
+    titulo: 'Treino Normal Misto',
+    instrutor: 'Professor João',
+    turma: 'misto',
+    capacidade: 25,
+    presencas: [9]
+  },
+  {
+    id: '25-11-11h-especial',
+    data: DATA_BASE,
+    hora: '11:00',
+    titulo: 'Aula Especial Fundamentos',
+    instrutor: 'Professor João',
+    turma: 'misto',
+    capacidade: 25,
+    presencas: [2, 5, 9] // já tem 3/25
+  },
+  {
+    id: '25-11-14h-adulto',
+    data: DATA_BASE,
+    hora: '14:00',
+    titulo: 'Treino Normal Adulto',
+    instrutor: 'Mestre Silva',
+    turma: 'adulto',
+    capacidade: 18,
+    presencas: [2]
+  },
+  {
+    id: '25-11-16h-feminino',
+    data: DATA_BASE,
+    hora: '16:00',
+    titulo: 'Turma Feminina',
+    instrutor: 'Instrutora Ana',
+    turma: 'feminino',
+    capacidade: 18,
+    presencas: [4, 6, 7, 8] // Ana, Cristiane, Dayse, Karlinha -> 4/18
+  },
+  {
+    id: '25-11-17h30-kids',
+    data: DATA_BASE,
+    hora: '17:30',
+    titulo: 'Jiu-Jitsu Kids',
+    instrutor: 'Instrutor João',
+    turma: 'kids',
+    capacidade: 20,
+    presencas: [3]
+  },
+  {
+    id: '25-11-19h30-adulto',
+    data: DATA_BASE,
+    hora: '19:30',
+    titulo: 'Jiu-Jitsu Adulto No-Gi',
+    instrutor: 'Mestre Silva',
+    turma: 'adulto',
+    capacidade: 20,
+    presencas: [2, 5]
+  }
 ]
 
-const state = reactive({
-  classes: initial,
-})
+export const checkinStore = reactive({
+  sessoes: sessoesMock,
 
-export const checkinStore = {
-  state,
+  // Sessões filtradas por data e perfil do aluno
+  sessoesDoDia (dataIso) {
+    const user = alunosStore.currentUser
+    if (!user) return []
 
-  listByDate(dateISO) {
-    return state.classes.filter(c => c.date === dateISO)
-      .sort((a, b) => a.time.localeCompare(b.time))
+    return this.sessoes.filter(s => {
+      const mesmaData = s.data === dataIso
+      const mesmaTurma =
+        s.turma === user.perfilTreino ||
+        s.turma === 'misto' // mistas aparecem para todo mundo
+      return mesmaData && mesmaTurma
+    })
   },
 
-  getById(id) {
-    return state.classes.find(c => c.id === id)
+  // Contagem de presentes
+  presentesNaSessao (idSessao) {
+    const s = this.sessoes.find(s => s.id === idSessao)
+    return s ? s.presencas.length : 0
   },
 
-  checkIn(classId, student) {
-    const c = this.getById(classId)
-    if (!c) return { ok: false, message: 'Aula não encontrada.' }
-
-    if (c.attendees.some(a => a.id === student.id)) {
-      return { ok: false, message: 'Você já está confirmado.' }
-    }
-    if (c.attendees.length >= c.capacity) {
-      return { ok: false, message: 'A turma já atingiu a capacidade.' }
-    }
-    c.attendees.push(student)
-    save(state)
-    return { ok: true }
+  // Se o usuário atual já está presente
+  isChecked (idSessao) {
+    const s = this.sessoes.find(s => s.id === idSessao)
+    if (!s || !alunosStore.currentUser) return false
+    return s.presencas.includes(alunosStore.currentUser.id)
   },
 
-  remove(classId, studentId) {
-    const c = this.getById(classId)
-    if (!c) return
-    const idx = c.attendees.findIndex(a => a.id === studentId)
-    if (idx >= 0) {
-      c.attendees.splice(idx, 1)
-      save(state)
+  // Alterna check-in do aluno atual
+  toggleCheckin (idSessao) {
+    const s = this.sessoes.find(s => s.id === idSessao)
+    const user = alunosStore.currentUser
+    if (!s || !user) return
+
+    const idx = s.presencas.indexOf(user.id)
+    if (idx === -1) {
+      s.presencas.push(user.id)
+    } else {
+      s.presencas.splice(idx, 1)
     }
+  },
+
+  // Nomes da lista de presença
+  listaPresenca (idSessao) {
+    const s = this.sessoes.find(s => s.id === idSessao)
+    if (!s) return []
+    return alunosStore.lista.filter(a => s.presencas.includes(a.id))
   }
-}
+})
