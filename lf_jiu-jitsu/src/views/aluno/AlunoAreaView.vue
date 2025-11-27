@@ -10,15 +10,13 @@
         <div>
           <h1>Área do Aluno</h1>
           <p class="muted">
-            Olá, {{ currentUser.name }}. Acompanhe seu progresso, próximas aulas e pagamentos.
+            Olá, {{ currentUser.name }}.
           </p>
         </div>
-        <button class="btn-ghost" @click="logout">
-          Sair
-        </button>
+        <button class="btn-ghost" @click="logout">Sair</button>
       </header>
 
-      <nav class="tabs" aria-label="Seções da Área do Aluno">
+      <nav class="tabs">
         <button class="tab" :class="{ active: activeTab === 'dashboard' }" @click="activeTab = 'dashboard'">
           Dashboard
         </button>
@@ -27,131 +25,44 @@
         </button>
       </nav>
 
-      <section v-if="activeTab === 'dashboard'" class="dashboard" aria-label="Resumo do aluno">
+      <section v-if="activeTab === 'dashboard'" class="dashboard">
         <div class="grid-3">
-          <article class="card highlight" aria-label="Resumo de plano e faixa do aluno">
+          <article class="card highlight">
             <div class="profile">
-              <div class="avatar" :title="currentUser.name">{{ iniciais }}</div>
+              <div class="avatar">{{ iniciais }}</div>
               <div>
                 <h2>{{ currentUser.name }}</h2>
                 <p class="muted">
-                  Faixa: {{ currentUser.belt || 'Branca' }} · Plano: {{ currentUser.plan || 'Mensal' }} ·
-                  Perfil: {{ currentUser.profile || 'Adulto / Misto' }}
+                  {{ currentUser.belt }} · {{ currentUser.plan }} · {{ currentUser.profile }}
                 </p>
               </div>
             </div>
             <ul class="stats">
-              <li>
-                <span>Aulas no mês</span>
-                <strong>{{ stats.aulasMes }}</strong>
-              </li>
-              <li>
-                <span>Presenças no ano</span>
-                <strong>{{ stats.presencasAno }}</strong>
-              </li>
-              <li>
-                <span>Vencimento</span>
-                <strong :class="{ danger: stats.planoVencido }">{{ stats.vencimento }}</strong>
-              </li>
+              <li><span>Aulas Mês</span><strong>8</strong></li>
+              <li><span>Presenças Ano</span><strong>42</strong></li>
+              <li><span>Vencimento</span><strong>10/12/2025</strong></li>
             </ul>
-          </article>
-
-          <article class="card" aria-label="Próximas aulas">
-            <h3>Próximas aulas</h3>
-            <ul class="list">
-              <li v-for="(aula, i) in proximasAulas" :key="i" class="list-item">
-                <div>
-                  <strong>{{ aula.dia }} · {{ aula.hora }}</strong>
-                  <p class="muted">{{ aula.modalidade }} — Instrutor: {{ aula.prof }}</p>
-                </div>
-                <span class="badge" :class="{ ok: aula.confirmado }">
-                  {{ aula.confirmado ? 'Confirmado' : 'A confirmar' }}
-                </span>
-              </li>
-            </ul>
-          </article>
-
-          <article class="card" aria-label="Pagamentos recentes">
-            <h3>Pagamentos</h3>
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Mês</th>
-                  <th>Valor</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(p, i) in pagamentos" :key="i">
-                  <td>{{ p.mes }}</td>
-                  <td>R$ {{ p.valor.toFixed(2) }}</td>
-                  <td>
-                    <span class="badge" :class="{ ok: p.status === 'Pago', warn: p.status === 'Pendente' }">
-                      {{ p.status }}
-                    </span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
           </article>
         </div>
-
-        <article class="card" aria-label="Atualizar dados do aluno">
-          <h3>Atualizar dados</h3>
-          <form class="form" @submit.prevent="salvarPerfil" novalidate>
-            <div class="grid-3">
-              <label>
-                Nome completo
-                <input v-model.trim="perfil.nome" type="text" required />
-              </label>
-              <label>
-                WhatsApp
-                <input v-model.trim="perfil.telefone" type="tel" placeholder="(00) 90000-0000" />
-              </label>
-              <label>
-                E-mail
-                <input v-model.trim="perfil.email" type="email" required />
-              </label>
-            </div>
-
-            <div class="grid-2">
-              <label>
-                Objetivo no Jiu-Jitsu
-                <select v-model="perfil.objetivo">
-                  <option value="saude">Saúde e condicionamento</option>
-                  <option value="defesa">Defesa pessoal</option>
-                  <option value="competicao">Competição</option>
-                  <option value="recreativo">Recreativo</option>
-                </select>
-              </label>
-              <label class="row" style="gap: 8px">
-                <input type="checkbox" v-model="perfil.whatsapp" />
-                Receber lembretes por WhatsApp
-              </label>
-            </div>
-
-            <div class="row">
-              <button class="btn btn-primary" type="submit">Salvar alterações</button>
-              <button class="btn" type="button" @click="resetarPerfil">Cancelar</button>
-            </div>
-
-            <p v-if="salvo" class="ok-msg" role="status">Dados atualizados com sucesso.</p>
-          </form>
-        </article>
+        <p class="muted">Atualize seus dados na secretaria.</p>
       </section>
 
-      <section v-else class="agenda" aria-label="Agenda de aulas para check-in">
+      <section v-else class="agenda">
         <header class="agenda-head">
-          <h2>Agenda / Check-in</h2>
+          <h2>Check-in</h2>
           <p class="muted">
-            Escolha o dia e confirme sua presença nas aulas. O sistema mostra apenas turmas do seu
-            perfil: <strong>{{ currentUser.profile || 'Adulto / Misto' }}</strong>.
+            Aulas filtradas para seu perfil: <strong>{{ currentUser.profile }}</strong>.
           </p>
         </header>
 
-        <div class="date-strip" role="tablist" aria-label="Dias disponíveis">
-          <button v-for="d in days" :key="d" class="day-pill" :class="{ active: selectedDate === d }"
-            @click="selectedDate = d" role="tab" :aria-selected="selectedDate === d">
+        <div class="date-strip">
+          <button
+            v-for="d in days"
+            :key="d"
+            class="day-pill"
+            :class="{ active: selectedDate === d }"
+            @click="selectedDate = d"
+          >
             {{ formatDate(d) }}
           </button>
         </div>
@@ -159,24 +70,34 @@
         <div v-if="listByDate.length" class="list">
           <article v-for="s in listByDate" :key="s.id" class="card session">
             <div class="info">
-              <div class="time">{{ toHour(s.start) }}–{{ toHour(s.end) }}</div>
-              <div class="name">{{ s.name }}</div>
-              <div class="coach">Instrutor: {{ s.coach }}</div>
+              <div class="time">{{ s.time }}</div>
+              <div class="name">{{ s.name || s.titulo }}</div>
+              <div class="coach">{{ s.coach || s.instrutor }}</div>
             </div>
 
             <div class="right">
-              <button class="btn-text" @click="abrirListaPresenca(s.id, s.name)">
-                Ver lista ({{ attendeesCount(s.id) }}/{{ s.capacity }})
-              </button>
-
-              <button class="btn" :class="isBooked(s.id) ? 'btn-checked' : 'btn-primary'" @click="toggle(s)">
-                {{ isBooked(s.id) ? 'Check-in realizado' : 'Fazer check-in' }}
+              <div class="vagas-info">
+                <span class="vagas-count" :class="{ 'vagas-full': vagasRestantes(s) === 0 }">
+                  {{ vagasRestantes(s) }}/{{ s.capacity }} vagas
+                </span>
+                <button class="btn-text" @click="abrirListaPresenca(s.id, s.titulo)">
+                  Ver quem vai
+                </button>
+              </div>
+              
+              <button
+                class="btn"
+                :class="botaoClass(s)"
+                :disabled="vagasRestantes(s) === 0 && !isBooked(s.id)"
+                @click="toggle(s)"
+              >
+                {{ textoBotao(s) }}
               </button>
             </div>
           </article>
         </div>
 
-        <p v-else class="muted center-msg">Nenhuma aula neste dia para o seu perfil.</p>
+        <p v-else class="muted center-msg">Nenhuma aula para seu perfil neste dia.</p>
       </section>
     </section>
 
@@ -190,10 +111,10 @@
         <div class="modal-body">
           <ul v-if="listaAtual.length > 0" class="presenca-list">
             <li v-for="aluno in listaAtual" :key="aluno.id">
-              <span class="dot"></span> {{ aluno.name }} ({{ aluno.belt }})
+              <span class="dot"></span> {{ aluno.name || aluno.nome }} ({{ aluno.belt || aluno.faixa }})
             </li>
           </ul>
-          <p v-else class="muted">Nenhum aluno confirmado ainda.</p>
+          <p v-else class="muted">Nenhum aluno confirmado ainda. Seja o primeiro!</p>
         </div>
       </div>
     </div>
@@ -210,129 +131,76 @@ import { toggleBookingWithRules } from '@/rules'
 
 const router = useRouter()
 const currentUser = computed(() => alunosStore.currentUser)
+const activeTab = ref('agenda') 
 
-onMounted(() => {
-  if (!currentUser.value) {
-    router.replace('/login-aluno')
-  }
-})
+onMounted(() => { if (!currentUser.value) router.replace('/login-aluno') })
+watch(currentUser, (val) => { if (!val) router.replace('/login-aluno') })
 
-watch(currentUser, (val) => {
-  if (!val) {
-    router.replace('/login-aluno')
-  }
-})
+function logout () { alunosStore.logout() }
 
-const activeTab = ref('dashboard')
+const iniciais = computed(() => currentUser.value?.name ? currentUser.value.name.slice(0,2).toUpperCase() : 'LF')
 
-const iniciais = computed(() =>
-  currentUser.value?.name
-    ? currentUser.value.name
-      .split(' ')
-      .map(p => p[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase()
-    : 'LF'
-)
-
-const stats = ref({
-  aulasMes: 8,
-  presencasAno: 42,
-  vencimento: '10/12/2025',
-  planoVencido: false
-})
-
-const proximasAulas = ref([
-  { dia: 'Hoje', hora: '19:30', modalidade: 'Jiu-Jitsu Adulto – Noite', prof: 'Mestre Silva', confirmado: true },
-  { dia: 'Qua', hora: '16:00', modalidade: 'Turma Feminina', prof: 'Instrutora Ana', confirmado: false },
-  { dia: 'Sex', hora: '11:00', modalidade: 'Aula Especial Fundamentos', prof: 'Professor João', confirmado: false }
-])
-
-const pagamentos = ref([
-  { mes: 'Out/2025', valor: 70, status: 'Pago' },
-  { mes: 'Nov/2025', valor: 70, status: 'Pago' },
-  { mes: 'Dez/2025', valor: 70, status: 'Pendente' }
-])
-
-const perfil = ref({
-  nome: '',
-  telefone: '',
-  email: '',
-  objetivo: 'saude',
-  whatsapp: true
-})
-const salvo = ref(false)
-
-onMounted(() => {
-  if (currentUser.value) {
-    perfil.value.nome = currentUser.value.name
-    perfil.value.email = currentUser.value.email || 'aluno@lfjiujitsu.com'
-  }
-})
-
-function salvarPerfil() {
-  if (!perfil.value.nome || !perfil.value.email) return
-  salvo.value = true
-  setTimeout(() => {
-    salvo.value = false
-  }, 2000)
-}
-
-function resetarPerfil() {
-  if (currentUser.value) {
-    perfil.value = {
-      nome: currentUser.value.name,
-      telefone: '',
-      email: currentUser.value.email || 'aluno@lfjiujitsu.com',
-      objetivo: 'saude',
-      whatsapp: true
-    }
-  }
-}
-
-function logout() {
-  alunosStore.logout()
-}
-
-const userId = computed(() => currentUser.value?.id || 'aluno_demo')
+const userId = computed(() => currentUser.value?.id || 'demo')
 const userProfile = computed(() => currentUser.value?.profile || 'adulto')
 
-const {
-  days,
-  selectedDate,
-  listByDate,
-  attendeesCount,
-  isBooked,
-  replaceSession
-} = useBookings(userId, userProfile)
+const { days, selectedDate, listByDate, attendeesCount, isBooked, replaceSession } = useBookings(userId, userProfile)
 
-function formatDate(isoDate) {
-  const d = new Date(isoDate + 'T00:00:00')
-  return d.toLocaleDateString('pt-BR', {
-    weekday: 'short',
-    day: '2-digit',
-    month: '2-digit'
-  })
+function formatDate (iso) {
+  const d = new Date(iso + 'T00:00:00')
+  return d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' })
 }
 
-function toHour(iso) {
-  return new Date(iso).toLocaleTimeString('pt-BR', {
-    hour: '2-digit',
-    minute: '2-digit'
-  })
+function vagasRestantes(s) {
+  const ocupadas = attendeesCount(s.id)
+  return Math.max(0, (s.capacity || 20) - ocupadas)
 }
 
-function toggle(session) {
-  const updated = { ...session }
-  const res = toggleBookingWithRules(updated, userId.value, new Date())
-  if (!res.ok) {
-    alert(res.message)
-    return
+function textoBotao(s) {
+  if (isBooked(s.id)) return 'Check-in realizado'
+  if (vagasRestantes(s) === 0) return 'LOTADO'
+  return 'Fazer check-in'
+}
+
+function botaoClass(s) {
+  if (isBooked(s.id)) return 'btn-checked'
+  if (vagasRestantes(s) === 0) return 'btn-full'
+  return 'btn-primary'
+}
+
+function toggle (session) {
+  // 1. Confirmação de cancelamento
+  if (isBooked(session.id)) {
+    const confirmarCancelamento = confirm('Você já confirmou presença. Deseja cancelar sua vaga?')
+    if (!confirmarCancelamento) return
   }
-  replaceSession(updated)
+
+  // 2. CORREÇÃO CRÍTICA: Cria uma cópia profunda da lista de attendees
+  // Se não fizer isso, a regra altera o array original antes da store, causando o bug de "duplo clique"
+  const updated = { 
+    ...session, 
+    attendees: [...session.attendees] 
+  }
+
+  // Valida as regras usando a cópia
+  const res = toggleBookingWithRules(updated, userId.value, new Date())
+  
+  if (!res.ok) { 
+    alert(res.message); 
+    return 
+  }
+  
+  // 3. Efetiva a ação na Store Real
+  checkinStore.toggleCheckin(session.id)
+
+  // 4. Feedback final
+  if (isBooked(session.id)) {
+    alert('✅ Vaga reservada com sucesso!')
+  } else {
+    alert('❌ Reserva cancelada. Vaga liberada.')
+  }
 }
 
+// Modal
 const modalAberto = ref(false)
 const modalTitulo = ref('')
 const listaAtual = ref([])
@@ -342,423 +210,69 @@ function abrirListaPresenca(sessionId, sessionName) {
   listaAtual.value = checkinStore.listaPresenca(sessionId)
   modalAberto.value = true
 }
-
-function fecharModal() {
-  modalAberto.value = false
-  listaAtual.value = []
-}
+function fecharModal() { modalAberto.value = false; listaAtual.value = [] }
 </script>
 
 <style scoped>
-.aluno-shell {
-  padding: 32px 0 64px;
-  background: #f8fafc;
-}
+.aluno-shell { padding: 32px 0 64px; background: #f8fafc; min-height: 100vh; }
+.aluno-container { max-width: 1000px; margin: 0 auto; padding: 0 16px; }
+.aluno-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.aluno-head h1 { margin: 0; font-size: 26px; }
+.muted { color: #64748b; font-size: 14px; }
 
-.aluno-container {
-  max-width: 1140px;
-  margin: 0 auto;
-  padding: 0 16px;
-}
+.tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+.tab { padding: 8px 16px; border-radius: 99px; border: 1px solid transparent; background: #e2e8f0; cursor: pointer; font-weight: 600; }
+.tab.active { background: #2563eb; color: white; }
 
-.not-auth {
-  min-height: 60vh;
-  display: grid;
-  place-items: center;
-}
+.grid-3 { display: grid; gap: 20px; margin-bottom: 20px; }
+.card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+.highlight { background: linear-gradient(135deg, #1e40af, #172554); color: white; }
+.highlight .muted { color: #bfdbfe; }
+.profile { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+.avatar { width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 50%; display: grid; place-items: center; font-weight: bold; }
+.stats { list-style: none; padding: 0; display: flex; gap: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; }
+.stats li { display: flex; flex-direction: column; }
+.stats span { font-size: 12px; opacity: 0.8; }
+.stats strong { font-size: 18px; }
 
-.aluno-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 18px;
-}
+.date-strip { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.day-pill { padding: 6px 14px; border-radius: 99px; border: 1px solid #cbd5e1; background: white; cursor: pointer; }
+.day-pill.active { background: #2563eb; color: white; border-color: #2563eb; }
 
-.aluno-head h1 {
-  margin: 0;
-  font-size: 28px;
-  color: #0f172a;
-}
+.list { display: flex; flex-direction: column; gap: 12px; }
+.card.session { display: flex; justify-content: space-between; align-items: center; }
+.info .time { font-weight: 800; font-size: 18px; color: #0f172a; }
+.info .name { font-weight: 600; margin: 2px 0; }
+.info .coach { font-size: 13px; color: #64748b; }
 
-.muted {
-  color: #64748b;
-  font-size: 14px;
-}
+.right { display: flex; align-items: center; gap: 20px; }
+.vagas-info { text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
+.vagas-count { font-size: 13px; font-weight: 700; color: #15803d; transition: color 0.3s; }
+.vagas-full { color: #dc2626; }
 
-.tabs {
-  display: inline-flex;
-  padding: 4px;
-  border-radius: 999px;
-  background: #e5e7eb;
-  margin-bottom: 20px;
-}
+.btn-text { background: none; border: none; color: #2563eb; font-size: 12px; text-decoration: underline; cursor: pointer; padding: 0; margin-top: 4px; }
 
-.tab {
-  padding: 8px 16px;
-  border-radius: 999px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 14px;
-  color: #374151;
-}
+.btn { padding: 10px 18px; border-radius: 99px; border: none; cursor: pointer; font-weight: 700; font-size: 14px; transition: all 0.2s; min-width: 150px; }
+.btn-primary { background: #2563eb; color: white; }
+.btn-checked { background: #22c55e; color: white; }
+.btn-full { background: #e5e7eb; color: #9ca3af; cursor: not-allowed; }
 
-.tab.active {
-  background: #ffffff;
-  color: #1d4ed8;
-}
+.btn-ghost { background: transparent; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
 
-.grid-3 {
-  display: grid;
-  gap: 18px;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1.1fr);
-  margin-bottom: 20px;
-}
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; padding: 20px; z-index: 100; }
+.modal-card { background: white; width: 100%; max-width: 400px; border-radius: 12px; overflow: hidden; }
+.modal-header { padding: 15px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+.modal-header h3 { margin: 0; font-size: 18px; }
+.modal-body { padding: 20px; max-height: 300px; overflow-y: auto; }
+.icon-close { background: none; border: none; font-size: 24px; cursor: pointer; }
+.presenca-list { list-style: none; padding: 0; margin: 0; }
+.presenca-list li { padding: 8px 0; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 10px; font-size: 14px; }
+.dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; }
 
-.grid-2 {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-}
-
-.card {
-  background: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  padding: 16px;
-  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.04);
-}
-
-.highlight {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 40%, #020617 100%);
-  color: #e5e7eb;
-}
-
-.profile {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.avatar {
-  width: 52px;
-  height: 52px;
-  border-radius: 999px;
-  background: #eff6ff;
-  color: #1d4ed8;
-  display: grid;
-  place-items: center;
-  font-weight: 800;
-  font-size: 20px;
-}
-
-.highlight .muted {
-  color: #cbd5f5;
-}
-
-.stats {
-  list-style: none;
-  margin: 12px 0 0;
-  padding: 0;
-  border-top: 1px solid rgba(148, 163, 184, 0.4);
-}
-
-.stats li {
-  display: flex;
-  justify-content: space-between;
-  padding-top: 6px;
-  font-size: 13px;
-}
-
-.stats strong {
-  font-size: 18px;
-}
-
-.danger {
-  color: #fee2e2;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 8px;
-  font-size: 13px;
-}
-
-.table th,
-.table td {
-  padding: 6px 4px;
-  border-bottom: 1px solid #e5e7eb;
-  text-align: left;
-}
-
-.list {
-  list-style: none;
-  padding: 0;
-  margin: 8px 0 0;
-}
-
-.list-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 0;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.agenda-head {
-  margin-bottom: 14px;
-}
-
-.date-strip {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 18px;
-}
-
-.day-pill {
-  padding: 7px 14px;
-  border-radius: 999px;
-  border: 1px solid #e5e7eb;
-  background: #ffffff;
-  cursor: pointer;
-  font-size: 14px;
-  color: #4b5563;
-}
-
-.day-pill.active {
-  background: #2563eb;
-  color: #ffffff;
-  border-color: #1d4ed8;
-}
-
-.card.session {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.info .time {
-  font-weight: 700;
-  font-size: 18px;
-  color: #0f172a;
-}
-
-.info .name {
-  font-weight: 600;
-  color: #334155;
-  margin-top: 2px;
-}
-
-.info .coach {
-  font-size: 13px;
-  color: #64748b;
-  margin-top: 2px;
-}
-
-.right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.btn {
-  padding: 9px 14px;
-  border-radius: 999px;
-  border: 1px solid #e5e7eb;
-  background: #ffffff;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.btn-primary {
-  background: #2563eb;
-  border-color: #2563eb;
-  color: #ffffff;
-}
-
-.btn-checked {
-  background: #22c55e;
-  border-color: #16a34a;
-  color: #ffffff;
-}
-
-.btn-ghost {
-  background: transparent;
-  border: 1px solid #e5e7eb;
-  color: #0f172a;
-  padding: 8px 14px;
-  border-radius: 999px;
-  cursor: pointer;
-}
-
-.btn-ghost:hover {
-  background: #fee2e2;
-  border-color: #fecaca;
-}
-
-.btn-text {
-  background: transparent;
-  border: none;
-  color: #2563eb;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.badge {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
-  background: #e5e7eb;
-  color: #0f172a;
-}
-
-.badge.ok {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.badge.warn {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.form {
-  display: grid;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.form input,
-.form select {
-  width: 100%;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-  padding: 8px 10px;
-  font-size: 14px;
-}
-
-.form input:focus,
-.form select:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
-  outline: none;
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.ok-msg {
-  margin-top: 6px;
-  color: #166534;
-  font-size: 13px;
-}
-
-.center-msg {
-  text-align: center;
-  margin-top: 40px;
-}
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  padding: 20px;
-}
-
-.modal-card {
-  background: white;
-  width: 100%;
-  max-width: 400px;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-}
-
-.modal-header {
-  padding: 16px;
-  border-bottom: 1px solid #e5e7eb;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.modal-header h3 {
-  margin: 0;
-  font-size: 18px;
-}
-
-.modal-header p {
-  margin: 0;
-  font-size: 12px;
-  color: #64748b;
-  position: absolute;
-  top: 40px;
-  left: 16px;
-}
-
-.icon-close {
-  background: transparent;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  line-height: 1;
-}
-
-.modal-body {
-  padding: 24px 16px 16px;
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.presenca-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.presenca-list li {
-  padding: 8px 0;
-  border-bottom: 1px solid #f1f5f9;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  background: #22c55e;
-  border-radius: 50%;
-}
-
-@media (max-width: 960px) {
-  .grid-3 {
-    grid-template-columns: 1fr;
-  }
-
-  .grid-2 {
-    grid-template-columns: 1fr;
-  }
-
-  .aluno-head {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
+@media (max-width: 600px) {
+  .card.session { flex-direction: column; align-items: flex-start; gap: 15px; }
+  .right { width: 100%; justify-content: space-between; }
+  .vagas-info { align-items: flex-start; text-align: left; }
 }
 </style>

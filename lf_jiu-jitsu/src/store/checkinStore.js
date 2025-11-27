@@ -1,91 +1,69 @@
 import { reactive } from 'vue'
 import { alunosStore } from './alunosStore'
 
-const DATA_BASE = '2025-11-25'
+// Datas da semana atual
+const QUI = '2025-11-27'
+const SEX = '2025-11-28'
+const SAB = '2025-11-29'
+const DOM = '2025-11-30'
+const SEG = '2025-12-01'
+const TER = '2025-12-02'
+const QUA = '2025-12-03'
 
 const sessoesMock = [
-  {
-    id: '25-11-05h-adulto',
-    data: DATA_BASE,
-    hora: '05:00',
-    titulo: 'Treino Normal Adulto',
-    instrutor: 'Mestre Silva',
-    turma: 'adulto',
-    capacidade: 18,
-    presencas: [2, 5]
-  },
-  {
-    id: '25-11-09h-misto',
-    data: DATA_BASE,
-    hora: '09:00',
-    titulo: 'Treino Normal Misto',
-    instrutor: 'Professor João',
-    turma: 'misto',
-    capacidade: 25,
-    presencas: [9]
-  },
-  {
-    id: '25-11-11h-especial',
-    data: DATA_BASE,
-    hora: '11:00',
-    titulo: 'Aula Especial Fundamentos',
-    instrutor: 'Professor João',
-    turma: 'misto',
-    capacidade: 25,
-    presencas: [2, 5, 9]
-  },
-  {
-    id: '25-11-14h-adulto',
-    data: DATA_BASE,
-    hora: '14:00',
-    titulo: 'Treino Normal Adulto',
-    instrutor: 'Mestre Silva',
-    turma: 'adulto',
-    capacidade: 18,
-    presencas: [2]
-  },
-  {
-    id: '25-11-16h-feminino',
-    data: DATA_BASE,
-    hora: '16:00',
-    titulo: 'Turma Feminina',
-    instrutor: 'Instrutora Ana',
-    turma: 'feminino',
-    capacidade: 18,
-    presencas: [4, 6, 7, 8]
-  },
-  {
-    id: '25-11-17h30-kids',
-    data: DATA_BASE,
-    hora: '17:30',
-    titulo: 'Jiu-Jitsu Kids',
-    instrutor: 'Instrutor João',
-    turma: 'kids',
-    capacidade: 20,
-    presencas: [3]
-  },
-  {
-    id: '25-11-19h30-adulto',
-    data: DATA_BASE,
-    hora: '19:30',
-    titulo: 'Jiu-Jitsu Adulto No-Gi',
-    instrutor: 'Mestre Silva',
-    turma: 'adulto',
-    capacidade: 20,
-    presencas: [2, 5]
-  }
+  // --- QUINTA-FEIRA (27/11) ---
+  { id: '27-11-06h-adulto', date: QUI, time: '06:00', titulo: 'Jiu-Jitsu Despertar', instrutor: 'Mestre Silva', turma: 'adulto', capacity: 20, attendees: [2] },
+  { id: '27-11-09h-misto', date: QUI, time: '09:00', titulo: 'Treino Técnico', instrutor: 'Professor João', turma: 'misto', capacity: 25, attendees: [] },
+  { id: '27-11-16h-kids', date: QUI, time: '16:00', titulo: 'Kids Avançado', instrutor: 'Instrutor João', turma: 'kids', capacity: 15, attendees: [3] },
+  { id: '27-11-18h-feminino', date: QUI, time: '18:00', titulo: 'Defesa Pessoal Feminina', instrutor: 'Instrutora Ana', turma: 'feminino', capacity: 20, attendees: [4, 6] },
+  { id: '27-11-19h30-adulto', date: QUI, time: '19:30', titulo: 'Treino Adulto Competição', instrutor: 'Mestre Silva', turma: 'adulto', capacity: 25, attendees: [5] },
+
+  // --- SEXTA-FEIRA (28/11) ---
+  { id: '28-11-07h-misto', date: SEX, time: '07:00', titulo: 'Drills & Posições', instrutor: 'Professor João', turma: 'misto', capacity: 20, attendees: [] },
+  { id: '28-11-10h-feminino', date: SEX, time: '10:00', titulo: 'Treino Feminino Manhã', instrutor: 'Instrutora Ana', turma: 'feminino', capacity: 15, attendees: [] },
+  { id: '28-11-15h-adulto', date: SEX, time: '15:00', titulo: 'Treino Livre', instrutor: 'Mestre Silva', turma: 'adulto', capacity: 20, attendees: [] },
+  { id: '28-11-17h-kids', date: SEX, time: '17:00', titulo: 'Kids Recreação', instrutor: 'Instrutor João', turma: 'kids', capacity: 20, attendees: [] },
+  { id: '28-11-19h-misto', date: SEX, time: '19:00', titulo: 'Aulão No-Gi (Sem Kimono)', instrutor: 'Mestre Silva', turma: 'misto', capacity: 30, attendees: [2, 5, 9] },
+
+  // --- SÁBADO (29/11) ---
+  { id: '29-11-09h-kids', date: SAB, time: '09:00', titulo: 'Aulão Kids', instrutor: 'Tia Ana & Tio João', turma: 'kids', capacity: 30, attendees: [3] },
+  { id: '29-11-10h30-misto', date: SAB, time: '10:30', titulo: 'Open Mat (Rola Solto)', instrutor: 'Todos', turma: 'misto', capacity: 40, attendees: [2, 4, 5, 6, 9] },
+
+  // --- DOMINGO (30/11) ---
+  { id: '30-11-10h-misto', date: DOM, time: '10:00', titulo: 'Seminário Especial', instrutor: 'Convidado', turma: 'misto', capacity: 50, attendees: [] },
+
+  // --- SEGUNDA-FEIRA (01/12) ---
+  { id: '01-12-06h-adulto', date: SEG, time: '06:00', titulo: 'Treino Adulto', instrutor: 'Mestre Silva', turma: 'adulto', capacity: 20, attendees: [] },
+  { id: '01-12-09h-feminino', date: SEG, time: '09:00', titulo: 'Treino Feminino', instrutor: 'Instrutora Ana', turma: 'feminino', capacity: 15, attendees: [] },
+  { id: '01-12-16h-kids', date: SEG, time: '16:00', titulo: 'Jiu-Jitsu Kids I', instrutor: 'Instrutor João', turma: 'kids', capacity: 15, attendees: [] },
+  { id: '01-12-18h-misto', date: SEG, time: '18:00', titulo: 'Fundamentos Básicos', instrutor: 'Professor João', turma: 'misto', capacity: 25, attendees: [] },
+  { id: '01-12-20h-adulto', date: SEG, time: '20:00', titulo: 'Treino Adulto Intensivo', instrutor: 'Mestre Silva', turma: 'adulto', capacity: 20, attendees: [] },
+
+  // --- TERÇA-FEIRA (02/12) ---
+  { id: '02-12-07h-misto', date: TER, time: '07:00', titulo: 'Treino Misto', instrutor: 'Mestre Silva', turma: 'misto', capacity: 20, attendees: [] },
+  { id: '02-12-10h-kids', date: TER, time: '10:00', titulo: 'Kids Matutino', instrutor: 'Instrutor João', turma: 'kids', capacity: 15, attendees: [] },
+  { id: '02-12-15h-feminino', date: TER, time: '15:00', titulo: 'Feminino Técnica', instrutor: 'Instrutora Ana', turma: 'feminino', capacity: 15, attendees: [] },
+  { id: '02-12-19h-adulto', date: TER, time: '19:00', titulo: 'Adulto Noite', instrutor: 'Professor João', turma: 'adulto', capacity: 25, attendees: [] },
+
+  // --- QUARTA-FEIRA (03/12) ---
+  { id: '03-12-06h-adulto', date: QUA, time: '06:00', titulo: 'Treino Adulto', instrutor: 'Mestre Silva', turma: 'adulto', capacity: 20, attendees: [] },
+  { id: '03-12-14h-feminino', date: QUA, time: '14:00', titulo: 'Treino Feminino', instrutor: 'Instrutora Ana', turma: 'feminino', capacity: 20, attendees: [] },
+  { id: '03-12-16h-kids', date: QUA, time: '16:00', titulo: 'Treino Kids', instrutor: 'Instrutor João', turma: 'kids', capacity: 15, attendees: [] },
+  { id: '03-12-18h-misto', date: QUA, time: '18:00', titulo: 'Treino Misto', instrutor: 'Professor João', turma: 'misto', capacity: 25, attendees: [] },
+  { id: '03-12-20h-adulto', date: QUA, time: '20:00', titulo: 'Treino Adulto', instrutor: 'Mestre Silva', turma: 'adulto', capacity: 20, attendees: [] }
 ]
 
 export const checkinStore = reactive({
   sessoes: sessoesMock,
 
+  // Filtra as sessões do dia e do perfil
   sessoesDoDia(dataIso) {
     const user = alunosStore.currentUser
     if (!user) return []
 
-    return this.sessoes.filter(s => {
-      const mesmaData = s.data === dataIso
-
+    // 1. Filtra por Data e Perfil usando 'date'
+    const filtradas = this.sessoes.filter(s => {
+      const mesmaData = s.date === dataIso
       let acessoPermitido = false
 
       if (user.profile === 'kids') {
@@ -95,20 +73,22 @@ export const checkinStore = reactive({
       } else {
         acessoPermitido = (s.turma === 'adulto' || s.turma === 'misto')
       }
-
       return mesmaData && acessoPermitido
     })
+
+    // 2. Ordena por Horário usando 'time'
+    return filtradas.sort((a, b) => a.time.localeCompare(b.time))
   },
 
   presentesNaSessao(idSessao) {
     const s = this.sessoes.find(s => s.id === idSessao)
-    return s ? s.presencas.length : 0
+    return s ? s.attendees.length : 0
   },
 
   isChecked(idSessao) {
     const s = this.sessoes.find(s => s.id === idSessao)
     if (!s || !alunosStore.currentUser) return false
-    return s.presencas.includes(alunosStore.currentUser.id)
+    return s.attendees.includes(alunosStore.currentUser.id)
   },
 
   toggleCheckin(idSessao) {
@@ -116,17 +96,17 @@ export const checkinStore = reactive({
     const user = alunosStore.currentUser
     if (!s || !user) return
 
-    const idx = s.presencas.indexOf(user.id)
+    const idx = s.attendees.indexOf(user.id)
     if (idx === -1) {
-      s.presencas.push(user.id)
+      s.attendees.push(user.id)
     } else {
-      s.presencas.splice(idx, 1)
+      s.attendees.splice(idx, 1)
     }
   },
 
   listaPresenca(idSessao) {
     const s = this.sessoes.find(s => s.id === idSessao)
     if (!s) return []
-    return alunosStore.lista.filter(a => s.presencas.includes(a.id))
+    return alunosStore.lista.filter(a => s.attendees.includes(a.id))
   }
 })
