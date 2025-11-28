@@ -1,13 +1,4 @@
-// src/store/alunosStore.js
 import { reactive } from 'vue'
-
-/**
- * perfisTreino:
- *  - 'adulto'
- *  - 'kids'
- *  - 'feminino'
- *  - 'misto'
- */
 
 const alunosMock = [
   {
@@ -16,7 +7,9 @@ const alunosMock = [
     login: 'lf.mariasouza',
     faixa: 'Branca',
     plano: 'Trimestral',
-    perfilTreino: 'feminino'
+    perfilTreino: 'feminino',
+    telefone: '(81) 99876-5432',
+    objetivo: 'Defesa Pessoal e Saúde'
   },
   {
     id: 2,
@@ -24,7 +17,9 @@ const alunosMock = [
     login: 'lf.pedrosilva',
     faixa: 'Azul',
     plano: 'Mensal',
-    perfilTreino: 'adulto'
+    perfilTreino: 'adulto',
+    telefone: '(81) 98888-1234',
+    objetivo: 'Competição'
   },
   {
     id: 3,
@@ -32,7 +27,9 @@ const alunosMock = [
     login: 'lf.joaokids',
     faixa: 'Branca',
     plano: 'Mensal',
-    perfilTreino: 'kids'
+    perfilTreino: 'kids',
+    telefone: '(81) 97777-0000 (Mãe)',
+    objetivo: 'Disciplina e Recreação'
   },
   {
     id: 4,
@@ -40,7 +37,9 @@ const alunosMock = [
     login: 'lf.anafem',
     faixa: 'Azul',
     plano: 'Mensal',
-    perfilTreino: 'feminino'
+    perfilTreino: 'feminino',
+    telefone: '(81) 91234-5678',
+    objetivo: 'Condicionamento Físico'
   },
   {
     id: 5,
@@ -48,7 +47,9 @@ const alunosMock = [
     login: 'lf.carlosgabriel',
     faixa: 'Roxa',
     plano: 'Mensal',
-    perfilTreino: 'adulto'
+    perfilTreino: 'adulto',
+    telefone: '(81) 92345-6789',
+    objetivo: 'Estilo de Vida'
   },
   {
     id: 6,
@@ -56,7 +57,9 @@ const alunosMock = [
     login: 'lf.cristiane',
     faixa: 'Branca',
     plano: 'Mensal',
-    perfilTreino: 'feminino'
+    perfilTreino: 'feminino',
+    telefone: '(81) 93456-7890',
+    objetivo: 'Defesa Pessoal'
   },
   {
     id: 7,
@@ -64,7 +67,9 @@ const alunosMock = [
     login: 'lf.dayse',
     faixa: 'Azul',
     plano: 'Trimestral',
-    perfilTreino: 'feminino'
+    perfilTreino: 'feminino',
+    telefone: '(81) 94567-8901',
+    objetivo: 'Saúde'
   },
   {
     id: 8,
@@ -72,7 +77,9 @@ const alunosMock = [
     login: 'lf.karlinha',
     faixa: 'Branca',
     plano: 'Mensal',
-    perfilTreino: 'feminino'
+    perfilTreino: 'feminino',
+    telefone: '(81) 95678-9012',
+    objetivo: 'Competição'
   },
   {
     id: 9,
@@ -80,7 +87,9 @@ const alunosMock = [
     login: 'lf.privado',
     faixa: 'Branca',
     plano: 'Mensal',
-    perfilTreino: 'misto'
+    perfilTreino: 'misto',
+    telefone: '(81) 90000-0000',
+    objetivo: 'Não informado'
   }
 ]
 
@@ -89,31 +98,32 @@ const state = reactive({
   lista: alunosMock
 })
 
-function normalizarAluno (a) {
+function normalizarAluno(a) {
   if (!a) return null
   return {
     ...a,
-    // aliases pro front:
     name: a.nome ?? a.name,
     belt: a.faixa ?? a.belt ?? 'Branca',
     plan: a.plano ?? a.plan ?? 'Mensal',
-    profile: a.perfilTreino ?? a.profile ?? 'adulto'
+    profile: a.perfilTreino ?? a.profile ?? 'adulto',
+    // Novos campos
+    phone: a.telefone ?? '(81) 99999-0000',
+    goal: a.objetivo ?? 'Saúde e Bem-estar'
   }
 }
 
-// começa logado com a Maria, igual antes (pode tirar se quiser sempre começar deslogado)
+// Inicializa logado com a Maria para facilitar o teste
 state.currentUser = normalizarAluno(alunosMock[0])
 
 export const alunosStore = {
-  get currentUser () {
+  get currentUser() {
     return state.currentUser
   },
-  get lista () {
+  get lista() {
     return state.lista
   },
 
-  login (username, password) {
-    // PoC: senha fixa 123
+  login(username, password) {
     const aluno = state.lista.find(a => a.login === username)
     if (!aluno) return false
     if (password && password !== '123') return false
@@ -121,12 +131,21 @@ export const alunosStore = {
     return true
   },
 
-  logout () {
+  logout() {
     state.currentUser = null
+  },
+
+  // Simulação de presença (persistência apenas em memória)
+  hasCheckin(dateKey, classId) { return false },
+  toggleCheckin(dateKey, classId) { },
+  getPresencas(dateKey, classId) { return [] },
+  recoverPassword(username) {
+    const found = state.lista.find(a => a.login === username)
+    if (found) return { ok: true, tempPass: '123' }
+    return { ok: false }
   }
 }
 
-// helper
-export function getAlunoById (id) {
+export function getAlunoById(id) {
   return state.lista.find(a => a.id === id) || null
 }
