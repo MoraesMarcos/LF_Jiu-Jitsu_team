@@ -5,9 +5,9 @@ const KEY = 'lf_schedule_v1'
 const defaultSchedule = [
   { id: 1, day: 'Segunda-feira', time: '19:30', modality: 'Adulto' },
   { id: 2, day: 'Segunda-feira', time: '17:00', modality: 'Kids' },
-  { id: 3, day: 'Terça-feira',  time: '07:00', modality: 'Adulto' },
+  { id: 3, day: 'Terça-feira', time: '07:00', modality: 'Adulto' },
   { id: 4, day: 'Quarta-feira', time: '19:30', modality: 'Adulto' },
-  { id: 5, day: 'Sexta-feira',  time: '18:00', modality: 'Feminino' }
+  { id: 5, day: 'Sexta-feira', time: '18:00', modality: 'Feminino' }
 ]
 
 const stored = localStorage.getItem(KEY)
@@ -16,16 +16,16 @@ const initialData = stored ? JSON.parse(stored) : defaultSchedule
 export const scheduleStore = reactive({
   classes: initialData,
 
-  save () {
+  save() {
     localStorage.setItem(KEY, JSON.stringify(this.classes))
   },
 
-  addClass (newClass) {
+  addClass(newClass) {
     this.classes.push({ ...newClass, id: Date.now() })
     this.save()
   },
 
-  removeClass (id) {
+  removeClass(id) {
     const index = this.classes.findIndex(c => c.id === id)
     if (index !== -1) {
       this.classes.splice(index, 1)
@@ -33,7 +33,8 @@ export const scheduleStore = reactive({
     }
   },
 
-  updateClass (updatedClass) {
+  // FUNÇÃO CRUCIAL PARA EDIÇÃO
+  updateClass(updatedClass) {
     const index = this.classes.findIndex(c => c.id === updatedClass.id)
     if (index !== -1) {
       this.classes[index] = updatedClass
@@ -41,15 +42,11 @@ export const scheduleStore = reactive({
     }
   },
 
-  get sortedClasses () {
+  // Ordena a lista para exibição
+  get sortedClasses() {
     const daysOrder = {
-      'Segunda-feira': 1,
-      'Terça-feira': 2,
-      'Quarta-feira': 3,
-      'Quinta-feira': 4,
-      'Sexta-feira': 5,
-      'Sábado': 6,
-      'Domingo': 7
+      'Segunda-feira': 1, 'Terça-feira': 2, 'Quarta-feira': 3,
+      'Quinta-feira': 4, 'Sexta-feira': 5, 'Sábado': 6, 'Domingo': 7
     }
 
     return [...this.classes].sort((a, b) => {
