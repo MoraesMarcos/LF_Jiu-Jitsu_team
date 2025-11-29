@@ -88,7 +88,9 @@
             <form @submit.prevent="salvarDados" class="edit-form">
               <div class="form-group">
                 <label>Telefone / WhatsApp</label>
-                <input v-model="formPerfil.phone" type="text" placeholder="(00) 00000-0000" />
+                <input v-model="formPerfil.phone" type="tel" placeholder="(00) 00000-0000"
+                  @input="aplicarMascaraTelefone" maxlength="15" />
+                <small v-if="erroTelefone" class="error-text">{{ erroTelefone }}</small>
               </div>
 
               <div class="form-group">
@@ -188,27 +190,22 @@
     <Transition name="fade">
       <div v-if="notification.visible" class="modal-overlay" @click.self="fecharNotificacao">
         <div class="modal-card notification-card">
-
           <div class="status-icon" :class="notification.type">
             <span v-if="notification.type === 'success'">✔</span>
             <span v-else-if="notification.type === 'error'">✖</span>
             <span v-else>?</span>
           </div>
-
           <h3>{{ notification.title }}</h3>
           <p class="notif-msg">{{ notification.message }}</p>
-
           <div class="notif-actions">
             <template v-if="notification.type === 'confirm'">
               <button class="btn btn-secondary" @click="fecharNotificacao">Cancelar</button>
               <button class="btn btn-primary" @click="confirmarAcao">Confirmar</button>
             </template>
-
             <template v-else>
               <button class="btn btn-primary full" @click="fecharNotificacao">Entendi</button>
             </template>
           </div>
-
         </div>
       </div>
     </Transition>
@@ -244,15 +241,63 @@ function logout() { alunosStore.logout() }
 
 const iniciais = computed(() => currentUser.value?.name ? currentUser.value.name.slice(0, 2).toUpperCase() : 'LF')
 
-// --- LÓGICA DE EDIÇÃO ---
+// --- LÓGICA DE EDIÇÃO DE PERFIL ---
 const formPerfil = ref({ phone: '', goal: '' })
 const feedbackSalvo = ref(false)
+const erroTelefone = ref('')
+
+// CORREÇÃO: Máscara mais flexível para permitir apagar
+function aplicarMascaraTelefone(e) {
+  let v = e.target.value.replace(/\D/g, "") // Remove não-dígitos
+
+  if (v.length > 11) v = v.slice(0, 11)
+
+  // Só aplica a formatação se tiver dígitos suficientes
+  if (v.length > 10) {
+    // 11 dígitos: (XX) XXXXX-XXXX
+    v = v.replace(/^(\d{2})(\d{5})(\d{4})/, "($1) $2-$3")
+  } else if (v.length > 6) {
+    // 7 a 10 dígitos: (XX) XXXX-XXXX (O traço só entra depois do 6º dígito)
+    v = v.replace(/^(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3")
+  } else if (v.length > 2) {
+    // 3 a 6 dígitos: (XX) XXX...
+    v = v.replace(/^(\d{2})(\d{0,5})/, "($1) $2")
+  } else {
+    // 0 a 2 dígitos: (XX...
+    if (v.length > 0) {
+      v = v.replace(/^(\d*)/, "($1")
+    }
+  }
+
+  formPerfil.value.phone = v
+  erroTelefone.value = ''
+}
 
 function salvarDados() {
+  erroTelefone.value = ''
+
+  const numeros = formPerfil.value.phone.replace(/\D/g, '')
+
+  if (numeros.length < 10) {
+    erroTelefone.value = 'O telefone deve ter pelo menos 10 dígitos (DDD + Número).'
+    return
+  }
+
+  // Backup formatação se o usuário colou
+  let telefoneFormatado = formPerfil.value.phone
+  if (!telefoneFormatado.includes('(')) {
+    if (numeros.length === 11) {
+      telefoneFormatado = `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7)}`
+    } else {
+      telefoneFormatado = `(${numeros.slice(0, 2)}) ${numeros.slice(2, 6)}-${numeros.slice(6)}`
+    }
+  }
+
   alunosStore.updateProfile({
-    phone: formPerfil.value.phone,
+    phone: telefoneFormatado,
     goal: formPerfil.value.goal
   })
+
   feedbackSalvo.value = true
   setTimeout(() => feedbackSalvo.value = false, 3000)
 }
@@ -292,14 +337,7 @@ function botaoClass(s) {
   return 'btn-primary'
 }
 
-// --- SISTEMA DE NOTIFICAÇÃO ---
-const notification = reactive({
-  visible: false,
-  type: 'success',
-  title: '',
-  message: '',
-  action: null
-})
+const notification = reactive({ visible: false, type: 'success', title: '', message: '', action: null })
 
 function mostrarNotificacao(type, title, msg, action = null) {
   notification.type = type
@@ -319,7 +357,6 @@ function confirmarAcao() {
   fecharNotificacao()
 }
 
-// 1. Preparação
 function prepararToggle(session) {
   if (isBooked(session.id)) {
     mostrarNotificacao(
@@ -333,7 +370,6 @@ function prepararToggle(session) {
   }
 }
 
-// 2. Execução
 function executarToggle(session) {
   const updated = { ...session, attendees: [...session.attendees] }
   const res = toggleBookingWithRules(updated, userId.value, new Date())
@@ -352,7 +388,6 @@ function executarToggle(session) {
   }
 }
 
-// --- MODAL LISTA ---
 const modalAberto = ref(false)
 const modalTitulo = ref('')
 const listaAtual = ref([])
@@ -366,6 +401,7 @@ function fecharModal() { modalAberto.value = false; listaAtual.value = [] }
 </script>
 
 <style scoped>
+/* ESTILOS MANTIDOS COMPLETOS */
 .aluno-shell {
   padding: 32px 0 64px;
   background: #f8fafc;
@@ -557,6 +593,13 @@ function fecharModal() { modalAberto.value = false; listaAtual.value = [] }
   text-align: center;
   margin-top: 8px;
   font-weight: 600;
+}
+
+.error-text {
+  color: #dc2626;
+  font-size: 12px;
+  margin-top: 4px;
+  display: block;
 }
 
 .compact {
@@ -791,7 +834,7 @@ function fecharModal() { modalAberto.value = false; listaAtual.value = [] }
   }
 }
 
-/* MODAL DE NOTIFICAÇÃO ESTILIZADO */
+/* NOTIFICAÇÃO */
 .notification-card {
   text-align: center;
   padding: 30px 20px;
