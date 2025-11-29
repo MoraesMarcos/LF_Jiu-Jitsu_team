@@ -21,7 +21,6 @@ const alunosMock = [
     telefone: '(81) 98888-1234',
     objetivo: 'Competição'
   },
-  // ... outros alunos (pode manter os mesmos de antes)
   {
     id: 3,
     nome: 'João Kids',
@@ -31,6 +30,66 @@ const alunosMock = [
     perfilTreino: 'kids',
     telefone: '(81) 97777-0000',
     objetivo: 'Disciplina'
+  },
+  {
+    id: 4,
+    nome: 'Ana Feminina',
+    login: 'lf.anafem',
+    faixa: 'Azul',
+    plano: 'Mensal',
+    perfilTreino: 'feminino',
+    telefone: '(81) 91234-5678',
+    objetivo: 'Condicionamento Físico'
+  },
+  {
+    id: 5,
+    nome: 'Carlos Gabriel',
+    login: 'lf.carlosgabriel',
+    faixa: 'Roxa',
+    plano: 'Mensal',
+    perfilTreino: 'adulto',
+    telefone: '(81) 92345-6789',
+    objetivo: 'Estilo de Vida'
+  },
+  {
+    id: 6,
+    nome: 'Cristiane Lima',
+    login: 'lf.cristiane',
+    faixa: 'Branca',
+    plano: 'Mensal',
+    perfilTreino: 'feminino',
+    telefone: '(81) 93456-7890',
+    objetivo: 'Defesa Pessoal'
+  },
+  {
+    id: 7,
+    nome: 'Dayse Albuquerque',
+    login: 'lf.dayse',
+    faixa: 'Azul',
+    plano: 'Trimestral',
+    perfilTreino: 'feminino',
+    telefone: '(81) 94567-8901',
+    objetivo: 'Saúde'
+  },
+  {
+    id: 8,
+    nome: 'Karlinha Magalhães',
+    login: 'lf.karlinha',
+    faixa: 'Branca',
+    plano: 'Mensal',
+    perfilTreino: 'feminino',
+    telefone: '(81) 95678-9012',
+    objetivo: 'Competição'
+  },
+  {
+    id: 9,
+    nome: 'Perfil Privado',
+    login: 'lf.privado',
+    faixa: 'Branca',
+    plano: 'Mensal',
+    perfilTreino: 'misto',
+    telefone: '(81) 90000-0000',
+    objetivo: 'Não informado'
   }
 ]
 
@@ -39,7 +98,6 @@ const state = reactive({
   lista: alunosMock
 })
 
-// Normaliza os dados (converte português do banco para inglês do front)
 function normalizarAluno(a) {
   if (!a) return null
   return {
@@ -53,8 +111,8 @@ function normalizarAluno(a) {
   }
 }
 
-// Inicializa logado com a Maria
-state.currentUser = normalizarAluno(alunosMock[0])
+// Inicia deslogado
+state.currentUser = null
 
 export const alunosStore = {
   get currentUser() {
@@ -66,8 +124,15 @@ export const alunosStore = {
 
   login(username, password) {
     const aluno = state.lista.find(a => a.login === username)
+
+    // 1. Se não achar usuário, falha
     if (!aluno) return false
-    if (password && password !== '123') return false
+
+    // 2. CORREÇÃO: Verificação estrita de senha
+    // Se a senha não for EXATAMENTE '123', falha.
+    if (String(password) !== '123') return false
+
+    // Sucesso
     state.currentUser = normalizarAluno(aluno)
     return true
   },
@@ -76,15 +141,11 @@ export const alunosStore = {
     state.currentUser = null
   },
 
-  // --- NOVA FUNÇÃO: ATUALIZAR DADOS ---
   updateProfile(novosDados) {
     if (!state.currentUser) return
-
-    // 1. Atualiza o currentUser (Visual imediato)
     state.currentUser.phone = novosDados.phone
     state.currentUser.goal = novosDados.goal
 
-    // 2. Atualiza a lista original (Persistência em memória)
     const index = state.lista.findIndex(a => a.id === state.currentUser.id)
     if (index !== -1) {
       state.lista[index].telefone = novosDados.phone
@@ -98,4 +159,8 @@ export const alunosStore = {
   recoverPassword(username) {
     return { ok: true, tempPass: '123' }
   }
+}
+
+export function getAlunoById(id) {
+  return state.lista.find(a => a.id === id) || null
 }

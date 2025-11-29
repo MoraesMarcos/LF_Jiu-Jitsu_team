@@ -10,7 +10,7 @@
         <div>
           <h1>Área do Aluno</h1>
           <p class="muted">
-            Olá, {{ currentUser.name }}. Bem-vindo ao seu painel.
+            Olá, {{ currentUser.name }}.
           </p>
         </div>
         <button class="btn-ghost" @click="logout">Sair</button>
@@ -151,10 +151,13 @@
                 <span class="vagas-count" :class="{ 'vagas-full': vagasRestantes(s) === 0 }">
                   {{ vagasRestantes(s) }}/{{ s.capacity }} vagas
                 </span>
-                <button class="btn-text" @click="abrirListaPresenca(s.id, s.titulo)">Ver quem vai</button>
+                <button class="btn-text" @click="abrirListaPresenca(s.id, s.titulo)">
+                  Ver quem vai
+                </button>
               </div>
+
               <button class="btn" :class="botaoClass(s)" :disabled="vagasRestantes(s) === 0 && !isBooked(s.id)"
-                @click="toggle(s)">
+                @click="prepararToggle(s)">
                 {{ textoBotao(s) }}
               </button>
             </div>
@@ -177,15 +180,44 @@
               <span class="dot"></span> {{ aluno.name || aluno.nome }} ({{ aluno.belt || aluno.faixa }})
             </li>
           </ul>
-          <p v-else class="muted">Nenhum aluno confirmado ainda.</p>
+          <p v-else class="muted">Nenhum aluno confirmado ainda. Seja o primeiro!</p>
         </div>
       </div>
     </div>
+
+    <Transition name="fade">
+      <div v-if="notification.visible" class="modal-overlay" @click.self="fecharNotificacao">
+        <div class="modal-card notification-card">
+
+          <div class="status-icon" :class="notification.type">
+            <span v-if="notification.type === 'success'">✔</span>
+            <span v-else-if="notification.type === 'error'">✖</span>
+            <span v-else>?</span>
+          </div>
+
+          <h3>{{ notification.title }}</h3>
+          <p class="notif-msg">{{ notification.message }}</p>
+
+          <div class="notif-actions">
+            <template v-if="notification.type === 'confirm'">
+              <button class="btn btn-secondary" @click="fecharNotificacao">Cancelar</button>
+              <button class="btn btn-primary" @click="confirmarAcao">Confirmar</button>
+            </template>
+
+            <template v-else>
+              <button class="btn btn-primary full" @click="fecharNotificacao">Entendi</button>
+            </template>
+          </div>
+
+        </div>
+      </div>
+    </Transition>
+
   </main>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { alunosStore } from '@/store/alunosStore'
 import { checkinStore } from '@/store/checkinStore'
@@ -200,7 +232,7 @@ onMounted(() => {
   if (!currentUser.value) {
     router.replace('/login-aluno')
   } else {
-    // Carrega dados atuais no formulário ao abrir
+    // Carrega dados para edição
     formPerfil.value.phone = currentUser.value.phone
     formPerfil.value.goal = currentUser.value.goal
   }
@@ -212,42 +244,27 @@ function logout() { alunosStore.logout() }
 
 const iniciais = computed(() => currentUser.value?.name ? currentUser.value.name.slice(0, 2).toUpperCase() : 'LF')
 
-// --- LÓGICA DE EDIÇÃO DE PERFIL ---
-const formPerfil = ref({
-  phone: '',
-  goal: ''
-})
+// --- LÓGICA DE EDIÇÃO ---
+const formPerfil = ref({ phone: '', goal: '' })
 const feedbackSalvo = ref(false)
 
 function salvarDados() {
-  // Chama a store para atualizar
   alunosStore.updateProfile({
     phone: formPerfil.value.phone,
     goal: formPerfil.value.goal
   })
-
   feedbackSalvo.value = true
   setTimeout(() => feedbackSalvo.value = false, 3000)
 }
 
-// --- DADOS ESTATÍSTICOS ---
-const stats = ref({
-  presencasAno: 42,
-  vencimento: '10/12/2025'
-})
-
+// --- DADOS DASHBOARD ---
+const stats = ref({ presencasAno: 42, vencimento: '10/12/2025' })
 const pagamentos = ref([
-  { mes: 'Out/2025', valor: 70, status: 'Pago' },
   { mes: 'Nov/2025', valor: 70, status: 'Pago' },
   { mes: 'Dez/2025', valor: 70, status: 'Pendente' }
 ])
 
-const proximasAulas = ref([
-  { dia: 'Hoje', hora: '19:30', modalidade: 'Jiu-Jitsu Adulto', confirmado: true },
-  { dia: 'Qua', hora: '16:00', modalidade: 'Turma Feminina', confirmado: false }
-])
-
-// --- CHECK-IN LOGIC ---
+// --- CHECK-IN ---
 const userId = computed(() => currentUser.value?.id || 'demo')
 const userProfile = computed(() => currentUser.value?.profile || 'adulto')
 
@@ -275,25 +292,67 @@ function botaoClass(s) {
   return 'btn-primary'
 }
 
-function toggle(session) {
+// --- SISTEMA DE NOTIFICAÇÃO ---
+const notification = reactive({
+  visible: false,
+  type: 'success',
+  title: '',
+  message: '',
+  action: null
+})
+
+function mostrarNotificacao(type, title, msg, action = null) {
+  notification.type = type
+  notification.title = title
+  notification.message = msg
+  notification.action = action
+  notification.visible = true
+}
+
+function fecharNotificacao() {
+  notification.visible = false
+  notification.action = null
+}
+
+function confirmarAcao() {
+  if (notification.action) notification.action()
+  fecharNotificacao()
+}
+
+// 1. Preparação
+function prepararToggle(session) {
   if (isBooked(session.id)) {
-    const confirmarCancelamento = confirm('Você já confirmou presença. Deseja cancelar sua vaga?')
-    if (!confirmarCancelamento) return
-  }
-
-  const updated = { ...session, attendees: [...session.attendees] }
-  const res = toggleBookingWithRules(updated, userId.value, new Date())
-
-  if (!res.ok) { alert(res.message); return }
-  checkinStore.toggleCheckin(session.id)
-
-  if (isBooked(session.id)) {
-    alert('✅ Vaga reservada com sucesso!')
+    mostrarNotificacao(
+      'confirm',
+      'Cancelar Check-in?',
+      'Você já confirmou presença. Deseja liberar sua vaga agora?',
+      () => executarToggle(session)
+    )
   } else {
-    alert('❌ Reserva cancelada. Vaga liberada.')
+    executarToggle(session)
   }
 }
 
+// 2. Execução
+function executarToggle(session) {
+  const updated = { ...session, attendees: [...session.attendees] }
+  const res = toggleBookingWithRules(updated, userId.value, new Date())
+
+  if (!res.ok) {
+    mostrarNotificacao('error', 'Ops!', res.message)
+    return
+  }
+
+  checkinStore.toggleCheckin(session.id)
+
+  if (isBooked(session.id)) {
+    mostrarNotificacao('success', 'Sucesso!', '✅ Vaga reservada com sucesso!')
+  } else {
+    mostrarNotificacao('success', 'Cancelado', '❌ Reserva cancelada. Vaga liberada.')
+  }
+}
+
+// --- MODAL LISTA ---
 const modalAberto = ref(false)
 const modalTitulo = ref('')
 const listaAtual = ref([])
@@ -463,7 +522,6 @@ function fecharModal() { modalAberto.value = false; listaAtual.value = [] }
   color: #86efac;
 }
 
-/* FORMULÁRIO DE EDIÇÃO */
 .edit-form {
   display: flex;
   flex-direction: column;
@@ -501,7 +559,31 @@ function fecharModal() { modalAberto.value = false; listaAtual.value = [] }
   font-weight: 600;
 }
 
-/* REUTILIZAÇÃO */
+.compact {
+  padding: 15px;
+}
+
+.profile-compact {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.avatar.sm {
+  width: 40px;
+  height: 40px;
+  font-size: 16px;
+}
+
+.sm-title {
+  font-size: 18px !important;
+}
+
+.muted-light {
+  color: #bfdbfe;
+  font-size: 14px;
+}
+
 .list {
   display: flex;
   flex-direction: column;
@@ -554,32 +636,6 @@ function fecharModal() { modalAberto.value = false; listaAtual.value = [] }
 .badge.warn {
   background: #fef3c7;
   color: #92400e;
-}
-
-/* AGENDA */
-.compact {
-  padding: 15px;
-}
-
-.profile-compact {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.avatar.sm {
-  width: 40px;
-  height: 40px;
-  font-size: 16px;
-}
-
-.sm-title {
-  font-size: 18px !important;
-}
-
-.muted-light {
-  color: #bfdbfe;
-  font-size: 14px;
 }
 
 .date-strip {
@@ -687,6 +743,11 @@ function fecharModal() { modalAberto.value = false; listaAtual.value = [] }
   cursor: not-allowed;
 }
 
+.btn-secondary {
+  background: #e5e7eb;
+  color: #374151;
+}
+
 .btn-ghost {
   background: transparent;
   border: 1px solid #cbd5e1;
@@ -699,20 +760,93 @@ function fecharModal() { modalAberto.value = false; listaAtual.value = [] }
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
   z-index: 100;
+  backdrop-filter: blur(2px);
 }
 
 .modal-card {
   background: white;
   width: 100%;
   max-width: 400px;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* MODAL DE NOTIFICAÇÃO ESTILIZADO */
+.notification-card {
+  text-align: center;
+  padding: 30px 20px;
+}
+
+.status-icon {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 20px;
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.status-icon.success {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status-icon.error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-icon.confirm {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.notification-card h3 {
+  font-size: 22px;
+  margin-bottom: 10px;
+  color: #0f172a;
+}
+
+.notif-msg {
+  color: #64748b;
+  margin-bottom: 25px;
+  line-height: 1.5;
+}
+
+.notif-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.notif-actions .btn {
+  min-width: 100px;
+}
+
+.notif-actions .full {
+  width: 100%;
 }
 
 .modal-header {
@@ -761,6 +895,16 @@ function fecharModal() { modalAberto.value = false; listaAtual.value = [] }
   height: 8px;
   background: #22c55e;
   border-radius: 50%;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
 @media (max-width: 768px) {
