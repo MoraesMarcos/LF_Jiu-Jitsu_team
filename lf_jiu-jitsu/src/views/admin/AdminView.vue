@@ -102,12 +102,10 @@
                 </select>
                 <input v-model="scheduleForm.time" type="time" required class="input-small" />
               </div>
-
               <input v-model="scheduleForm.modality" placeholder="Modalidade (Ex: Adulto, Kids, Feminino)" required />
-
               <div class="form-actions">
                 <button type="submit" class="btn-save">Salvar</button>
-                <button type="button" class="btn-cancel" @click="showScheduleForm = false">Cancelar</button>
+                <button type="button" class="btn-cancel" @click="cancelScheduleForm">Cancelar</button>
               </div>
             </form>
           </div>
@@ -151,14 +149,17 @@
                 <select v-model="alunoForm.faixa">
                   <option>Branca</option>
                   <option>Azul</option>
+                  <option>Roxa</option>
                 </select>
                 <select v-model="alunoForm.plan">
                   <option>Mensal</option>
                   <option>Trimestral</option>
+                  <option>Anual</option>
                 </select>
                 <select v-model="alunoForm.perfilTreino">
                   <option value="adulto">Adulto</option>
                   <option value="kids">Kids</option>
+                  <option value="feminino">Feminino</option>
                 </select>
               </div>
               <div class="form-actions">
@@ -172,16 +173,18 @@
               <tr>
                 <th>Nome</th>
                 <th>Login</th>
+                <th>Faixa</th>
                 <th>Ações</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="a in alunos" :key="a.id">
-                <td>{{ a.name }}</td>
-                <td class="mono">{{ a.login }}</td>
+              <tr v-for="aluno in alunos" :key="aluno.id">
+                <td>{{ aluno.nome }}</td>
+                <td class="mono">{{ aluno.login }}</td>
+                <td>{{ aluno.faixa }}</td>
                 <td>
-                  <button class="btn-link small" @click="editAluno(a)">Editar</button>
-                  <button class="btn-delete small" @click="deleteAluno(a.id)">X</button>
+                  <button class="btn-link small" @click="editAluno(aluno)">Editar</button>
+                  <button class="btn-delete small" @click="deleteAluno(aluno.id)">X</button>
                 </td>
               </tr>
             </tbody>
@@ -203,7 +206,7 @@ import { scheduleStore } from '@/store/scheduleStore'
 import { alunosStore } from '@/store/alunosStore'
 
 const router = useRouter()
-const currentTab = ref('horarios') // Abre direto em Horários
+const currentTab = ref('horarios')
 
 function logout() { authStore.logout(); router.push('/admin/login') }
 
@@ -212,22 +215,15 @@ const sortedSchedules = computed(() => scheduleStore.sortedClasses)
 const showScheduleForm = ref(false)
 const scheduleForm = reactive({ id: null, day: '', time: '', modality: '' })
 
-function prepareCreateSchedule() {
-  Object.assign(scheduleForm, { id: null, day: '', time: '', modality: '' })
-  showScheduleForm.value = true
-}
-function editSchedule(cls) {
-  Object.assign(scheduleForm, { ...cls })
-  showScheduleForm.value = true
-}
+function prepareCreateSchedule() { Object.assign(scheduleForm, { id: null, day: '', time: '', modality: '' }); showScheduleForm.value = true }
+function editSchedule(cls) { Object.assign(scheduleForm, { ...cls }); showScheduleForm.value = true }
 function saveSchedule() {
   if (scheduleForm.id) scheduleStore.updateClass({ ...scheduleForm })
   else scheduleStore.addClass({ ...scheduleForm })
   showScheduleForm.value = false
 }
-function deleteSchedule(id) {
-  if (confirm('Remover este horário?')) scheduleStore.removeClass(id)
-}
+function deleteSchedule(id) { if (confirm('Remover horário?')) scheduleStore.removeClass(id) }
+function cancelScheduleForm() { showScheduleForm.value = false }
 
 // --- EVENTOS ---
 const events = computed(() => eventStore.events)
@@ -252,12 +248,29 @@ const alunos = computed(() => alunosStore.lista)
 const showAlunoForm = ref(false)
 const alunoForm = reactive({})
 const gerarUsername = (n) => 'lf.' + (n || '').toLowerCase().replace(/\s/g, '')
+
 function openAlunoForm() { Object.assign(alunoForm, { id: null, name: '', faixa: '', plan: '', perfilTreino: '' }); showAlunoForm.value = true }
-function editAluno(a) { Object.assign(alunoForm, { ...a }); showAlunoForm.value = true }
+function editAluno(a) {
+  // Mapeia 'nome' (do banco) para 'name' (do formulário)
+  Object.assign(alunoForm, { id: a.id, name: a.nome, faixa: a.faixa, plan: a.plano, perfilTreino: a.perfilTreino })
+  showAlunoForm.value = true
+}
 function saveAluno() {
-  const p = { ...alunoForm, id: alunoForm.id || Date.now(), login: gerarUsername(alunoForm.name) }
-  if (alunoForm.id) { const i = alunosStore.lista.findIndex(x => x.id === p.id); alunosStore.lista[i] = p }
-  else alunosStore.lista.push(p)
+  const p = {
+    ...alunoForm,
+    id: alunoForm.id || Date.now(),
+    nome: alunoForm.name, // Salva como 'nome'
+    login: gerarUsername(alunoForm.name),
+    faixa: alunoForm.faixa,
+    plano: alunoForm.plan,
+    perfilTreino: alunoForm.perfilTreino
+  }
+  if (alunoForm.id) {
+    const i = alunosStore.lista.findIndex(x => x.id === p.id);
+    alunosStore.lista[i] = p
+  } else {
+    alunosStore.lista.push(p)
+  }
   showAlunoForm.value = false
 }
 function deleteAluno(id) { if (confirm('Remover aluno?')) { const i = alunosStore.lista.findIndex(x => x.id === id); alunosStore.lista.splice(i, 1) } }
