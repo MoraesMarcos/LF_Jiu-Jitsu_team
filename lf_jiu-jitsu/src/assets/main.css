@@ -19,11 +19,33 @@
     font-family: var(--font-family-sans);
 }
 
+html,
+body {
+    height: 100%;
+    /* Garante altura total */
+}
+
 body {
     background-color: var(--white);
     color: var(--dark-gray);
     line-height: 1.6;
 }
+
+/* --- CORREÇÃO DO LAYOUT (Sticky Footer) --- */
+#app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    /* O App ocupa no mínimo 100% da tela */
+}
+
+main {
+    flex: 1;
+    /* O conteúdo principal empurra o rodapé para baixo */
+    width: 100%;
+}
+
+/* ----------------------------------------- */
 
 a {
     text-decoration: none;
@@ -79,6 +101,7 @@ p {
     color: var(--medium-gray);
 }
 
+/* BOTÕES GERAIS */
 .btn {
     display: inline-block;
     padding: 12px 24px;

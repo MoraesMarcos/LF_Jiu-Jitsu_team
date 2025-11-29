@@ -10,8 +10,18 @@ const defaultSchedule = [
   { id: 5, day: 'Sexta-feira', time: '18:00', modality: 'Feminino' }
 ]
 
-const stored = localStorage.getItem(KEY)
-const initialData = stored ? JSON.parse(stored) : defaultSchedule
+// --- LÓGICA DE CARREGAMENTO SEGURA ---
+let initialData = defaultSchedule
+try {
+  const stored = localStorage.getItem(KEY)
+  if (stored) {
+    initialData = JSON.parse(stored)
+  }
+} catch (e) {
+  console.error('Erro ao ler dados do localStorage, usando padrão.', e)
+  // Se der erro, mantemos o defaultSchedule
+}
+// -------------------------------------
 
 export const scheduleStore = reactive({
   classes: initialData,
@@ -33,7 +43,6 @@ export const scheduleStore = reactive({
     }
   },
 
-  // FUNÇÃO CRUCIAL PARA EDIÇÃO
   updateClass(updatedClass) {
     const index = this.classes.findIndex(c => c.id === updatedClass.id)
     if (index !== -1) {
@@ -42,7 +51,6 @@ export const scheduleStore = reactive({
     }
   },
 
-  // Ordena a lista para exibição
   get sortedClasses() {
     const daysOrder = {
       'Segunda-feira': 1, 'Terça-feira': 2, 'Quarta-feira': 3,
