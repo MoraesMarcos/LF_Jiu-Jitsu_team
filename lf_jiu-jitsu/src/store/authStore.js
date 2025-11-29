@@ -3,20 +3,22 @@ import { reactive } from 'vue'
 const KEY = 'lf_admin_logged'
 
 export const authStore = reactive({
-  isAdmin: localStorage.getItem(KEY) === 'true',
+  // Começa como falso para obrigar o login ao recarregar a página
+  isAdmin: false,
 
-  login (email, password) {
-    // mock de admin
+  login(email, password) {
+    // Validação mockada
     if (email === 'admin@lf.com' && password === 'admin123') {
       this.isAdmin = true
-      localStorage.setItem(KEY, 'true')
+      // Opcional: Salvar no localStorage se quisesse persistir, 
+      // mas deixaremos sem para forçar o teste de login
       return true
     }
     return false
   },
 
-  logout () {
+  logout() {
     this.isAdmin = false
-    localStorage.removeItem(KEY)
+    // localStorage.removeItem(KEY) // Se estivesse usando persistência
   }
 })
