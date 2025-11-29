@@ -4,17 +4,9 @@
       <h2>{{ titulo }}</h2>
 
       <div v-if="modalidades.length > 0" class="modalities-grid">
-        <div
-          v-for="item in modalidades"
-          :key="item.id"
-          class="modality-item"
-          @click="selecionar(item.nome)"
-        >
-          
-          <div
-            class="icon"
-            :style="{ backgroundImage: `url(${icons[item.classe]})` }"
-          ></div>
+        <div v-for="item in modalidades" :key="item.id" class="modality-item">
+
+          <div class="icon" :style="{ backgroundImage: `url(${icons[item.classe]})` }"></div>
 
           <h3>{{ item.nome }}</h3>
           <p>{{ item.descricao }}</p>
@@ -27,7 +19,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 
 import iconIniciante from '@/assets/images/publico/iniciante.png'
 import iconMulher from '@/assets/images/publico/mulher.png'
@@ -61,14 +53,6 @@ const icons = {
   mulher: iconMulher,
   crianca: iconCrianca,
 }
-
-const selecionar = (nome) => {
-  alert(`Você selecionou ${nome}!`)
-}
-
-onMounted(() => {
-  console.log('Componente carregado com sucesso.')
-})
 </script>
 
 <style scoped>
@@ -88,15 +72,16 @@ onMounted(() => {
 
 .modality-item {
   max-width: 300px;
-  cursor: pointer;
-  transition: transform 0.2s ease;
   border: 2px solid transparent;
   border-radius: 10px;
   padding: 10px;
+  /* Adiciona transição suave para a animação */
+  transition: transform 0.3s ease;
 }
+
+/* Efeito de elevação leve ao passar o mouse */
 .modality-item:hover {
-  transform: scale(1.05);
-  border-color: #ccc;
+  transform: translateY(-5px);
 }
 
 .icon {
