@@ -111,7 +111,6 @@ function normalizarAluno(a) {
   }
 }
 
-// Inicia deslogado
 state.currentUser = null
 
 export const alunosStore = {
@@ -125,14 +124,10 @@ export const alunosStore = {
   login(username, password) {
     const aluno = state.lista.find(a => a.login === username)
 
-    // 1. Se não achar usuário, falha
     if (!aluno) return false
 
-    // 2. CORREÇÃO: Verificação estrita de senha
-    // Se a senha não for EXATAMENTE '123', falha.
     if (String(password) !== '123') return false
 
-    // Sucesso
     state.currentUser = normalizarAluno(aluno)
     return true
   },

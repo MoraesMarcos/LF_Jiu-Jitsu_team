@@ -3,8 +3,7 @@ import { validateDateRules } from './dateRules.js'
 import { checkSlotCapacity } from './slotCapacity.js'
 
 /**
- * Regra completa do check-in do aluno.
- *
+
  * @param {Object} params
  * @param {string} params.phone
  * @param {Function} params.hasActiveBooking
@@ -12,7 +11,7 @@ import { checkSlotCapacity } from './slotCapacity.js'
  * @param {string} params.time
  * @param {string} params.classType
  * @param {Function} params.hasCapacity
- *
+ 
  * @returns {{ ok: boolean, message?: string }}
  */
 export function validateAttendance (params) {
@@ -25,19 +24,16 @@ export function validateAttendance (params) {
     hasCapacity
   } = params
 
-  // 1) Já tem presença ativa para esse aluno?
   const rebookingMsg = alreadyBookedByUser(hasActiveBooking, phone)
   if (rebookingMsg) {
     return { ok: false, message: rebookingMsg }
   }
 
-  // 2) Regras de data/horário
   const dateMsg = validateDateRules(date, time)
   if (dateMsg) {
     return { ok: false, message: dateMsg }
   }
 
-  // 3) Capacidade
   const capacityMsg = checkSlotCapacity(hasCapacity, classType, date, time)
   if (capacityMsg) {
     return { ok: false, message: capacityMsg }

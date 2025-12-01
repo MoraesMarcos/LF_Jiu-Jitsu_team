@@ -1,9 +1,7 @@
 /**
- * Regra que impede um aluno de fazer novo check-in caso já exista
- * um check-in ativo.
- *
- * @param {Function} hasActiveBooking - função que verifica se o aluno já tem agendamento
- * @param {String} phone - telefone do aluno (identificador)
+
+ * @param {Function} hasActiveBooking 
+ * @param {String} phone 
  * @returns {String|null}
  */
 export function preventRebooking (hasActiveBooking, phone) {
@@ -13,9 +11,6 @@ export function preventRebooking (hasActiveBooking, phone) {
   return null
 }
 
-/**
- * Compatibilidade com versões antigas.
- */
 export function alreadyBookedByUser (hasActiveBooking, phone) {
   return preventRebooking(hasActiveBooking, phone)
 }

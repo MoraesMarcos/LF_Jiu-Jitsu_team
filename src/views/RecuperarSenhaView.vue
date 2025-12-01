@@ -47,7 +47,7 @@ function enviar() {
 
   if (result.ok) {
     feedback.type = 'success'
-    // Mensagem explicativa para o teste local
+
     feedback.msg = `✅ Sucesso! (Simulação: Sua nova senha temporária é "${result.tempPass}". Use-a para logar.)`
   } else {
     feedback.type = 'error'

@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { alunosStore } from '@/store/alunosStore'
 import { authStore } from '@/store/authStore'
 
-// Importação das Views
 import HomeView from '../views/HomeView.vue'
 import AboutView from '../views/AboutView.vue'
 import HorariosView from '../views/HorariosView.vue'
@@ -12,17 +11,14 @@ import InstrutorDetailView from '../views/InstrutorDetailView.vue'
 import BlogView from '../views/BlogView.vue'
 import ContatosView from '../views/ContatosView.vue'
 
-// Aluno
 import AlunoLoginView from '../views/aluno/AlunoLoginView.vue'
 import AlunoRecoverView from '../views/aluno/AlunoRecoverView.vue'
 import AlunoAreaView from '../views/aluno/AlunoAreaView.vue'
 
-// Admin
 import AdminLoginView from '../views/admin/AdminLoginView.vue'
 import AdminView from '../views/admin/AdminView.vue'
 import AdminRecuperacao from '../views/admin/AdminRecuperacao.vue'
 
-// Checkin Público
 import CheckInView from '../views/CheckInView.vue'
 import CheckInDetailView from '../views/CheckInDetailView.vue'
 
@@ -41,53 +37,46 @@ const router = createRouter({
     { path: '/blog', name: 'blog', component: BlogView },
     { path: '/contato', name: 'contato', component: ContatosView },
 
-    // --- ÁREA DO ALUNO ---
     { path: '/login-aluno', name: 'login-aluno', component: AlunoLoginView },
     { path: '/recuperar-senha', name: 'recuperar-senha', component: AlunoRecoverView },
     {
       path: '/aluno',
       name: 'area-aluno',
       component: AlunoAreaView,
-      meta: { requiresStudent: true } // Proteção Aluno
+      meta: { requiresStudent: true }
     },
 
-    // --- ÁREA ADMIN (PROTEGIDA) ---
     { path: '/admin/login', name: 'admin-login', component: AdminLoginView },
     { path: '/admin/recuperar-senha', name: 'admin-recover', component: AdminRecuperacao },
     {
       path: '/admin',
       name: 'admin-area',
       component: AdminView,
-      meta: { requiresAdmin: true } // Proteção Admin
+      meta: { requiresAdmin: true } 
     },
 
-    // --- EXTRAS ---
     { path: '/checkin', name: 'checkin-publico', component: CheckInView },
     { path: '/checkin/:id', name: 'checkin-detalhe', component: CheckInDetailView },
 
-    // Catch-all
     { path: '/:pathMatch(.*)*', redirect: '/' }
   ]
 })
 
-// --- GUARDAS DE NAVEGAÇÃO ---
 router.beforeEach((to, from, next) => {
 
-  // 1. Verifica se a rota precisa de ADMIN
   if (to.meta.requiresAdmin) {
     if (!authStore.isAdmin) {
-      return next('/admin/login') // Bloqueia e manda pro login
+      return next('/admin/login')
     }
   }
 
-  // 2. Verifica se a rota precisa de ALUNO
   if (to.meta.requiresStudent) {
     if (!alunosStore.currentUser) {
-      return next('/login-aluno') // Bloqueia e manda pro login
+      return next('/login-aluno')
     }
   }
 
-  next() // Segue normal
+  next()
 })
 
 export default router

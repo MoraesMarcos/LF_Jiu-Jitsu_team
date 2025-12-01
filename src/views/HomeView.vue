@@ -23,7 +23,7 @@ import Hero from '@/components/Hero.vue';
 const emit = defineEmits(['openTrialModal']);
 
 const openModal = () => {
-  // Repassa o evento para o componente pai (App.vue)
+
   emit('openTrialModal');
 };
 </script>

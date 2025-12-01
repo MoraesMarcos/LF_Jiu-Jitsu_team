@@ -10,7 +10,6 @@ const defaultSchedule = [
   { id: 5, day: 'Sexta-feira', time: '18:00', modality: 'Feminino' }
 ]
 
-// --- LÓGICA DE CARREGAMENTO SEGURA ---
 let initialData = defaultSchedule
 try {
   const stored = localStorage.getItem(KEY)
@@ -19,9 +18,8 @@ try {
   }
 } catch (e) {
   console.error('Erro ao ler dados do localStorage, usando padrão.', e)
-  // Se der erro, mantemos o defaultSchedule
 }
-// -------------------------------------
+
 
 export const scheduleStore = reactive({
   classes: initialData,

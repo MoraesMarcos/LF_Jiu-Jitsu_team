@@ -11,8 +11,6 @@ export { trialLimitRule } from './trialLimitRule.js'
 export { preventRebooking } from './aluno/preventRebooking.js'
 export { checkSlotCapacity } from './aluno/slotCapacity.js'
 
-// Export oficial
 export { toggleBookingWithRules } from './toggleBooking.js'
 
-// Alias para não quebrar nenhum import antigo:
 export { toggleBookingWithRules as togglePresenceWithRules } from './toggleBooking.js'

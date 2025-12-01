@@ -59,32 +59,24 @@ import { eventStore } from '@/store/eventStore.js'
 
 defineEmits(['openTrialModal'])
 
-// --- Lógica de Paginação do Blog ---
-
-// Quantos posts mostramos inicialmente
 const itemsToShow = ref(6)
-// Quantos posts adicionamos a cada clique no botão
+
 const itemsToLoad = 3
 
-// Computed que retorna todos os posts da store
 const allPosts = computed(() => blogStore.posts)
 
-// Computed que "corta" a lista para mostrar apenas a quantidade atual
 const visiblePosts = computed(() => {
   return allPosts.value.slice(0, itemsToShow.value)
 })
 
-// Verifica se ainda tem posts para mostrar (para esconder o botão quando acabar)
 const hasMorePosts = computed(() => {
   return itemsToShow.value < allPosts.value.length
 })
 
-// Função chamada ao clicar no botão
 function loadMore() {
   itemsToShow.value += itemsToLoad
 }
 
-// --- Lógica de Eventos ---
 const events = computed(() => eventStore.events)
 </script>
 

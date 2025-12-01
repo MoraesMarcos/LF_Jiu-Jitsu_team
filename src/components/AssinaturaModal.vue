@@ -70,7 +70,6 @@ const formData = ref({
   whatsapp: ''
 });
 
-// Máscara
 function aplicarMascaraTelefone(e) {
   let v = e.target.value.replace(/\D/g, "")
   if (v.length > 11) v = v.slice(0, 11)

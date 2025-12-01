@@ -1,7 +1,6 @@
 import { reactive } from 'vue'
 import { alunosStore } from './alunosStore'
 
-// Datas da semana atual
 const QUI = '2025-11-27'
 const SEX = '2025-11-28'
 const SAB = '2025-11-29'
@@ -11,41 +10,35 @@ const TER = '2025-12-02'
 const QUA = '2025-12-03'
 
 const sessoesMock = [
-  // --- QUINTA-FEIRA (27/11) ---
+
   { id: '27-11-06h-adulto', date: QUI, time: '06:00', titulo: 'Jiu-Jitsu Despertar', instrutor: 'Mestre Silva', turma: 'adulto', capacity: 20, attendees: [2] },
   { id: '27-11-09h-misto', date: QUI, time: '09:00', titulo: 'Treino Técnico', instrutor: 'Professor João', turma: 'misto', capacity: 25, attendees: [] },
   { id: '27-11-16h-kids', date: QUI, time: '16:00', titulo: 'Kids Avançado', instrutor: 'Instrutor João', turma: 'kids', capacity: 15, attendees: [3] },
   { id: '27-11-18h-feminino', date: QUI, time: '18:00', titulo: 'Defesa Pessoal Feminina', instrutor: 'Instrutora Ana', turma: 'feminino', capacity: 20, attendees: [4, 6] },
   { id: '27-11-19h30-adulto', date: QUI, time: '19:30', titulo: 'Treino Adulto Competição', instrutor: 'Mestre Silva', turma: 'adulto', capacity: 25, attendees: [5] },
 
-  // --- SEXTA-FEIRA (28/11) ---
   { id: '28-11-07h-misto', date: SEX, time: '07:00', titulo: 'Drills & Posições', instrutor: 'Professor João', turma: 'misto', capacity: 20, attendees: [] },
   { id: '28-11-10h-feminino', date: SEX, time: '10:00', titulo: 'Treino Feminino Manhã', instrutor: 'Instrutora Ana', turma: 'feminino', capacity: 15, attendees: [] },
   { id: '28-11-15h-adulto', date: SEX, time: '15:00', titulo: 'Treino Livre', instrutor: 'Mestre Silva', turma: 'adulto', capacity: 20, attendees: [] },
   { id: '28-11-17h-kids', date: SEX, time: '17:00', titulo: 'Kids Recreação', instrutor: 'Instrutor João', turma: 'kids', capacity: 20, attendees: [] },
   { id: '28-11-19h-misto', date: SEX, time: '19:00', titulo: 'Aulão No-Gi (Sem Kimono)', instrutor: 'Mestre Silva', turma: 'misto', capacity: 30, attendees: [2, 5, 9] },
 
-  // --- SÁBADO (29/11) ---
   { id: '29-11-09h-kids', date: SAB, time: '09:00', titulo: 'Aulão Kids', instrutor: 'Tia Ana & Tio João', turma: 'kids', capacity: 30, attendees: [3] },
   { id: '29-11-10h30-misto', date: SAB, time: '10:30', titulo: 'Open Mat (Rola Solto)', instrutor: 'Todos', turma: 'misto', capacity: 40, attendees: [2, 4, 5, 6, 9] },
 
-  // --- DOMINGO (30/11) ---
   { id: '30-11-10h-misto', date: DOM, time: '10:00', titulo: 'Seminário Especial', instrutor: 'Convidado', turma: 'misto', capacity: 50, attendees: [] },
 
-  // --- SEGUNDA-FEIRA (01/12) ---
   { id: '01-12-06h-adulto', date: SEG, time: '06:00', titulo: 'Treino Adulto', instrutor: 'Mestre Silva', turma: 'adulto', capacity: 20, attendees: [] },
   { id: '01-12-09h-feminino', date: SEG, time: '09:00', titulo: 'Treino Feminino', instrutor: 'Instrutora Ana', turma: 'feminino', capacity: 15, attendees: [] },
   { id: '01-12-16h-kids', date: SEG, time: '16:00', titulo: 'Jiu-Jitsu Kids I', instrutor: 'Instrutor João', turma: 'kids', capacity: 15, attendees: [] },
   { id: '01-12-18h-misto', date: SEG, time: '18:00', titulo: 'Fundamentos Básicos', instrutor: 'Professor João', turma: 'misto', capacity: 25, attendees: [] },
   { id: '01-12-20h-adulto', date: SEG, time: '20:00', titulo: 'Treino Adulto Intensivo', instrutor: 'Mestre Silva', turma: 'adulto', capacity: 20, attendees: [] },
 
-  // --- TERÇA-FEIRA (02/12) ---
   { id: '02-12-07h-misto', date: TER, time: '07:00', titulo: 'Treino Misto', instrutor: 'Mestre Silva', turma: 'misto', capacity: 20, attendees: [] },
   { id: '02-12-10h-kids', date: TER, time: '10:00', titulo: 'Kids Matutino', instrutor: 'Instrutor João', turma: 'kids', capacity: 15, attendees: [] },
   { id: '02-12-15h-feminino', date: TER, time: '15:00', titulo: 'Feminino Técnica', instrutor: 'Instrutora Ana', turma: 'feminino', capacity: 15, attendees: [] },
   { id: '02-12-19h-adulto', date: TER, time: '19:00', titulo: 'Adulto Noite', instrutor: 'Professor João', turma: 'adulto', capacity: 25, attendees: [] },
 
-  // --- QUARTA-FEIRA (03/12) ---
   { id: '03-12-06h-adulto', date: QUA, time: '06:00', titulo: 'Treino Adulto', instrutor: 'Mestre Silva', turma: 'adulto', capacity: 20, attendees: [] },
   { id: '03-12-14h-feminino', date: QUA, time: '14:00', titulo: 'Treino Feminino', instrutor: 'Instrutora Ana', turma: 'feminino', capacity: 20, attendees: [] },
   { id: '03-12-16h-kids', date: QUA, time: '16:00', titulo: 'Treino Kids', instrutor: 'Instrutor João', turma: 'kids', capacity: 15, attendees: [] },
@@ -56,12 +49,10 @@ const sessoesMock = [
 export const checkinStore = reactive({
   sessoes: sessoesMock,
 
-  // Filtra as sessões do dia e do perfil
   sessoesDoDia(dataIso) {
     const user = alunosStore.currentUser
     if (!user) return []
 
-    // 1. Filtra por Data e Perfil usando 'date'
     const filtradas = this.sessoes.filter(s => {
       const mesmaData = s.date === dataIso
       let acessoPermitido = false
@@ -76,7 +67,6 @@ export const checkinStore = reactive({
       return mesmaData && acessoPermitido
     })
 
-    // 2. Ordena por Horário usando 'time'
     return filtradas.sort((a, b) => a.time.localeCompare(b.time))
   },
 

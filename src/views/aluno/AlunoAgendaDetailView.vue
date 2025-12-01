@@ -40,11 +40,10 @@
 import { useRouter } from 'vue-router'
 import { useBookings } from '@/composables/useBookings'
 import { toggleBookingWithRules } from '@/rules'
-import { alunosStore } from '@/store/alunosStore' // Importa a store para logout
+import { alunosStore } from '@/store/alunosStore'
 
 const router = useRouter()
 
-// Pega o ID do aluno logado ou usa um fallback
 const userId = alunosStore.currentUser ? alunosStore.currentUser.id : 'aluno_demo'
 
 const {
@@ -140,7 +139,6 @@ function toggle(session) {
   margin-top: 40px;
 }
 
-/* Datas */
 .date-strip {
   display: flex;
   gap: 8px;
@@ -170,7 +168,6 @@ function toggle(session) {
   font-weight: 600;
 }
 
-/* Lista */
 .list {
   display: grid;
   gap: 12px;

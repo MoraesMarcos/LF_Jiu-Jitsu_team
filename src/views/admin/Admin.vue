@@ -11,7 +11,7 @@
     </header>
 
     <div class="container layout">
-      <!-- MENU LATERAL -->
+
       <aside class="admin-menu">
         <button :class="{ active: currentTab === 'eventos' }" @click="currentTab = 'eventos'">
           📅 Eventos
@@ -27,10 +27,8 @@
         </button>
       </aside>
 
-      <!-- CONTEÚDO PRINCIPAL -->
       <section class="admin-content">
 
-        <!-- EVENTOS -->
         <div v-if="currentTab === 'eventos'">
           <div class="header-action">
             <h2>Gerenciar Eventos</h2>
@@ -68,7 +66,6 @@
           <p class="hint">O site exibe automaticamente os eventos mais recentes na home e no blog.</p>
         </div>
 
-        <!-- BLOG -->
         <div v-if="currentTab === 'blog'">
           <div class="header-action">
             <h2>Gerenciar Blog</h2>
@@ -111,7 +108,6 @@
           </ul>
         </div>
 
-        <!-- HORÁRIOS -->
         <div v-if="currentTab === 'horarios'">
           <div class="header-action">
             <h2>Grade de Horários</h2>
@@ -125,7 +121,6 @@
           </p>
         </div>
 
-        <!-- ALUNOS -->
         <div v-if="currentTab === 'alunos'">
           <div class="header-action">
             <h2>Gerenciar Alunos</h2>
@@ -209,13 +204,11 @@ import { alunosStore } from '@/store/alunosStore'
 const router = useRouter()
 const currentTab = ref('alunos')
 
-// logout admin
 function logout() {
   authStore.logout()
   router.push('/admin/login')
 }
 
-// EVENTOS
 const events = computed(() => eventStore.events)
 const showEventForm = ref(false)
 const isEditingEvent = ref(false)
@@ -248,7 +241,6 @@ function deleteEvent(id) {
   }
 }
 
-// BLOG
 const posts = computed(() => blogStore.posts)
 const showBlogForm = ref(false)
 const isEditingPost = ref(false)
@@ -284,7 +276,6 @@ function truncate(text, len) {
   return text.length > len ? text.substring(0, len) + '...' : text
 }
 
-// ALUNOS
 const alunos = computed(() => alunosStore.list)
 const showAlunoForm = ref(false)
 const isEditingAluno = ref(false)
@@ -352,7 +343,6 @@ function deleteAluno(id) {
   font-size: 14px;
 }
 
-/* MENU LATERAL */
 .admin-menu {
   display: flex;
   flex-direction: column;
@@ -375,7 +365,6 @@ function deleteAluno(id) {
   box-shadow: 0 10px 22px rgba(37, 99, 235, 0.45);
 }
 
-/* CONTEÚDO */
 .header-action {
   display: flex;
   justify-content: space-between;
@@ -441,7 +430,6 @@ function deleteAluno(id) {
   cursor: pointer;
 }
 
-/* LISTAS */
 .admin-list {
   list-style: none;
   padding: 0;
@@ -497,7 +485,6 @@ function deleteAluno(id) {
   font-style: italic;
 }
 
-/* TABELA ALUNOS */
 .data-table {
   width: 100%;
   border-collapse: collapse;

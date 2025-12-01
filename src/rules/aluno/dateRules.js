@@ -1,19 +1,9 @@
-/**
- * Converte data (AAAA-MM-DD) e hora (HH:mm) para um Date.
- */
 function toDateTime (dateStr, timeStr) {
   const iso = `${dateStr}T${timeStr}:00`
   const d = new Date(iso)
   return isNaN(d.getTime()) ? null : d
 }
 
-/**
- * Valida regras de data/horário para check-in.
- *
- * - data e hora obrigatórias e válidas
- * - não permitir check-in para horário que já passou
- * - não permitir agendar com mais de 7 dias de antecedência
- */
 export function validateDateRules (dateStr, timeStr, now = new Date()) {
   if (!dateStr || !timeStr) {
     return 'Data e horário são obrigatórios.'

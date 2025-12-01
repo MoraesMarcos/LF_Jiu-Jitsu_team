@@ -40,7 +40,7 @@ import { checkinStore } from '@/store/checkinStore'
 const route = useRoute()
 const klass = computed(() => checkinStore.getById(route.params.id))
 
-const studentName = ref('') // você pode preencher com nome logado
+const studentName = ref('') 
 
 function doCheckin() {
   if (!klass.value) return

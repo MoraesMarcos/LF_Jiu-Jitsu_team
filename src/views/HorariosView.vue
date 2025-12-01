@@ -38,37 +38,33 @@
 import { computed } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
 import CtaSection from '@/components/CtaSection.vue';
-import { scheduleStore } from '@/store/scheduleStore'; // Importa a store
+import { scheduleStore } from '@/store/scheduleStore'; 
 
 defineEmits(['openTrialModal']);
 
-// Transforma a lista plana da store no formato aninhado que a view espera
-// Formato alvo: { 'Adulto': [ { label: 'Segunda-feira', times: ['19:30'] } ] }
 const availableSlots = computed(() => {
     const raw = scheduleStore.classes;
     const grouped = {};
 
-    // 1. Agrupar por Modalidade
     raw.forEach(cls => {
         if (!grouped[cls.modality]) {
             grouped[cls.modality] = {};
         }
-        // 2. Agrupar por Dia dentro da Modalidade
+
         if (!grouped[cls.modality][cls.day]) {
             grouped[cls.modality][cls.day] = [];
         }
-        // Adiciona o horário e ordena
+
         grouped[cls.modality][cls.day].push(cls.time);
         grouped[cls.modality][cls.day].sort();
     });
 
-    // 3. Transformar objetos em Arrays para o v-for
     const result = {};
     for (const mod in grouped) {
         result[mod] = Object.keys(grouped[mod]).map(day => ({
             label: day,
             times: grouped[mod][day],
-            // Ordenação simples dos dias para exibição (Segunda vem antes de Terça)
+
             order: ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'].indexOf(day)
         })).sort((a, b) => a.order - b.order);
     }

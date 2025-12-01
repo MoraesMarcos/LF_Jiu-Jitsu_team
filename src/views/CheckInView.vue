@@ -46,7 +46,7 @@ function todayISO() {
 const dateISO = ref(todayISO())
 const classes = computed(() => checkinStore.listByDate(dateISO.value))
 
-watch(dateISO, () => {/* apenas reativa a computed */})
+watch(dateISO, () => {})
 </script>
 
 <style scoped>

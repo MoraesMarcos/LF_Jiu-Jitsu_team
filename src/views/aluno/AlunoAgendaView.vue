@@ -10,7 +10,6 @@
       </p>
     </header>
 
-    <!-- seleção de dia -->
     <nav
       class="agenda__days"
       aria-label="Selecione o dia para ver as aulas disponíveis"
@@ -26,7 +25,6 @@
       </button>
     </nav>
 
-    <!-- lista de aulas -->
     <div class="agenda__lista">
       <article
         v-for="aula in aulasFiltradas"
@@ -77,7 +75,6 @@
       </p>
     </div>
 
-    <!-- Modal de lista de presença -->
     <div v-if="modalAula" class="modal-overlay" role="dialog" aria-modal="true">
       <div class="modal">
         <header class="modal__header">
@@ -114,7 +111,6 @@ import { alunosStore } from '@/store/alunosStore'
 
 const currentUser = alunosStore.currentUser
 
-// se acessar direto sem login, só não quebra (router já protege)
 const perfil = computed(() => currentUser?.perfil || 'adulto')
 
 const perfilLabel = computed(() => {
@@ -123,8 +119,6 @@ const perfilLabel = computed(() => {
   return 'Adulto'
 })
 
-// dias e aulas (dados fictícios)
-// dataKey idem em todos só para PoC
 const dataKeyBase = '2025-11-25'
 
 const dias = [
@@ -171,7 +165,7 @@ const aulasFiltradas = computed(() => {
   return dia.aulas.filter(aula => {
     if (perfil.value === 'kids') return aula.tipo === 'kids'
     if (perfil.value === 'feminino') return aula.tipo === 'feminino' || aula.tipo === 'misto'
-    // adulto
+
     return aula.tipo === 'adulto' || aula.tipo === 'misto'
   })
 })
@@ -183,7 +177,6 @@ function tipoLabel (tipo) {
   return 'Adulto'
 }
 
-// check-in + presenças
 function temCheckin (aula) {
   const dia = dias[diaSelecionado.value]
   return alunosStore.hasCheckin(dia.key, aula.chave)
@@ -199,7 +192,6 @@ function totalPresencas (aula) {
   return alunosStore.getPresencas(dia.key, aula.chave).length
 }
 
-// modal de presenças
 const modalAula = ref(null)
 const presencasModal = ref([])
 

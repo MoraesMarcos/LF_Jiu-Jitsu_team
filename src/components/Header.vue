@@ -47,7 +47,7 @@ defineEmits(['openTrialModal'])
 </script>
 
 <style scoped>
-/* ... (Mantenha o estilo que você já tem no arquivo original) ... */
+
 .header {
   background: var(--white, #fff);
   border-bottom: 1px solid var(--border-color, #e5e7eb);
