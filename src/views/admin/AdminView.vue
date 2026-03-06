@@ -3,8 +3,8 @@
     <header class="admin-header">
       <div class="container header-inner">
         <div class="header-titles">
-          <h1>Painel Administrativo</h1>
-          <p>Bem-vindo, Mestre. Gerencie sua academia e seus alunos.</p>
+          <h1 class="title-bright">Painel Administrativo</h1>
+          <p class="subtitle-bright">Bem-vindo, Mestre. Gerencie sua academia e seus alunos.</p>
         </div>
         <button @click="logout" class="btn btn-danger btn-logout">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
@@ -135,7 +135,7 @@
                 </div>
                 <div class="item-actions">
                   <button class="btn btn-warning btn-sm" @click="prepareEditPost(post)">Editar</button>
-                  <button class="btn btn-danger btn-sm" @click="deletePost(post.id)">Excluir</button>
+                  <button class="btn btn-danger btn-sm" @click="deletePost(post.id)">Remover</button>
                 </div>
               </li>
               <li v-if="posts.length === 0" class="empty-state">Nenhuma postagem publicada.</li>
@@ -468,17 +468,28 @@ onMounted(() => { carregarAlunos(); carregarTurmas() })
 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
 /* =========================================
-   HEADER
+   HEADER CORRIGIDO: Cores forçadas para alto contraste
 ========================================= */
 .admin-header {
   background: var(--dark-navy);
   color: white;
-  padding: 40px 0 60px 0; /* Padding extra para sobrepor os cards */
+  padding: 40px 0 60px 0;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 .header-inner { display: flex; justify-content: space-between; align-items: flex-start; }
-.header-titles h1 { font-size: 28px; font-weight: 800; margin: 0 0 8px 0; letter-spacing: -0.5px; }
-.header-titles p { color: #94a3b8; margin: 0; font-size: 15px; }
+
+.title-bright { 
+  font-size: 32px !important; 
+  font-weight: 800 !important; 
+  color: #ffffff !important; 
+  margin: 0 0 8px 0 !important; 
+  letter-spacing: -0.5px !important; 
+}
+.subtitle-bright { 
+  color: #e2e8f0 !important; 
+  margin: 0 !important; 
+  font-size: 16px !important; 
+}
 
 /* =========================================
    MENU LATERAL (SIDEBAR)
@@ -539,7 +550,6 @@ onMounted(() => { carregarAlunos(); carregarTurmas() })
 }
 .form-actions { display: flex; gap: 12px; margin-top: 24px; border-top: 1px solid var(--border-color); padding-top: 20px; }
 
-/* Alerta visual para senhas geradas */
 .preview-alert {
   display: flex; gap: 12px; background: #eff6ff; border: 1px solid #bfdbfe;
   padding: 16px; border-radius: 10px; margin-bottom: 20px; color: #1e3a8a;
@@ -547,7 +557,7 @@ onMounted(() => { carregarAlunos(); carregarTurmas() })
 .preview-alert .alert-content { font-size: 14px; line-height: 1.5; }
 
 /* =========================================
-   TABELAS & LISTAS
+   TABELAS E LISTAS
 ========================================= */
 .table-container {
   background: var(--bg-card); border-radius: 16px; padding: 4px;
@@ -562,10 +572,8 @@ onMounted(() => { carregarAlunos(); carregarTurmas() })
 .mono { font-family: ui-monospace, monospace; font-size: 14px; }
 .text-muted { color: var(--text-muted); }
 .text-right { text-align: right; }
-.td-actions { text-align: right; display: flex; justify-content: flex-end; gap: 8px; }
 .empty-state { text-align: center; padding: 40px !important; color: var(--text-muted); font-style: italic; }
 
-/* Listas (Blog e Eventos) */
 .admin-list { list-style: none; padding: 0; margin: 0; }
 .admin-list li { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid var(--border-color); transition: background 0.2s; }
 .admin-list li:hover { background: #f8fafc; }
@@ -577,8 +585,20 @@ onMounted(() => { carregarAlunos(); carregarTurmas() })
 .item-text small { color: var(--text-muted); font-size: 14px; }
 
 /* =========================================
-   BOTÕES E BADGES
+   BOTÕES E ESPAÇAMENTOS CORRIGIDOS
 ========================================= */
+/* ESTA É A CORREÇÃO QUE AFASTA OS BOTÕES DE EDITAR E REMOVER */
+.item-actions { 
+  display: flex !important; 
+  gap: 16px !important; 
+  align-items: center; 
+}
+.td-actions { 
+  display: flex !important; 
+  justify-content: flex-end; 
+  gap: 16px !important; 
+}
+
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   padding: 10px 20px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600;
@@ -605,12 +625,9 @@ onMounted(() => { carregarAlunos(); carregarTurmas() })
 .badge-light { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
 .badge-blue { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
 .badge-purple { background: #faf5ff; color: #6b21a8; border: 1px solid #e9d5ff; }
-.badge-brown { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; } /* Marrom improvisado com amber */
+.badge-brown { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
 .badge-dark { background: #0f172a; color: #f8fafc; }
 
-/* =========================================
-   RESPONSIVIDADE
-========================================= */
 @media (max-width: 900px) {
   .layout { grid-template-columns: 1fr; margin-top: 20px; }
   .admin-menu nav { flex-direction: row; overflow-x: auto; padding: 10px; border-radius: 12px; }
